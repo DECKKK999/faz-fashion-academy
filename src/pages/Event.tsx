@@ -129,7 +129,7 @@ const Event = () => {
           <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-4">
             Events & Workshops
           </p>
-          <h1 className="text-4xl md:text-5xl font-serif italic text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl italic text-foreground mb-4">
             Upcoming Events
           </h1>
           <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
