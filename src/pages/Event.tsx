@@ -259,7 +259,7 @@ const Event = () => {
                 )}
               </div>
 
-              <h2 className="text-2xl font-serif italic text-foreground mb-2">
+              <h2 className="text-2xl italic text-foreground mb-2">
                 {selectedEvent.title}
               </h2>
               <p className="text-xs text-muted-foreground mb-6">

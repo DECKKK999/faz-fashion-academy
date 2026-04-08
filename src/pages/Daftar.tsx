@@ -55,7 +55,7 @@ const Daftar = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <span className="font-serif text-3xl font-bold text-gold-gradient">FAZ</span>
-            <h1 className="font-serif text-2xl font-bold text-foreground mt-4">Buat Akun Baru</h1>
+            <h1 className="text-2xl font-bold text-foreground mt-4">Buat Akun Baru</h1>
             <p className="text-muted-foreground text-sm mt-2">Mulai perjalanan fashion-mu bersama FAZ Academy</p>
           </div>
 

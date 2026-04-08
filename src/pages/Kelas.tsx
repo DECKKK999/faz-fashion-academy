@@ -88,7 +88,7 @@ const Kelas = () => {
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="font-serif text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                     {course.title}
                   </h3>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">

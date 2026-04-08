@@ -126,7 +126,7 @@ const Dashboard = () => {
             <div className="mt-6 bg-card border border-border rounded-lg p-5">
               <div className="flex items-center gap-2 mb-3">
                 <BarChart3 size={18} className="text-accent" />
-                <h3 className="font-serif font-semibold text-foreground">Target Mingguan</h3>
+                <h3 className="font-semibold text-foreground">Target Mingguan</h3>
               </div>
               <p className="text-sm text-muted-foreground mb-3">5 dari 7 jam belajar tercapai</p>
               <Progress value={71} className="h-2" />
