@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import fashionStudioImg from "@/assets/fashion-design-studio.jpg";
 
 const HeroSection = () => {
   return (
@@ -39,10 +40,11 @@ const HeroSection = () => {
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-3 animate-fade-in" style={{ animationDelay: "0.35s" }}>
           <div className="overflow-hidden rounded-lg aspect-[4/3] md:aspect-[3/2]">
             <img
-              src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=600&fit=crop"
+              src={fashionStudioImg}
               alt="Desain Busana"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-              loading="lazy"
+              width={800}
+              height={600}
             />
           </div>
           <div className="overflow-hidden rounded-lg aspect-[4/3] md:aspect-[3/2]">
