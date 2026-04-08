@@ -12,6 +12,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <CoursesSection />
+      <EbookSection />
       <FeaturesSection />
       <CTASection />
       <Footer />
