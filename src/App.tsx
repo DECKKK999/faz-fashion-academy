@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Kelas from "./pages/Kelas.tsx";
+import Ebook from "./pages/Ebook.tsx";
 import Daftar from "./pages/Daftar.tsx";
 import Masuk from "./pages/Masuk.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
