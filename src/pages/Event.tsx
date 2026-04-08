@@ -129,7 +129,7 @@ const Event = () => {
           <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-4">
             Events & Workshops
           </p>
-          <h1 className="text-4xl md:text-5xl font-serif italic text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl italic text-foreground mb-4">
             Upcoming Events
           </h1>
           <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
@@ -192,7 +192,7 @@ const Event = () => {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-lg font-serif text-foreground mb-3 group-hover:text-accent transition-colors duration-300">
+                  <h3 className="text-lg text-foreground mb-3 group-hover:text-accent transition-colors duration-300">
                     {event.title}
                   </h3>
                   <div className="flex flex-col gap-2 text-[11px] text-muted-foreground">
@@ -259,7 +259,7 @@ const Event = () => {
                 )}
               </div>
 
-              <h2 className="text-2xl font-serif italic text-foreground mb-2">
+              <h2 className="text-2xl italic text-foreground mb-2">
                 {selectedEvent.title}
               </h2>
               <p className="text-xs text-muted-foreground mb-6">

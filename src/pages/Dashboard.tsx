@@ -59,7 +59,7 @@ const Dashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-foreground">Selamat Datang, {displayName}! 👋</h1>
+          <h1 className="text-3xl font-bold text-foreground">Selamat Datang, {displayName}! 👋</h1>
           <p className="text-muted-foreground mt-1">Lanjutkan belajar dan raih tujuanmu di dunia fashion.</p>
         </div>
 
@@ -84,7 +84,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-serif text-xl font-semibold text-foreground">Kelas Saya</h2>
+              <h2 className="text-xl font-semibold text-foreground">Kelas Saya</h2>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/kelas">Lihat Semua</Link>
               </Button>
@@ -93,7 +93,7 @@ const Dashboard = () => {
               <div key={course.title} className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-serif text-lg font-semibold text-foreground">{course.title}</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{course.title}</h3>
                     <p className="text-muted-foreground text-sm mt-1">Selanjutnya: {course.nextLesson}</p>
                   </div>
                   <span className="text-sm font-medium text-accent">{course.progress}%</span>
@@ -108,7 +108,7 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">Aktivitas Terbaru</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Aktivitas Terbaru</h2>
             <div className="bg-card border border-border rounded-lg p-5 space-y-5">
               {recentActivity.map((activity, i) => (
                 <div key={i} className="flex gap-3">
@@ -126,7 +126,7 @@ const Dashboard = () => {
             <div className="mt-6 bg-card border border-border rounded-lg p-5">
               <div className="flex items-center gap-2 mb-3">
                 <BarChart3 size={18} className="text-accent" />
-                <h3 className="font-serif font-semibold text-foreground">Target Mingguan</h3>
+                <h3 className="font-semibold text-foreground">Target Mingguan</h3>
               </div>
               <p className="text-sm text-muted-foreground mb-3">5 dari 7 jam belajar tercapai</p>
               <Progress value={71} className="h-2" />
