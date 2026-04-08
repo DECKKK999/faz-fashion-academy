@@ -65,7 +65,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/masuk" className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/masuk" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
                   Masuk
                 </Link>
                 <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
