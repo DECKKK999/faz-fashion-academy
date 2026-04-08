@@ -84,7 +84,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-serif text-xl font-semibold text-foreground">Kelas Saya</h2>
+              <h2 className="text-xl font-semibold text-foreground">Kelas Saya</h2>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/kelas">Lihat Semua</Link>
               </Button>
