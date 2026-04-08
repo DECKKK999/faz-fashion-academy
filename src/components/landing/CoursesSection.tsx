@@ -9,18 +9,18 @@ const courses = [
 
 const CoursesSection = () => {
   return (
-    <section className="py-32 px-6 bg-foreground text-background">
+    <section className="py-32 px-6">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-6">
-          <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-semibold text-foreground tracking-tight">
             Kelas Populer
           </h2>
-          <Link to="/kelas" className="hidden md:flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+          <Link to="/kelas" className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Lihat semua <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="border-t border-background/20 pt-2 mb-8">
-          <span className="inline-block bg-background text-foreground text-xs font-medium px-3 py-1 rounded-full">
+        <div className="border-t border-foreground/10 pt-2 mb-8">
+          <span className="inline-block bg-foreground text-background text-xs font-medium px-3 py-1 rounded-full">
             {courses.length} KELAS
           </span>
         </div>
@@ -29,20 +29,20 @@ const CoursesSection = () => {
             <Link key={course.title} to="/kelas" className="group">
               <div className="overflow-hidden rounded-lg mb-4 relative">
                 <img src={course.image} alt={course.title} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" width={700} height={500} />
-                <span className="absolute bottom-3 left-3 bg-foreground/90 text-background text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm">
+                <span className="absolute bottom-3 left-3 bg-background/90 text-foreground text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm">
                   {course.tag}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold mb-2 group-hover:text-background/70 transition-colors leading-tight">
+              <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-muted-foreground transition-colors leading-tight">
                 {course.title}
               </h3>
-              <p className="text-sm text-background/60 mb-3">{course.description}</p>
-              <p className="text-sm font-medium">{course.price}</p>
+              <p className="text-sm text-muted-foreground mb-3">{course.description}</p>
+              <p className="text-sm font-medium text-foreground">{course.price}</p>
             </Link>
           ))}
         </div>
         <div className="md:hidden text-center mt-10">
-          <Link to="/kelas" className="inline-flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+          <Link to="/kelas" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Lihat semua kelas <ArrowRight size={14} />
           </Link>
         </div>
