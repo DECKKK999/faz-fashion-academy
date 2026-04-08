@@ -33,7 +33,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
         <div className="flex items-center justify-between h-14">
-          <Link to="/" className="text-xs tracking-wide-editorial uppercase font-light text-foreground">
+          <Link to="/" className="text-sm tracking-wide-editorial uppercase font-light text-foreground">
             FAZ Academy
           </Link>
 
@@ -42,7 +42,7 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
               >
                 {link.label}
               </Link>
@@ -52,12 +52,12 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-6">
             {user ? (
               <>
-                <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <button
                   onClick={handleSignOut}
-                  className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                  className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
                 >
                   <LogOut size={13} />
                   Keluar
@@ -65,10 +65,10 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/masuk" className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/masuk" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
                   Masuk
                 </Link>
-                <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
                   <Link to="/daftar">Daftar</Link>
                 </Button>
               </>
