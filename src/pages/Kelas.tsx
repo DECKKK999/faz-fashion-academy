@@ -35,7 +35,7 @@ const Kelas = () => {
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h1 className="font-serif text-4xl font-bold text-foreground mb-4">Katalog Kelas</h1>
+            <h1 className="text-4xl font-bold italic text-foreground mb-4">Katalog Kelas</h1>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Temukan kelas yang sesuai dengan minat dan level keahlianmu di dunia fashion.
             </p>
