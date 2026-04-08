@@ -100,7 +100,7 @@ const Ebook = () => {
         <div className="container mx-auto px-6 md:px-16 max-w-7xl">
           {/* Header */}
           <div className="mb-4">
-            <h1 className="text-3xl md:text-5xl font-light text-foreground tracking-editorial">
+            <h1 className="text-3xl md:text-5xl font-light text-foreground tracking-normal">
               E-Book Collection
             </h1>
             <p
