@@ -74,6 +74,7 @@
     font-style: italic;
     letter-spacing: -0.02em;
     text-transform: none;
+    line-height: 1.1;
   }
   h3, h4, h5, h6 {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
