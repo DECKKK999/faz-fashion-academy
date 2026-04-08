@@ -31,7 +31,7 @@ const HeroSection = () => {
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6">
         <h1 className="animate-fade-in">
           <span className="block text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-editorial uppercase text-foreground leading-none">
-            F.A-Z
+            FAZ
           </span>
           <span className="block font-display italic font-light text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] text-foreground leading-[0.85] -mt-2 md:-mt-4">
             Academy
