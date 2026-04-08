@@ -192,7 +192,7 @@ const Event = () => {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-lg font-serif text-foreground mb-3 group-hover:text-accent transition-colors duration-300">
+                  <h3 className="text-lg text-foreground mb-3 group-hover:text-accent transition-colors duration-300">
                     {event.title}
                   </h3>
                   <div className="flex flex-col gap-2 text-[11px] text-muted-foreground">
