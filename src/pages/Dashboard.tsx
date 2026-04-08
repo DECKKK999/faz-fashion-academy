@@ -59,7 +59,7 @@ const Dashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-foreground">Selamat Datang, {displayName}! 👋</h1>
+          <h1 className="text-3xl font-bold text-foreground">Selamat Datang, {displayName}! 👋</h1>
           <p className="text-muted-foreground mt-1">Lanjutkan belajar dan raih tujuanmu di dunia fashion.</p>
         </div>
 
