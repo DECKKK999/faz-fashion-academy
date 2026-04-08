@@ -35,7 +35,7 @@ const CoursesSection = () => {
           </h2>
           <Link
             to="/kelas"
-            className="hidden md:flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden md:flex items-center gap-2 text-[13px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
           >
             Lihat semua <ArrowRight size={12} />
           </Link>
