@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImg from "@/assets/hero-editorial.jpg";
+import fazLogo from "@/assets/faz-logo.png";
 
 const HeroSection = () => {
   const { user } = useAuth();
