@@ -15,7 +15,7 @@ const FeaturesSection = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           <div className="lg:col-span-4 lg:sticky lg:top-24">
-            <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-editorial mb-4 leading-tight">
+            <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal mb-4 leading-tight">
               Semua yang kamu butuhkan
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
