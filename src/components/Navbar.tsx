@@ -52,7 +52,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-6">
             {user ? (
               <>
-                <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <button
