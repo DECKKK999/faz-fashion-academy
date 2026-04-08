@@ -35,7 +35,7 @@ const HeroSection = () => {
         </p>
         <div className="mt-10 animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <Button size="lg" className="rounded-none px-10 text-xs tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20 backdrop-blur-sm" asChild>
-            <Link to="/daftar">Mulai Belajar</Link>
+            <Link to={user ? "/kelas" : "/daftar"}>{user ? "Jelajahi Kelas" : "Mulai Belajar"}</Link>
           </Button>
         </div>
       </div>
