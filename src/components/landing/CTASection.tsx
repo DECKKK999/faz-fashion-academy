@@ -3,23 +3,17 @@ import { Button } from "@/components/ui/button";
 
 const CTASection = () => {
   return (
-    <section className="py-20 bg-foreground">
-      <div className="container mx-auto px-4 text-center">
-        <p className="text-gold text-sm tracking-[0.2em] uppercase mb-4 font-sans">Siap Memulai?</p>
-        <h2 className="font-serif text-3xl md:text-5xl font-bold text-primary-foreground mb-6">
-          Mulai Perjalanan Fashion-mu<br />Hari Ini
+    <section className="py-32 px-6">
+      <div className="container mx-auto max-w-3xl text-center">
+        <h2 className="text-3xl md:text-5xl font-semibold text-foreground tracking-tight mb-6">
+          Siap memulai?
         </h2>
-        <p className="text-primary-foreground/60 max-w-lg mx-auto mb-10">
-          Daftar gratis dan akses kelas percobaan, e-book sampel, dan komunitas FAZ Academy.
+        <p className="text-muted-foreground text-lg mb-10 max-w-md mx-auto">
+          Daftar gratis dan mulai akses kelas, e-book, dan komunitas FAZ Academy.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button variant="hero" size="lg" asChild>
-            <Link to="/daftar">Daftar Gratis Sekarang</Link>
-          </Button>
-          <Button variant="hero-outline" size="lg" asChild>
-            <Link to="/kelas">Lihat Katalog</Link>
-          </Button>
-        </div>
+        <Button size="lg" className="rounded-full px-10 text-sm" asChild>
+          <Link to="/daftar">Daftar Gratis</Link>
+        </Button>
       </div>
     </section>
   );
