@@ -58,7 +58,7 @@ const EbookSection = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-4">
           <div>
-            <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-editorial">
+            <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal">
               E-Book Collection
             </h2>
             <p

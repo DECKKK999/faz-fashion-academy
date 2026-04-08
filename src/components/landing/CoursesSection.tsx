@@ -30,7 +30,7 @@ const CoursesSection = () => {
     <section className="py-32 px-6 md:px-16">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-4">
-          <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-editorial">
+          <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal">
             Kelas Populer
           </h2>
           <Link

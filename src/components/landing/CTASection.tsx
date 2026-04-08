@@ -8,7 +8,7 @@ const CTASection = () => {
         <p className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground mb-6">
           Bergabung Sekarang
         </p>
-        <h2 className="text-3xl md:text-5xl font-light tracking-editorial text-foreground mb-4">
+        <h2 className="text-3xl md:text-5xl font-light tracking-normal text-foreground mb-4">
           Siap Memulai?
         </h2>
         <p className="font-display italic text-2xl md:text-3xl text-foreground/70 mb-10" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
