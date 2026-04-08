@@ -93,7 +93,7 @@ const Dashboard = () => {
               <div key={course.title} className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-serif text-lg font-semibold text-foreground">{course.title}</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{course.title}</h3>
                     <p className="text-muted-foreground text-sm mt-1">Selanjutnya: {course.nextLesson}</p>
                   </div>
                   <span className="text-sm font-medium text-accent">{course.progress}%</span>
