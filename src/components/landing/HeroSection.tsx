@@ -1,68 +1,60 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import fashionStudioImg from "@/assets/fashion-design-studio.jpg";
+import heroImg from "@/assets/hero-editorial.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="min-h-screen flex flex-col justify-end px-6 pb-16 pt-24">
-      <div className="container mx-auto max-w-7xl">
-        {/* Editorial headline layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-7">
-            <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-6 animate-fade-in">
-              Fashion A-Z Academy
-            </p>
-            <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] xl:text-[6.5rem] font-semibold text-foreground leading-[0.95] tracking-tight animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              Discover
-              <br />
-              <span className="font-serif italic font-normal">the art of</span>
-              <br />
-              Fashion.
-            </h1>
-          </div>
+    <section className="relative min-h-screen flex flex-col justify-between overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img
+          src={heroImg}
+          alt="FAZ Academy Editorial"
+          className="w-full h-full object-cover"
+          width={1920}
+          height={1080}
+        />
+        <div className="hero-overlay absolute inset-0" />
+      </div>
 
-          <div className="lg:col-span-5 lg:pb-4 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-md mb-8">
-              Platform pembelajaran online terlengkap untuk industri fashion Indonesia. Dari desain hingga bisnis — kuasai semuanya di sini.
-            </p>
-            <div className="flex gap-3">
-              <Button size="lg" className="rounded-full px-8 text-sm" asChild>
-                <Link to="/daftar">Mulai Belajar</Link>
-              </Button>
-              <Button variant="ghost" size="lg" className="rounded-full px-8 text-sm text-muted-foreground" asChild>
-                <Link to="/kelas">Jelajahi Kelas →</Link>
-              </Button>
-            </div>
-          </div>
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-8 md:px-16 pt-20 md:pt-24">
+        <span className="text-xs tracking-wide-editorial uppercase text-foreground/70">
+          www.fazacademy.id
+        </span>
+        <span className="text-xs tracking-wide-editorial uppercase text-foreground/70">
+          Fashion Academy
+        </span>
+      </div>
+
+      {/* Center headline */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6">
+        <h1 className="animate-fade-in">
+          <span className="block text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-editorial uppercase text-foreground leading-none">
+            F.A-Z
+          </span>
+          <span className="block font-display italic font-light text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] text-foreground leading-[0.85] -mt-2 md:-mt-4">
+            Academy
+          </span>
+        </h1>
+        <p className="text-xs md:text-sm tracking-wide-editorial uppercase text-foreground/60 mt-6 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          Fashion A-Z Academy
+        </p>
+        <div className="mt-10 animate-fade-in" style={{ animationDelay: "0.25s" }}>
+          <Button size="lg" className="rounded-none px-10 text-xs tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20 backdrop-blur-sm" asChild>
+            <Link to="/daftar">Mulai Belajar</Link>
+          </Button>
         </div>
+      </div>
 
-        {/* Hero image strip */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-3 animate-fade-in" style={{ animationDelay: "0.35s" }}>
-          <div className="overflow-hidden rounded-lg aspect-[4/3] md:aspect-[3/2]">
-            <img
-              src={fashionStudioImg}
-              alt="Desain Busana"
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-              width={800}
-              height={600}
-            />
-          </div>
-          <div className="overflow-hidden rounded-lg aspect-[4/3] md:aspect-[3/2]">
-            <img
-              src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&h=600&fit=crop"
-              alt="Fashion Photography"
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-              loading="lazy"
-            />
-          </div>
-          <div className="overflow-hidden rounded-lg aspect-[4/3] md:aspect-[3/2]">
-            <img
-              src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=600&fit=crop"
-              alt="Personal Styling"
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-              loading="lazy"
-            />
-          </div>
+      {/* Bottom bar */}
+      <div className="relative z-10 flex items-end justify-between px-8 md:px-16 pb-10 md:pb-14 animate-fade-in" style={{ animationDelay: "0.35s" }}>
+        <div>
+          <p className="text-[10px] tracking-wide-editorial uppercase text-foreground/50 mb-1">Collaboration Between</p>
+        </div>
+        <div className="flex gap-12">
+          <span className="text-[10px] tracking-wide-editorial uppercase text-foreground/50">AI Indonesia</span>
+          <span className="text-[10px] tracking-wide-editorial uppercase text-foreground/50">Lenny Agustin</span>
         </div>
       </div>
     </section>

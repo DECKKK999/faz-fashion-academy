@@ -27,57 +27,61 @@ const courses = [
 
 const CoursesSection = () => {
   return (
-    <section className="py-32 px-6">
+    <section className="py-32 px-6 md:px-16">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex items-end justify-between mb-6">
-          <h2 className="text-3xl md:text-5xl font-semibold text-foreground tracking-tight">
+        <div className="flex items-end justify-between mb-4">
+          <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-editorial">
             Kelas Populer
           </h2>
           <Link
             to="/kelas"
-            className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden md:flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
           >
-            Lihat semua <ArrowRight size={14} />
+            Lihat semua <ArrowRight size={12} />
           </Link>
         </div>
 
-        <div className="border-t border-border pt-2 mb-8">
-          <span className="inline-block bg-foreground text-background text-xs font-medium px-3 py-1 rounded-full">
-            {courses.length} KELAS
+        <div className="border-t border-border pt-3 mb-10">
+          <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground">
+            {courses.length} Kelas Tersedia
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {courses.map((course) => (
             <Link key={course.title} to="/kelas" className="group">
-              <div className="overflow-hidden rounded-lg mb-4 relative">
+              <div className="overflow-hidden mb-5 relative">
                 <img
                   src={course.image}
                   alt={course.title}
-                  className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
                   loading="lazy"
                   width={700}
                   height={500}
                 />
-                <span className="absolute bottom-3 left-3 bg-background/90 text-foreground text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm">
+                <span className="absolute bottom-3 left-3 bg-background/80 text-foreground text-[10px] tracking-editorial uppercase px-3 py-1 backdrop-blur-sm">
                   {course.tag}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-muted-foreground transition-colors leading-tight">
+              <h3 className="text-sm font-light tracking-editorial uppercase text-foreground mb-2 group-hover:text-accent transition-colors">
                 {course.title}
               </h3>
-              <p className="text-sm text-muted-foreground mb-3">{course.description}</p>
-              <p className="text-sm font-medium text-foreground">{course.price}</p>
+              <p className="text-sm text-muted-foreground mb-3 normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
+                {course.description}
+              </p>
+              <p className="text-sm font-medium text-accent normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
+                {course.price}
+              </p>
             </Link>
           ))}
         </div>
 
-        <div className="md:hidden text-center mt-10">
+        <div className="md:hidden text-center mt-12">
           <Link
             to="/kelas"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
           >
-            Lihat semua kelas <ArrowRight size={14} />
+            Lihat semua kelas <ArrowRight size={12} />
           </Link>
         </div>
       </div>
