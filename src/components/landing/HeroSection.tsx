@@ -39,11 +39,11 @@ const HeroSection = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="relative z-10 flex items-end justify-between px-8 md:px-16 pb-10 md:pb-14 animate-fade-in" style={{ animationDelay: "0.35s" }}>
+      <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between px-6 sm:px-8 md:px-16 pb-8 sm:pb-10 md:pb-14 animate-fade-in" style={{ animationDelay: "0.35s" }}>
         <div>
           <p className="text-[10px] tracking-wide-editorial uppercase text-foreground/50 mb-1">Collaboration Between</p>
         </div>
-        <div className="flex gap-12">
+        <div className="flex gap-6 sm:gap-12">
           <span className="text-[10px] tracking-wide-editorial uppercase text-foreground/50">AI Indonesia</span>
           <span className="text-[10px] tracking-wide-editorial uppercase text-foreground/50">Lenny Agustin</span>
         </div>
