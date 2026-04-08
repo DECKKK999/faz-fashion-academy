@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "Kelas", href: "/kelas" },
@@ -12,6 +13,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
@@ -34,12 +36,20 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link to="/masuk" className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
-              Masuk
-            </Link>
-            <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
-              <Link to="/daftar">Daftar</Link>
-            </Button>
+            {user ? (
+              <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Link to="/masuk" className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                  Masuk
+                </Link>
+                <Button size="sm" className="h-7 text-[10px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                  <Link to="/daftar">Daftar</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <button
@@ -64,12 +74,20 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex gap-3 pt-4 border-t border-border/50">
-                <Button variant="ghost" size="sm" asChild className="flex-1 text-[10px] tracking-editorial uppercase rounded-none">
-                  <Link to="/masuk">Masuk</Link>
-                </Button>
-                <Button size="sm" asChild className="flex-1 rounded-none text-[10px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
-                  <Link to="/daftar">Daftar</Link>
-                </Button>
+                {user ? (
+                  <Button size="sm" asChild className="flex-1 rounded-none text-[10px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
+                    <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" asChild className="flex-1 text-[10px] tracking-editorial uppercase rounded-none">
+                      <Link to="/masuk" onClick={() => setIsOpen(false)}>Masuk</Link>
+                    </Button>
+                    <Button size="sm" asChild className="flex-1 rounded-none text-[10px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
+                      <Link to="/daftar" onClick={() => setIsOpen(false)}>Daftar</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
