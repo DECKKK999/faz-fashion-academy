@@ -9,6 +9,7 @@ import Ebook from "./pages/Ebook.tsx";
 import Tentang from "./pages/Tentang.tsx";
 import Daftar from "./pages/Daftar.tsx";
 import Masuk from "./pages/Masuk.tsx";
+import Event from "./pages/Event.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
