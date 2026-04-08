@@ -17,15 +17,6 @@ const HeroSection = () => {
         <div className="hero-overlay absolute inset-0" />
       </div>
 
-      {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between px-8 md:px-16 pt-20 md:pt-24">
-        <span className="text-xs tracking-wide-editorial uppercase text-foreground/70">
-          www.fazacademy.id
-        </span>
-        <span className="text-xs tracking-wide-editorial uppercase text-foreground/70">
-          Fashion Academy
-        </span>
-      </div>
 
       {/* Center headline */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6">
