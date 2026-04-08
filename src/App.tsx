@@ -9,6 +9,7 @@ import Ebook from "./pages/Ebook.tsx";
 import Tentang from "./pages/Tentang.tsx";
 import Daftar from "./pages/Daftar.tsx";
 import Masuk from "./pages/Masuk.tsx";
+import Event from "./pages/Event.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/kelas" element={<Kelas />} />
           <Route path="/ebook" element={<Ebook />} />
           <Route path="/tentang" element={<Tentang />} />
+          <Route path="/event" element={<Event />} />
           <Route path="/daftar" element={<Daftar />} />
           <Route path="/masuk" element={<Masuk />} />
           <Route path="/dashboard" element={<Dashboard />} />
