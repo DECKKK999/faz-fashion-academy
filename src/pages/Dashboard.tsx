@@ -108,7 +108,7 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">Aktivitas Terbaru</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Aktivitas Terbaru</h2>
             <div className="bg-card border border-border rounded-lg p-5 space-y-5">
               {recentActivity.map((activity, i) => (
                 <div key={i} className="flex gap-3">
