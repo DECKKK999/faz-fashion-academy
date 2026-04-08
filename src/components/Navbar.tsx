@@ -57,7 +57,7 @@ const Navbar = () => {
                 </Button>
                 <button
                   onClick={handleSignOut}
-                  className="text-[11px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                  className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
                 >
                   <LogOut size={13} />
                   Keluar
