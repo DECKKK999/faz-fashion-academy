@@ -42,7 +42,7 @@ const CoursesSection = () => {
         </div>
 
         <div className="border-t border-border pt-3 mb-10">
-          <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground">
+          <span className="text-[12px] tracking-wide-editorial uppercase text-muted-foreground">
             {courses.length} Kelas Tersedia
           </span>
         </div>
