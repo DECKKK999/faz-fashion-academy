@@ -16,7 +16,7 @@ const Tentang = () => {
               <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground mb-6 block">
                 Tentang Kami
               </span>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light text-foreground tracking-editorial leading-[1.1]">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light text-foreground tracking-normal leading-[1.1]">
                 Suara Lokal,
                 <br />
                 <span className="font-serif italic text-accent">Pengetahuan</span>
