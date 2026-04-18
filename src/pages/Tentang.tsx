@@ -212,7 +212,7 @@ const Tentang = () => {
       <section className="py-32 px-6 md:px-16">
         <div className="container mx-auto max-w-7xl text-center">
           <h2
-            className="text-2xl md:text-4xl font-light text-foreground tracking-editorial mb-4"
+            className="text-2xl md:text-4xl font-light text-foreground tracking-normal mb-4"
           >
             Bergabunglah
           </h2>
