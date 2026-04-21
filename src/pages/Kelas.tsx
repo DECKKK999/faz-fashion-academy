@@ -34,9 +34,14 @@ const Kelas = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold italic text-foreground mb-4">Katalog Kelas</h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+          <div className="mb-12">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-4">
+              Courses & Programs
+            </p>
+            <h1 className="text-4xl md:text-5xl font-serif italic text-foreground mb-4">
+              Katalog Kelas
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
               Temukan kelas yang sesuai dengan minat dan level keahlianmu di dunia fashion.
             </p>
           </div>
