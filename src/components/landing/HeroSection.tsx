@@ -47,7 +47,7 @@ const HeroSection = () => {
 
 
           {/* Tagline pills */}
-          <div className="mt-2 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
+          <div className="-mt-1 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
             <span className="h-px w-6 bg-blue-500" />
             <span>Fashion</span>
             <Sparkles className="w-3 h-3" style={{ color: pink }} />
