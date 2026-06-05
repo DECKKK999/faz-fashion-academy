@@ -19,7 +19,7 @@ const HeroSection = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-accent-50">
+    <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary">
       {/* Decorative dots top-right */}
       <div className="absolute top-10 right-10 grid grid-cols-6 gap-2 opacity-40 pointer-events-none">
         {Array.from({ length: 36 }).map((_, i) => (
