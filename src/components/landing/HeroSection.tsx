@@ -5,8 +5,8 @@ import { Shirt, Lightbulb, Users, Star, Sparkles } from "lucide-react";
 import heroFashion from "@/assets/hero-fashion.jpg";
 import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
 
-const pink = "hsl(330 81% 55%)";
-const blue = "hsl(220 80% 55%)";
+const primary = "hsl(var(--primary))";
+const accent = "hsl(var(--foreground))";
 
 const features = [
   { icon: Shirt, label: "Fashion\nEducation" },
@@ -19,7 +19,7 @@ const HeroSection = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-white to-blue-50">
+    <section className="relative overflow-hidden bg-gradient-to-br from-secondary via-background to-secondary">
       {/* Decorative dots top-right */}
       <div className="absolute top-10 right-10 grid grid-cols-6 gap-2 opacity-40 pointer-events-none">
         {Array.from({ length: 36 }).map((_, i) => (
@@ -48,32 +48,32 @@ const HeroSection = () => {
 
           {/* Tagline pills */}
           <div className="-mt-1 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
-            <span className="h-px w-6 bg-blue-500" />
+            <span className="h-px w-6 bg-foreground/30" />
             <span>Fashion</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-3 h-3" style={{ color: primary }} />
             <span>Creativity</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-3 h-3" style={{ color: primary }} />
             <span>Community</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-3 h-3" style={{ color: primary }} />
             <span>Future</span>
-            <span className="h-px w-6 bg-blue-500" />
+            <span className="h-px w-6 bg-foreground/30" />
           </div>
 
           {/* Headline */}
           <h2 className="mt-10 font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
             <span style={{ color: "hsl(222 47% 15%)" }}>Where </span>
-            <span style={{ color: pink }} className="italic">Passion</span>
-            <Sparkles className="inline-block w-6 h-6 ml-2 align-middle" style={{ color: pink }} />
+            <span style={{ color: primary }} className="italic">Passion</span>
+            <Sparkles className="inline-block w-6 h-6 ml-2 align-middle" style={{ color: primary }} />
             <br />
             <span style={{ color: "hsl(222 47% 15%)" }}>Becomes </span>
-            <span style={{ color: blue }} className="italic">Purpose.</span>
+            <span style={{ color: accent }} className="italic">Purpose.</span>
           </h2>
 
           {/* Description */}
           <p className="mt-6 max-w-md text-sm md:text-base text-foreground/70 leading-relaxed">
             FAZ Academy adalah wadah bagi kreator, desainer, dan inovator mode untuk{" "}
-            <span style={{ color: pink }} className="font-medium">belajar, berkembang,</span> dan{" "}
-            <span style={{ color: pink }} className="font-medium">menginspirasi dunia.</span>
+            <span style={{ color: primary }} className="font-medium">belajar, berkembang,</span> dan{" "}
+            <span style={{ color: primary }} className="font-medium">menginspirasi dunia.</span>
           </p>
 
           {/* CTA */}
@@ -81,7 +81,7 @@ const HeroSection = () => {
             <Button
               size="lg"
               className="rounded-full px-8 text-xs tracking-[0.2em] uppercase"
-              style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
+              style={{ background: `linear-gradient(135deg, ${primary}, ${accent})`, color: "white" }}
               asChild
             >
               <Link to={user ? "/kelas" : "/daftar"}>
@@ -96,9 +96,9 @@ const HeroSection = () => {
               <div key={idx} className="flex flex-col items-center text-center flex-1">
                 <div
                   className="w-12 h-12 md:w-14 md:h-14 rounded-lg border flex items-center justify-center"
-                  style={{ borderColor: idx % 2 === 0 ? pink : blue }}
+                  style={{ borderColor: idx % 2 === 0 ? primary : accent }}
                 >
-                  <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: idx % 2 === 0 ? pink : blue }} />
+                  <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: idx % 2 === 0 ? primary : accent }} />
                 </div>
                 <span className="mt-2 text-[9px] md:text-[10px] tracking-[0.15em] uppercase text-foreground/70 whitespace-pre-line leading-tight">
                   {label}
@@ -111,10 +111,10 @@ const HeroSection = () => {
         {/* Right image */}
         <div className="relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full blur-3xl opacity-40"
-            style={{ background: `radial-gradient(circle, ${pink}, transparent 70%)` }}
+            style={{ background: `radial-gradient(circle, ${primary}, transparent 70%)` }}
           />
           <div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full blur-3xl opacity-40"
-            style={{ background: `radial-gradient(circle, ${blue}, transparent 70%)` }}
+            style={{ background: `radial-gradient(circle, ${accent}, transparent 70%)` }}
           />
           <img
             src={heroFashion}
