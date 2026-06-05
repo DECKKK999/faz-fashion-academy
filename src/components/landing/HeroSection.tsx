@@ -5,8 +5,8 @@ import { Shirt, Lightbulb, Users, Star, Sparkles } from "lucide-react";
 import heroFashion from "@/assets/hero-fashion.jpg";
 import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
 
-const pink = "hsl(330 81% 55%)";
-const blue = "hsl(220 80% 55%)";
+const primary = "hsl(var(--primary))";
+const accent = "hsl(var(--foreground))";
 
 const features = [
   { icon: Shirt, label: "Fashion\nEducation" },
