@@ -38,7 +38,7 @@ const Navbar = () => {
             <img
               src={fazLogoAsset.url}
               alt="FAZ Academy"
-              className="h-7 w-auto"
+              className="h-10 w-auto"
             />
           </Link>
 
