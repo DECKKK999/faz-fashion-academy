@@ -37,20 +37,14 @@ const HeroSection = () => {
         {/* Left content */}
         <div className="relative z-10 animate-fade-in">
           {/* Wordmark */}
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1
-              className="font-serif italic font-bold text-6xl md:text-7xl leading-none"
-              style={{ color: pink, fontStyle: "italic" }}
-            >
-              FAZ
-            </h1>
-            <span
-              className="text-3xl md:text-4xl tracking-[0.25em] font-light"
-              style={{ color: blue, fontFamily: "Helvetica, sans-serif" }}
-            >
-              ACADEMY
-            </span>
-          </div>
+          <img
+            src={fazLogoAsset.url}
+            alt="FAZ Academy"
+            className="h-16 md:h-20 lg:h-24 w-auto"
+            width={600}
+            height={200}
+          />
+
 
           {/* Tagline pills */}
           <div className="mt-4 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
