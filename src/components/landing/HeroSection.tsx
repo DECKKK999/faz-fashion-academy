@@ -40,7 +40,7 @@ const HeroSection = () => {
           <img
             src={fazLogoAsset.url}
             alt="FAZ Academy"
-            className="h-16 md:h-20 lg:h-24 w-auto"
+            className="h-24 md:h-32 lg:h-40 w-auto"
             width={600}
             height={200}
           />
