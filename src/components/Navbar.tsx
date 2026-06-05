@@ -10,6 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
 
 const navLinks = [
   { label: "Kelas", href: "/kelas" },
@@ -33,8 +34,12 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
         <div className="flex items-center justify-between h-14">
-          <Link to="/" className="text-sm tracking-wide-editorial uppercase font-light text-foreground">
-            FAZ Academy
+          <Link to="/" className="flex items-center">
+            <img
+              src={fazLogoAsset.url}
+              alt="FAZ Academy"
+              className="h-7 w-auto"
+            />
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
