@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Shirt, Lightbulb, Users, Star, Sparkles } from "lucide-react";
 import heroFashion from "@/assets/hero-fashion.jpg";
-import fazLogoAsset from "@/assets/faz-academy-banner.png.asset.json";
+import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";
