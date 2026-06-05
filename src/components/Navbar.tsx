@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
+
 
 const navLinks = [
   { label: "Kelas", href: "/kelas" },
@@ -35,11 +35,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
         <div className="flex items-center justify-between h-14">
           <Link to="/" className="flex items-center">
-            <img
-              src={fazLogoAsset.url}
-              alt="FAZ Academy"
-              className="h-10 w-auto"
-            />
+            <Home className="h-6 w-6 text-foreground" />
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
