@@ -39,12 +39,12 @@ const AdminUsers = () => {
     load();
   }, []);
 
-  const toggleRole = async (userId: string, role: string, has: boolean) => {
+  const toggleRole = async (userId: string, role: typeof ROLES[number], has: boolean) => {
     if (has) {
       const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
       if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: role as "admin" | "instructor" | "student" });
+      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
       if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
     }
     load();
