@@ -15,8 +15,8 @@ export default {
     extend: {
       fontFamily: {
         serif: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['IBM Plex Mono', 'Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
         display: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
       },
       colors: {
