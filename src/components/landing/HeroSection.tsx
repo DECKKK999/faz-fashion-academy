@@ -60,7 +60,7 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h2 className="mt-10 font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
+          <h2 className="mt-10 text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
             <span style={{ color: "hsl(222 47% 15%)" }}>Where </span>
             <span style={{ color: pink }} className="italic">Passion</span>
             <Sparkles className="inline-block w-6 h-6 ml-2 align-middle" style={{ color: pink }} />
