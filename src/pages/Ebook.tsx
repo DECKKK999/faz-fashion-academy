@@ -1,95 +1,37 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-const categories = ["Semua", "Teknik", "Ilustrasi", "Sustainability", "Material", "Bisnis", "Desain"];
-
-const allEbooks = [
-  {
-    title: "The Art of Pattern Making",
-    author: "Rina Setiawan",
-    category: "Teknik",
-    price: "Rp 89.000",
-    pages: 142,
-    description: "Panduan lengkap teknik pembuatan pola dari dasar hingga mahir.",
-    image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Fashion Illustration Masterclass",
-    author: "Dian Pratama",
-    category: "Ilustrasi",
-    price: "Rp 129.000",
-    pages: 210,
-    description: "Kuasai seni ilustrasi fashion dari sketsa hingga rendering digital.",
-    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Sustainable Fashion Guide",
-    author: "Maya Anggraini",
-    category: "Sustainability",
-    price: "Rp 79.000",
-    pages: 98,
-    description: "Membangun brand fashion yang berkelanjutan dan ramah lingkungan.",
-    image: "https://images.unsplash.com/photo-1524578271613-d550eacf6090?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Textile & Material Science",
-    author: "Andi Wibowo",
-    category: "Material",
-    price: "Rp 149.000",
-    pages: 186,
-    description: "Ilmu tekstil dan material untuk desainer fashion profesional.",
-    image: "https://images.unsplash.com/photo-1553729459-ade2d1e6b8a0?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Fashion Business Blueprint",
-    author: "Sarah Kartika",
-    category: "Bisnis",
-    price: "Rp 99.000",
-    pages: 164,
-    description: "Strategi membangun bisnis fashion dari nol hingga sukses.",
-    image: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Color Theory for Fashion",
-    author: "Budi Hartono",
-    category: "Desain",
-    price: "Rp 69.000",
-    pages: 112,
-    description: "Teori warna dan aplikasinya dalam desain busana kontemporer.",
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Draping Fundamentals",
-    author: "Lina Kusuma",
-    category: "Teknik",
-    price: "Rp 119.000",
-    pages: 156,
-    description: "Teknik draping klasik dan modern untuk busana haute couture.",
-    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=800&fit=crop",
-  },
-  {
-    title: "Fashion Branding Essentials",
-    author: "Reza Firmansyah",
-    category: "Bisnis",
-    price: "Rp 109.000",
-    pages: 134,
-    description: "Membangun identitas brand fashion yang kuat dan berkesan.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop",
-  },
-];
+import { api, type Ebook as EbookType } from "@/lib/api";
+import { formatRupiah } from "@/lib/format";
+import WishlistButton from "@/components/WishlistButton";
 
 const Ebook = () => {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [search, setSearch] = useState("");
+  const [ebooks, setEbooks] = useState<EbookType[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = allEbooks.filter((e) => {
+  useEffect(() => {
+    api
+      .get<EbookType[]>("/ebooks")
+      .then(setEbooks)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(ebooks.map((e) => e.category).filter(Boolean))) as string[];
+    return ["Semua", ...cats];
+  }, [ebooks]);
+
+  const filtered = ebooks.filter((e) => {
     const matchCategory = activeCategory === "Semua" || e.category === activeCategory;
-    const matchSearch = e.title.toLowerCase().includes(search.toLowerCase()) || e.author.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch =
+      e.title.toLowerCase().includes(q) || (e.author ?? "").toLowerCase().includes(q);
     return matchCategory && matchSearch;
   });
 
@@ -148,18 +90,23 @@ const Ebook = () => {
           {/* Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {filtered.map((ebook) => (
-              <div key={ebook.title} className="group">
+              <Link to={`/ebook/${ebook.slug}`} key={ebook.id} className="group block">
                 <div className="overflow-hidden mb-4 relative bg-muted aspect-[3/4]">
                   <img
-                    src={ebook.image}
+                    src={ebook.cover_image_url ?? ""}
                     alt={ebook.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
                     loading="lazy"
                     width={600}
                     height={800}
                   />
-                  <span className="absolute top-2 left-2 bg-background/80 text-foreground text-[9px] tracking-editorial uppercase px-2 py-0.5 backdrop-blur-sm">
-                    {ebook.category}
+                  {ebook.category && (
+                    <span className="absolute top-2 left-2 bg-background/80 text-foreground text-[9px] tracking-editorial uppercase px-2 py-0.5 backdrop-blur-sm">
+                      {ebook.category}
+                    </span>
+                  )}
+                  <span className="absolute top-2 right-2 bg-background/80 rounded-full p-1 backdrop-blur-sm">
+                    <WishlistButton product_type="ebook" product_id={ebook.id} size={14} />
                   </span>
                 </div>
                 <h3 className="text-[11px] font-light tracking-editorial uppercase text-foreground mb-1 group-hover:text-accent transition-colors leading-tight">
@@ -182,17 +129,27 @@ const Ebook = () => {
                     className="text-[11px] font-medium text-accent"
                     style={{ letterSpacing: "normal", textTransform: "none" }}
                   >
-                    {ebook.price}
+                    {formatRupiah(ebook.price_idr)}
                   </p>
-                  <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
-                    <BookOpen size={10} /> {ebook.pages} hal
-                  </span>
+                  {ebook.pages ? (
+                    <span className="flex items-center gap-1 text-[9px] text-muted-foreground">
+                      <BookOpen size={10} /> {ebook.pages} hal
+                    </span>
+                  ) : null}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
-          {filtered.length === 0 && (
+          {loading && (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground text-sm" style={{ letterSpacing: "normal", textTransform: "none" }}>
+                Memuat e-book...
+              </p>
+            </div>
+          )}
+
+          {!loading && filtered.length === 0 && (
             <div className="text-center py-20">
               <p className="text-muted-foreground text-sm" style={{ letterSpacing: "normal", textTransform: "none" }}>
                 Tidak ada e-book yang ditemukan.

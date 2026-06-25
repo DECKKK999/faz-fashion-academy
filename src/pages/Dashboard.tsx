@@ -1,58 +1,53 @@
-import { Link } from "react-router-dom";
-import {
-  BookOpen, Video, Award, Calendar, TrendingUp, Clock, CheckCircle2,
-  BarChart3, ShoppingBag, Bell, User, LogOut
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { BookOpen, BookMarked, Video, Award, Receipt, User, LogOut, ArrowRight, Download, Ticket, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-
-const enrolledCourses = [
-  { title: "Desain Busana Dasar", progress: 65, totalModules: 12, completedModules: 8, nextLesson: "Teknik Menjahit Dasar" },
-  { title: "Fashion Marketing Digital", progress: 30, totalModules: 10, completedModules: 3, nextLesson: "Social Media Strategy" },
-  { title: "Fashion Illustration", progress: 90, totalModules: 8, completedModules: 7, nextLesson: "Final Project" },
-];
-
-const recentActivity = [
-  { text: "Menyelesaikan modul 'Pengantar Pola Dasar'", time: "2 jam lalu", icon: CheckCircle2 },
-  { text: "Membeli e-book 'Fashion Trend 2026'", time: "1 hari lalu", icon: ShoppingBag },
-  { text: "Mendaftar event 'Fashion Talk #12'", time: "2 hari lalu", icon: Calendar },
-  { text: "Mendapatkan sertifikat 'Styling Basics'", time: "1 minggu lalu", icon: Award },
-];
+import { api, type Enrollment, type Library } from "@/lib/api";
+import { formatDuration } from "@/lib/format";
 
 const Dashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [library, setLibrary] = useState<Library>({ ebooks: [], tickets: [] });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.get<Enrollment[]>("/enrollments").then(setEnrollments).catch(() => {}),
+      api.get<Library>("/library").then(setLibrary).catch(() => {}),
+    ]).finally(() => setLoading(false));
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Fashionista";
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "Fashionista";
+
+  const stats = [
+    { label: "Kelas Saya", value: enrollments.length, icon: Video, to: "/dashboard" },
+    { label: "E-Book Saya", value: library.ebooks.length, icon: BookMarked, to: "/dashboard" },
+    { label: "Tiket Event", value: library.tickets.length, icon: Ticket, to: "/dashboard" },
+    { label: "Sertifikat", value: enrollments.filter((e) => e.completed_at).length, icon: Award, to: "/sertifikat" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 flex items-center justify-between h-14">
-          <Link to="/" className="text-xs tracking-wide-editorial uppercase font-light text-foreground">
-            FAZ Academy
-          </Link>
+          <Link to="/" className="text-xs tracking-wide-editorial uppercase font-light text-foreground">FAZ Academy</Link>
           <div className="flex items-center gap-4">
-            <button className="relative">
-              <Bell size={18} className="text-muted-foreground hover:text-foreground transition-colors" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full" />
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                <User size={14} className="text-foreground" />
-              </div>
+            <Link to="/pesanan" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+              <Receipt size={15} /> <span className="hidden sm:inline">Pesanan</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><User size={14} className="text-foreground" /></div>
               <span className="text-xs text-muted-foreground hidden sm:block">{displayName}</span>
             </div>
-            <button onClick={handleSignOut} className="text-muted-foreground hover:text-foreground transition-colors">
-              <LogOut size={18} />
-            </button>
+            <button onClick={handleSignOut} className="text-muted-foreground hover:text-foreground transition-colors"><LogOut size={18} /></button>
           </div>
         </div>
       </div>
@@ -64,75 +59,93 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          {[
-            { label: "Kelas Aktif", value: "3", icon: Video, color: "text-foreground" },
-            { label: "Jam Belajar", value: "47", icon: Clock, color: "text-accent" },
-            { label: "Sertifikat", value: "2", icon: Award, color: "text-accent" },
-            { label: "E-Book", value: "5", icon: BookOpen, color: "text-foreground" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-lg p-5">
-              <div className="flex items-center justify-between mb-3">
-                <stat.icon size={20} className={stat.color} />
-                <TrendingUp size={14} className="text-accent" />
-              </div>
+          {stats.map((stat) => (
+            <Link to={stat.to} key={stat.label} className="bg-card border border-border rounded-lg p-5 hover:border-foreground/30 transition-colors">
+              <stat.icon size={20} className="text-accent mb-3" />
               <p className="font-serif text-2xl font-bold text-foreground">{stat.value}</p>
               <p className="text-muted-foreground text-xs mt-1">{stat.label}</p>
-            </div>
+            </Link>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-serif text-xl font-semibold text-foreground">Kelas Saya</h2>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/kelas">Lihat Semua</Link>
-              </Button>
-            </div>
-            {enrolledCourses.map((course) => (
-              <div key={course.title} className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-serif text-lg font-semibold text-foreground">{course.title}</h3>
-                    <p className="text-muted-foreground text-sm mt-1">Selanjutnya: {course.nextLesson}</p>
-                  </div>
-                  <span className="text-sm font-medium text-accent">{course.progress}%</span>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif text-xl font-semibold text-foreground">Kelas Saya</h2>
+          <Button variant="ghost" size="sm" asChild><Link to="/kelas">Jelajahi Kelas</Link></Button>
+        </div>
+
+        {loading ? (
+          <p className="text-muted-foreground text-sm">Memuat...</p>
+        ) : enrollments.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-12 text-center">
+            <BookOpen size={28} className="mx-auto text-muted-foreground mb-3" />
+            <p className="text-muted-foreground mb-4">Kamu belum memiliki kelas.</p>
+            <Button asChild><Link to="/kelas">Lihat Katalog Kelas</Link></Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {enrollments.map((e) => (
+              <div key={e.id} className="bg-card border border-border rounded-lg overflow-hidden group">
+                <div className="aspect-[16/9] overflow-hidden bg-muted">
+                  <img src={e.course.cover_image_url ?? ""} alt={e.course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
-                <Progress value={course.progress} className="h-2 mb-3" />
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">{course.completedModules}/{course.totalModules} modul selesai</p>
-                  <Button size="sm">Lanjutkan</Button>
+                <div className="p-5">
+                  <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-1">{e.course.category}</p>
+                  <h3 className="font-serif text-lg font-semibold text-foreground mb-2">{e.course.title}</h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {e.course.instructor_name ? `oleh ${e.course.instructor_name}` : ""}
+                    {e.course.duration_minutes ? ` · ${formatDuration(e.course.duration_minutes)}` : ""}
+                  </p>
+                  <Button size="sm" className="w-full gap-2" asChild>
+                    <Link to={`/belajar/${e.course.slug}`}>Mulai Belajar <ArrowRight size={14} /></Link>
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
+        )}
 
-          <div>
-            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">Aktivitas Terbaru</h2>
-            <div className="bg-card border border-border rounded-lg p-5 space-y-5">
-              {recentActivity.map((activity, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <activity.icon size={14} className="text-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-foreground">{activity.text}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+        {/* E-Book Saya */}
+        {library.ebooks.length > 0 && (
+          <div className="mt-12">
+            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">E-Book Saya</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {library.ebooks.map((g) => (
+                <div key={g.id} className="bg-card border border-border rounded-lg p-4 flex gap-4 items-center">
+                  <img src={g.ebook.cover_image_url ?? ""} alt={g.ebook.title} className="w-14 h-20 object-cover rounded bg-muted" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-foreground text-sm truncate">{g.ebook.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{g.ebook.author}</p>
+                    <Button size="sm" variant="outline" className="gap-2" asChild>
+                      <a href={`/api/ebooks/${g.ebook.id}/download`} target="_blank" rel="noreferrer"><Download size={13} /> Unduh PDF</a>
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
 
-            <div className="mt-6 bg-card border border-border rounded-lg p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <BarChart3 size={18} className="text-accent" />
-                <h3 className="font-serif font-semibold text-foreground">Target Mingguan</h3>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">5 dari 7 jam belajar tercapai</p>
-              <Progress value={71} className="h-2" />
+        {/* Tiket Event Saya */}
+        {library.tickets.length > 0 && (
+          <div className="mt-12">
+            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">Tiket Event Saya</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {library.tickets.map((t) => (
+                <div key={t.id} className="bg-card border border-border rounded-lg p-4">
+                  <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-1">{t.status}</p>
+                  <h3 className="font-medium text-foreground text-sm mb-1">{t.event.title}</h3>
+                  {t.event.date_label && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mb-3"><Calendar size={12} /> {t.event.date_label}</p>
+                  )}
+                  <div className="border border-dashed border-border rounded px-3 py-2 text-center">
+                    <p className="text-[10px] text-muted-foreground">Kode Tiket</p>
+                    <p className="font-mono text-sm tracking-wider text-foreground">{t.ticket_code}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,21 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { BookOpen, LayoutDashboard, LogOut, Users, ArrowLeft } from "lucide-react";
+import { BookOpen, BookMarked, CalendarDays, CreditCard, LayoutDashboard, LogOut, Settings, Users, ArrowLeft, BarChart3, Ticket, Star, Award, Mail, Plug } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/admin/reports", label: "Reports", icon: BarChart3 },
+  { to: "/admin/orders", label: "Pembayaran", icon: CreditCard },
+  { to: "/admin/coupons", label: "Kupon", icon: Ticket },
   { to: "/admin/courses", label: "Courses", icon: BookOpen },
+  { to: "/admin/ebooks", label: "E-Books", icon: BookMarked },
+  { to: "/admin/events", label: "Events", icon: CalendarDays },
+  { to: "/admin/reviews", label: "Ulasan", icon: Star },
+  { to: "/admin/certificates", label: "Sertifikat", icon: Award },
   { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/email-logs", label: "Email Log", icon: Mail },
+  { to: "/admin/payment-gateway", label: "Gateway", icon: Plug },
+  { to: "/admin/settings", label: "Pengaturan", icon: Settings },
 ];
 
 const AdminLayout = () => {

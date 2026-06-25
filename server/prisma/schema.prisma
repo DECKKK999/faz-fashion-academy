@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppRole {
+  admin
+  instructor
+  student
+}
+
+enum OrderStatus {
+  pending // dibuat, menunggu transfer dari pembeli
+  awaiting_verification // pembeli sudah upload bukti, menunggu staff
+  paid // diverifikasi staff, entitlement dibuat
+  rejected // ditolak staff (bisa kirim ulang bukti)
+  expired // lewat batas waktu tanpa pembayaran
+  cancelled // dibatalkan pembeli
+  processing // charge gateway dibuat, menunggu callback
+  failed // gateway melaporkan gagal/ditolak
+}
+
+enum OrderItemType {
+  course
+  ebook
+  event
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // verifikasi email
+  email_verified             Boolean   @default(false)
+  email_verified_at          DateTime?
+  email_verification_token   String?
+  email_verification_expires DateTime?
+
+  profile            Profile?
+  roles              UserRole[]
+  enrollments        Enrollment[]
+  lesson_progress    LessonProgress[]
+  instructed_courses Course[]             @relation("CourseInstructor")
+  orders             Order[]              @relation("UserOrders")
+  verified_orders    Order[]              @relation("OrderVerifier")
+  reviews            Review[]
+  certificates       Certificate[]
+  coupon_redemptions CouponRedemption[]
+  ebook_grants       EbookGrant[]
+  event_tickets      EventTicket[]
+  password_reset_tokens PasswordResetToken[]
+  cart               Cart?
+  wishlist_items     Wishlist[]
+
+  @@map("users")
+}
+
+model Profile {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @unique @db.Uuid
+  full_name  String?
+  avatar_url String?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model UserRole {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  role       AppRole
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, role])
+  @@map("user_roles")
+}
+
+model Course {
+  id               String   @id @default(uuid()) @db.Uuid
+  slug             String   @unique
+  title            String
+  subtitle         String?
+  description      String?
+  cover_image_url  String?
+  instructor_id    String?  @db.Uuid
+  instructor_name  String?
+  price_idr        Int      @default(0)
+  level            String?
+  category         String?
+  duration_minutes Int?
+  rating           Float?
+  reviews_count    Int      @default(0)
+  students_count   Int      @default(0)
+  is_published     Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
+
+  instructor   User?         @relation("CourseInstructor", fields: [instructor_id], references: [id], onDelete: SetNull)
+  modules      Module[]
+  enrollments  Enrollment[]
+  orders       Order[]
+  reviews      Review[]
+  certificates Certificate[]
+  coupons      Coupon[]
+
+  @@map("courses")
+}
+
+model Module {
+  id         String   @id @default(uuid()) @db.Uuid
+  course_id  String   @db.Uuid
+  title      String
+  position   Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  course  Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id               String   @id @default(uuid()) @db.Uuid
+  module_id        String   @db.Uuid
+  title            String
+  content          String?
+  video_url        String?
+  duration_minutes Int?
+  position         Int      @default(0)
+  is_free_preview  Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
+
+  module   Module           @relation(fields: [module_id], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  @@map("lessons")
+}
+
+model Enrollment {
+  id           String    @id @default(uuid()) @db.Uuid
+  user_id      String    @db.Uuid
+  course_id    String    @db.Uuid
+  enrolled_at  DateTime  @default(now())
+  completed_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now()) @updatedAt
+
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  certificate Certificate?
+
+  @@unique([user_id, course_id])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id           String    @id @default(uuid()) @db.Uuid
+  user_id      String    @db.Uuid
+  lesson_id    String    @db.Uuid
+  completed    Boolean   @default(false)
+  completed_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now()) @updatedAt
+
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, lesson_id])
+  @@map("lesson_progress")
+}
+
+model Ebook {
+  id              String   @id @default(uuid()) @db.Uuid
+  slug            String   @unique
+  title           String
+  author          String?
+  category        String?
+  description     String?
+  cover_image_url String?
+  file_url        String? // PDF yang dapat diunduh setelah pembelian (akses ter-gate)
+  price_idr       Int      @default(0)
+  pages           Int?
+  is_published    Boolean  @default(true)
+  position        Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
+
+  grants EbookGrant[]
+  orders Order[]
+
+  @@map("ebooks")
+}
+
+model Event {
+  id              String   @id @default(uuid()) @db.Uuid
+  slug            String   @unique
+  title           String
+  category        String?
+  date_label      String?
+  time_label      String?
+  location        String?
+  address         String?
+  price_idr       Int      @default(0)
+  is_free         Boolean  @default(false)
+  spots           Int?
+  spots_left      Int?
+  speaker         String?
+  description     String?
+  highlights      String[] @default([])
+  cover_image_url String?
+  is_published    Boolean  @default(true)
+  position        Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
+
+  tickets EventTicket[]
+  orders  Order[]
+
+  @@map("events")
+}
+
+model Order {
+  id        String        @id @default(uuid()) @db.Uuid
+  user_id   String        @db.Uuid
+  item_type OrderItemType @default(course)
+  course_id String?       @db.Uuid
+  ebook_id  String?       @db.Uuid
+  event_id  String?       @db.Uuid
+
+  base_price_idr Int
+  unique_code    Int         @default(0)
+  discount_idr   Int         @default(0)
+  total_idr      Int
+  status         OrderStatus @default(pending)
+
+  // kupon
+  coupon_id      String? @db.Uuid
+  coupon_code    String?
+  order_group_id String? @db.Uuid
+
+  // metode pembayaran / gateway
+  payment_method      String? @default("manual_transfer")
+  gateway             String?
+  gateway_ref         String?
+  gateway_payment_url String?
+  gateway_status      String?
+
+  // bukti pembayaran (diisi pembeli)
+  proof_url     String?
+  payer_name    String?
+  payer_bank    String?
+  transfer_date String?
+  submitted_at  DateTime?
+
+  // verifikasi (diisi staff/admin)
+  verified_by      String?   @db.Uuid
+  verified_at      DateTime?
+  rejection_reason String?
+
+  expires_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  user       User              @relation("UserOrders", fields: [user_id], references: [id], onDelete: Cascade)
+  course     Course?           @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  ebook      Ebook?            @relation(fields: [ebook_id], references: [id], onDelete: SetNull)
+  event      Event?            @relation(fields: [event_id], references: [id], onDelete: SetNull)
+  coupon     Coupon?           @relation(fields: [coupon_id], references: [id], onDelete: SetNull)
+  redemption CouponRedemption?
+  verifier   User?             @relation("OrderVerifier", fields: [verified_by], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([status])
+  @@index([item_type])
+  @@index([order_group_id])
+  @@index([gateway_ref])
+  @@map("orders")
+}
+
+model BankAccount {
+  id             String   @id @default(uuid()) @db.Uuid
+  bank           String
+  account_number String
+  account_name   String
+  is_active      Boolean  @default(true)
+  position       Int      @default(0)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now()) @updatedAt
+
+  @@map("bank_accounts")
+}
+
+model Review {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  course_id  String   @db.Uuid
+  rating     Int
+  body       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id])
+  @@index([course_id])
+  @@map("reviews")
+}
+
+model Certificate {
+  id                 String    @id @default(uuid()) @db.Uuid
+  certificate_number String    @unique
+  user_id            String    @db.Uuid
+  course_id          String    @db.Uuid
+  enrollment_id      String    @unique @db.Uuid
+  recipient_name     String
+  course_title       String
+  instructor_name    String?
+  issued_at          DateTime  @default(now())
+  revoked            Boolean   @default(false)
+  revoked_at         DateTime?
+  revoked_reason     String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @default(now()) @updatedAt
+
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id])
+  @@index([course_id])
+  @@index([revoked])
+  @@map("certificates")
+}
+
+model Coupon {
+  id               String       @id @default(uuid()) @db.Uuid
+  code             String       @unique
+  description      String?
+  discount_type    DiscountType
+  discount_value   Int
+  course_id        String?      @db.Uuid
+  max_uses         Int?
+  used_count       Int          @default(0)
+  max_discount_idr Int?
+  min_purchase_idr Int?
+  expires_at       DateTime?
+  is_active        Boolean      @default(true)
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @default(now()) @updatedAt
+
+  course      Course?            @relation(fields: [course_id], references: [id], onDelete: SetNull)
+  redemptions CouponRedemption[]
+  orders      Order[]
+
+  @@map("coupons")
+}
+
+model CouponRedemption {
+  id           String   @id @default(uuid()) @db.Uuid
+  coupon_id    String   @db.Uuid
+  user_id      String   @db.Uuid
+  order_id     String   @unique @db.Uuid
+  course_id    String?  @db.Uuid
+  discount_idr Int
+  created_at   DateTime @default(now())
+
+  coupon Coupon @relation(fields: [coupon_id], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@index([coupon_id])
+  @@index([user_id])
+  @@map("coupon_redemptions")
+}
+
+model EbookGrant {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  ebook_id   String   @db.Uuid
+  order_id   String?  @db.Uuid
+  granted_at DateTime @default(now())
+
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  ebook Ebook @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, ebook_id])
+  @@map("ebook_grants")
+}
+
+model EventTicket {
+  id            String    @id @default(uuid()) @db.Uuid
+  user_id       String    @db.Uuid
+  event_id      String    @db.Uuid
+  order_id      String?   @db.Uuid
+  ticket_code   String    @unique
+  status        String    @default("valid")
+  issued_at     DateTime  @default(now())
+  checked_in_at DateTime?
+
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, event_id])
+  @@map("event_tickets")
+}
+
+model EmailLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  to_email   String
+  subject    String
+  template   String
+  status     String   @default("sent")
+  error      String?
+  transport  String
+  user_id    String?  @db.Uuid
+  order_id   String?  @db.Uuid
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+  @@index([template])
+  @@map("email_logs")
+}
+
+model PasswordResetToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  user_id    String    @db.Uuid
+  token_hash String    @unique
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime  @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("password_reset_tokens")
+}
+
+model Cart {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @unique @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  user  User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id             String        @id @default(uuid()) @db.Uuid
+  cart_id        String        @db.Uuid
+  product_type   OrderItemType
+  product_id     String        @db.Uuid
+  price_idr      Int
+  title_snapshot String
+  cover_snapshot String?
+  created_at     DateTime      @default(now())
+
+  cart Cart @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+
+  @@unique([cart_id, product_type, product_id])
+  @@map("cart_items")
+}
+
+model Wishlist {
+  id           String        @id @default(uuid()) @db.Uuid
+  user_id      String        @db.Uuid
+  product_type OrderItemType
+  product_id   String        @db.Uuid
+  created_at   DateTime      @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, product_type, product_id])
+  @@index([user_id])
+  @@map("wishlists")
+}

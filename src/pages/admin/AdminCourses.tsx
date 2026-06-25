@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
@@ -22,13 +22,14 @@ const AdminCourses = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("courses")
-      .select("id,title,slug,category,price_idr,is_published,created_at")
-      .order("created_at", { ascending: false });
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    setCourses(data ?? []);
-    setLoading(false);
+    try {
+      const data = await api.get<Course[]>("/courses");
+      setCourses(data);
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal memuat", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -37,27 +38,23 @@ const AdminCourses = () => {
 
   const handleCreate = async () => {
     const slug = `course-${Date.now()}`;
-    const { data, error } = await supabase
-      .from("courses")
-      .insert({ title: "Untitled Course", slug, price_idr: 0 })
-      .select()
-      .single();
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+    try {
+      const data = await api.post<{ id: string }>("/courses", { title: "Untitled Course", slug, price_idr: 0 });
+      navigate(`/admin/courses/${data.id}`);
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal membuat", variant: "destructive" });
     }
-    navigate(`/admin/courses/${data.id}`);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this course and all its modules/lessons?")) return;
-    const { error } = await supabase.from("courses").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+    try {
+      await api.delete(`/courses/${id}`);
+      toast({ title: "Course deleted" });
+      load();
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal menghapus", variant: "destructive" });
     }
-    toast({ title: "Course deleted" });
-    load();
   };
 
   return (

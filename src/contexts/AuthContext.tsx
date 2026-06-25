@@ -1,83 +1,90 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-
-type Profile = {
-  id: string;
-  user_id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-};
+import { api, ApiError, type AppRole, type AuthUser, type Profile, type Session } from "@/lib/api";
 
 type AuthContextType = {
-  user: User | null;
-  session: Session | null;
-  profile: Profile | null;
+  user: AuthUser | null;
+  profile: Profile;
+  roles: AppRole[];
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   profile: null,
+  roles: [],
   loading: true,
+  signIn: async () => {},
+  signUp: async () => {},
   signOut: async () => {},
+  refresh: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [profile, setProfile] = useState<Profile>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-    setProfile(data);
+  const applySession = (s: Session) => {
+    setUser(s.user);
+    setProfile(s.profile);
+    setRoles(s.roles);
+  };
+
+  const clearSession = () => {
+    setUser(null);
+    setProfile(null);
+    setRoles([]);
+  };
+
+  const refresh = async () => {
+    try {
+      const s = await api.get<Session>("/auth/me");
+      applySession(s);
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) {
+        clearSession();
+      }
+    }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
+    (async () => {
+      await refresh();
       setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    })();
   }, []);
 
+  const signIn = async (email: string, password: string) => {
+    const s = await api.post<Session>("/auth/login", { email, password });
+    applySession(s);
+  };
+
+  const signUp = async (email: string, password: string, fullName: string) => {
+    const s = await api.post<Session>("/auth/register", {
+      email,
+      password,
+      full_name: fullName,
+    });
+    applySession(s);
+  };
+
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      clearSession();
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, roles, loading, signIn, signUp, signOut, refresh }}>
       {children}
     </AuthContext.Provider>
   );

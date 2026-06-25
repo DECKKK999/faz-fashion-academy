@@ -1,124 +1,36 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, MapPin, Clock, Ticket, X, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-const categories = ["Semua", "Workshop", "Seminar", "Talkshow", "Exhibition", "Networking"];
-
-const allEvents = [
-  {
-    id: 1,
-    title: "Pattern Making Workshop: Kebaya Modern",
-    category: "Workshop",
-    date: "26 April 2026",
-    time: "10:00 — 16:00 WIB",
-    location: "FAZ Studio, Jakarta Selatan",
-    address: "Jl. Kemang Raya No. 12, Jakarta 12730",
-    price: "Rp 350.000",
-    isFree: false,
-    spots: 20,
-    spotsLeft: 7,
-    speaker: "Rina Setiawan",
-    description: "Workshop intensif satu hari mempelajari teknik pembuatan pola kebaya modern. Peserta akan belajar dari dasar hingga menghasilkan pola siap potong untuk kebaya kontemporer.",
-    highlights: ["Material & alat disediakan", "Sertifikat kehadiran", "Makan siang included", "Take-home pattern kit"],
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=500&fit=crop",
-  },
-  {
-    id: 2,
-    title: "Sustainable Fashion Talk: Masa Depan Tekstil Indonesia",
-    category: "Talkshow",
-    date: "3 Mei 2026",
-    time: "14:00 — 17:00 WIB",
-    location: "Online via Zoom",
-    address: "Link akan dikirim via email H-1",
-    price: "Gratis",
-    isFree: true,
-    spots: 200,
-    spotsLeft: 84,
-    speaker: "Dr. Ayu Larasati & Made Surya",
-    description: "Diskusi mendalam tentang masa depan industri tekstil Indonesia yang berkelanjutan. Menampilkan perspektif dari akademisi dan praktisi dalam menghadapi tantangan fast fashion.",
-    highlights: ["Gratis & terbuka untuk umum", "Sesi tanya jawab interaktif", "E-certificate", "Recording tersedia 7 hari"],
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=500&fit=crop",
-  },
-  {
-    id: 3,
-    title: "Batik Contemporary: From Heritage to High Fashion",
-    category: "Exhibition",
-    date: "10 — 15 Mei 2026",
-    time: "10:00 — 20:00 WIB",
-    location: "Museum Tekstil Jakarta",
-    address: "Jl. Aipda KS Tubun No.2-4, Tanah Abang, Jakarta",
-    price: "Rp 50.000",
-    isFree: false,
-    spots: 500,
-    spotsLeft: 312,
-    speaker: "Kurator: Dian Pratama",
-    description: "Pameran yang menampilkan evolusi batik dari warisan budaya menjadi elemen high fashion kontemporer. Menampilkan karya dari 15 desainer muda Indonesia.",
-    highlights: ["15 desainer muda Indonesia", "Guided tour setiap jam 11 & 15", "Workshop mini gratis", "Katalog pameran digital"],
-    image: "https://images.unsplash.com/photo-1594122230689-45899d9e6f69?w=800&h=500&fit=crop",
-  },
-  {
-    id: 4,
-    title: "Fashion Business Networking Night",
-    category: "Networking",
-    date: "18 Mei 2026",
-    time: "18:00 — 21:00 WIB",
-    location: "Potato Head, Jakarta",
-    address: "Jl. Gatot Subroto Kav.18, SCBD, Jakarta",
-    price: "Rp 150.000",
-    isFree: false,
-    spots: 50,
-    spotsLeft: 12,
-    speaker: "Host: FAZ Academy Team",
-    description: "Malam networking eksklusif untuk para pelaku industri fashion Indonesia. Kesempatan untuk bertemu desainer, buyer, dan investor dalam suasana santai.",
-    highlights: ["Welcome drink & canapés", "Speed networking session", "Brand showcase corner", "Exclusive goodie bag"],
-    image: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&h=500&fit=crop",
-  },
-  {
-    id: 5,
-    title: "Draping Masterclass: Teknik Couture",
-    category: "Workshop",
-    date: "24 Mei 2026",
-    time: "09:00 — 17:00 WIB",
-    location: "FAZ Studio, Jakarta Selatan",
-    address: "Jl. Kemang Raya No. 12, Jakarta 12730",
-    price: "Rp 500.000",
-    isFree: false,
-    spots: 15,
-    spotsLeft: 3,
-    speaker: "Hana Wijaya",
-    description: "Masterclass eksklusif teknik draping untuk couture. Belajar langsung dari desainer berpengalaman tentang teknik manipulasi kain pada mannequin.",
-    highlights: ["Kelas kecil maksimal 15 orang", "Material premium disediakan", "Lunch & coffee break", "Portfolio photo session"],
-    image: "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&h=500&fit=crop",
-  },
-  {
-    id: 6,
-    title: "Seminar: Intellectual Property dalam Fashion",
-    category: "Seminar",
-    date: "1 Juni 2026",
-    time: "13:00 — 16:00 WIB",
-    location: "Online via Zoom",
-    address: "Link akan dikirim via email H-1",
-    price: "Gratis",
-    isFree: true,
-    spots: 300,
-    spotsLeft: 178,
-    speaker: "Adv. Budi Hartono & Sari Indah",
-    description: "Seminar tentang pentingnya perlindungan hak kekayaan intelektual bagi desainer fashion Indonesia. Dari hak cipta desain hingga trademark brand.",
-    highlights: ["Gratis untuk anggota FAZ", "Template legal gratis", "Konsultasi singkat 1-on-1", "E-certificate"],
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=500&fit=crop",
-  },
-];
+import { api, type EventItem } from "@/lib/api";
+import { formatRupiah } from "@/lib/format";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Event = () => {
   const [activeCategory, setActiveCategory] = useState("Semua");
-  const [selectedEvent, setSelectedEvent] = useState<typeof allEvents[0] | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    api
+      .get<EventItem[]>("/events")
+      .then(setEvents)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(events.map((e) => e.category).filter(Boolean))) as string[];
+    return ["Semua", ...cats];
+  }, [events]);
 
   const filteredEvents = activeCategory === "Semua"
-    ? allEvents
-    : allEvents.filter((e) => e.category === activeCategory);
+    ? events
+    : events.filter((e) => e.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -171,7 +83,7 @@ const Event = () => {
               >
                 <div className="aspect-[16/9] overflow-hidden">
                   <img
-                    src={event.image}
+                    src={event.cover_image_url ?? ""}
                     alt={event.title}
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                     loading="lazy"
@@ -182,13 +94,13 @@ const Event = () => {
                     <span className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground">
                       {event.category}
                     </span>
-                    {event.isFree ? (
+                    {event.is_free ? (
                       <span className="text-[9px] tracking-[0.2em] uppercase text-accent px-3 py-1 border border-accent/30">
                         Gratis
                       </span>
                     ) : (
                       <span className="text-[10px] tracking-editorial text-foreground/80">
-                        {event.price}
+                        {formatRupiah(event.price_idr)}
                       </span>
                     )}
                   </div>
@@ -198,7 +110,7 @@ const Event = () => {
                   <div className="flex flex-col gap-2 text-[11px] text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar size={12} />
-                      <span>{event.date}</span>
+                      <span>{event.date_label}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin size={12} />
@@ -206,7 +118,7 @@ const Event = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Users size={12} />
-                      <span>{event.spotsLeft} spot tersisa</span>
+                      <span>{event.spots_left} spot tersisa</span>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-foreground/60 group-hover:text-foreground transition-colors">
@@ -217,6 +129,13 @@ const Event = () => {
               </button>
             ))}
           </div>
+
+          {loading && (
+            <p className="text-muted-foreground text-sm py-12">Memuat event...</p>
+          )}
+          {!loading && filteredEvents.length === 0 && (
+            <p className="text-muted-foreground text-sm py-12">Tidak ada event yang ditemukan.</p>
+          )}
         </div>
       </section>
 
@@ -237,7 +156,7 @@ const Event = () => {
 
             <div className="aspect-[16/9] overflow-hidden">
               <img
-                src={selectedEvent.image}
+                src={selectedEvent.cover_image_url ?? ""}
                 alt={selectedEvent.title}
                 className="w-full h-full object-cover"
               />
@@ -248,13 +167,13 @@ const Event = () => {
                 <span className="text-[9px] tracking-[0.25em] uppercase text-muted-foreground">
                   {selectedEvent.category}
                 </span>
-                {selectedEvent.isFree ? (
+                {selectedEvent.is_free ? (
                   <span className="text-[9px] tracking-[0.2em] uppercase text-accent px-3 py-1 border border-accent/30">
                     Gratis
                   </span>
                 ) : (
                   <span className="text-[10px] tracking-editorial text-accent">
-                    {selectedEvent.price}
+                    {formatRupiah(selectedEvent.price_idr)}
                   </span>
                 )}
               </div>
@@ -276,14 +195,14 @@ const Event = () => {
                   <Calendar size={16} className="text-accent mt-0.5" />
                   <div>
                     <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Tanggal</p>
-                    <p className="text-xs text-foreground">{selectedEvent.date}</p>
+                    <p className="text-xs text-foreground">{selectedEvent.date_label}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-4 border border-border/50">
                   <Clock size={16} className="text-accent mt-0.5" />
                   <div>
                     <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Waktu</p>
-                    <p className="text-xs text-foreground">{selectedEvent.time}</p>
+                    <p className="text-xs text-foreground">{selectedEvent.time_label}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-4 border border-border/50">
@@ -298,8 +217,8 @@ const Event = () => {
                   <Ticket size={16} className="text-accent mt-0.5" />
                   <div>
                     <p className="text-[9px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Tiket</p>
-                    <p className="text-xs text-foreground">{selectedEvent.isFree ? "Gratis" : selectedEvent.price}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{selectedEvent.spotsLeft} dari {selectedEvent.spots} spot tersisa</p>
+                    <p className="text-xs text-foreground">{selectedEvent.is_free ? "Gratis" : formatRupiah(selectedEvent.price_idr)}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{selectedEvent.spots_left} dari {selectedEvent.spots} spot tersisa</p>
                   </div>
                 </div>
               </div>
@@ -317,8 +236,11 @@ const Event = () => {
                 </div>
               </div>
 
-              <Button className="w-full h-11 text-[11px] tracking-[0.2em] uppercase rounded-none bg-foreground text-background hover:bg-foreground/90">
-                {selectedEvent.isFree ? "Daftar Sekarang — Gratis" : `Beli Tiket — ${selectedEvent.price}`}
+              <Button
+                onClick={() => navigate(user ? `/beli-event/${selectedEvent.id}` : `/masuk?redirect=${encodeURIComponent(`/beli-event/${selectedEvent.id}`)}`)}
+                className="w-full h-11 text-[11px] tracking-[0.2em] uppercase rounded-none bg-foreground text-background hover:bg-foreground/90"
+              >
+                {selectedEvent.is_free ? "Daftar Sekarang — Gratis" : `Beli Tiket — ${formatRupiah(selectedEvent.price_idr)}`}
               </Button>
             </div>
           </div>

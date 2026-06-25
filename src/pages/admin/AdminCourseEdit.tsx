@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,22 +46,22 @@ const AdminCourseEdit = () => {
 
   const loadAll = async () => {
     if (!id) return;
-    const { data: c } = await supabase.from("courses").select("*").eq("id", id).single();
-    setCourse(c);
-    const { data: m } = await supabase.from("modules").select("*").eq("course_id", id).order("position");
-    setModules(m ?? []);
-    if (m && m.length) {
-      const { data: l } = await supabase
-        .from("lessons")
-        .select("*")
-        .in("module_id", m.map((x) => x.id))
-        .order("position");
-      const grouped: Record<string, Lesson[]> = {};
-      (l ?? []).forEach((ls) => {
-        (grouped[ls.module_id] ||= []).push(ls);
-      });
-      setLessons(grouped);
-      setOpenModules(Object.fromEntries(m.map((mod) => [mod.id, true])));
+    try {
+      const c = await api.get<Course>(`/courses/${id}`);
+      setCourse(c);
+      const m = await api.get<Module[]>(`/courses/${id}/modules`);
+      setModules(m);
+      if (m.length) {
+        const l = await api.get<Lesson[]>(`/courses/${id}/lessons`);
+        const grouped: Record<string, Lesson[]> = {};
+        l.forEach((ls) => {
+          (grouped[ls.module_id] ||= []).push(ls);
+        });
+        setLessons(grouped);
+        setOpenModules(Object.fromEntries(m.map((mod) => [mod.id, true])));
+      }
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal memuat", variant: "destructive" });
     }
   };
 
@@ -72,9 +72,8 @@ const AdminCourseEdit = () => {
   const saveCourse = async () => {
     if (!course) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("courses")
-      .update({
+    try {
+      await api.patch(`/courses/${course.id}`, {
         title: course.title,
         slug: course.slug,
         subtitle: course.subtitle,
@@ -86,63 +85,60 @@ const AdminCourseEdit = () => {
         category: course.category,
         duration_minutes: course.duration_minutes,
         is_published: course.is_published,
-      })
-      .eq("id", course.id);
-    setSaving(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else toast({ title: "Course saved" });
+      });
+      toast({ title: "Course saved" });
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal menyimpan", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const addModule = async () => {
     if (!id) return;
-    const { data, error } = await supabase
-      .from("modules")
-      .insert({ course_id: id, title: "New Module", position: modules.length })
-      .select()
-      .single();
-    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
-    setModules([...modules, data]);
-    setOpenModules({ ...openModules, [data.id]: true });
+    try {
+      const data = await api.post<Module>(`/courses/${id}/modules`, { title: "New Module", position: modules.length });
+      setModules([...modules, data]);
+      setOpenModules({ ...openModules, [data.id]: true });
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal menambah modul", variant: "destructive" });
+    }
   };
 
   const updateModule = async (m: Module) => {
-    await supabase.from("modules").update({ title: m.title, position: m.position }).eq("id", m.id);
+    await api.patch(`/modules/${m.id}`, { title: m.title, position: m.position });
   };
 
   const deleteModule = async (mid: string) => {
     if (!confirm("Delete this module and its lessons?")) return;
-    await supabase.from("modules").delete().eq("id", mid);
+    await api.delete(`/modules/${mid}`);
     setModules(modules.filter((m) => m.id !== mid));
   };
 
   const addLesson = async (moduleId: string) => {
     const existing = lessons[moduleId] ?? [];
-    const { data, error } = await supabase
-      .from("lessons")
-      .insert({ module_id: moduleId, title: "New Lesson", position: existing.length })
-      .select()
-      .single();
-    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
-    setLessons({ ...lessons, [moduleId]: [...existing, data] });
+    try {
+      const data = await api.post<Lesson>(`/modules/${moduleId}/lessons`, { title: "New Lesson", position: existing.length });
+      setLessons({ ...lessons, [moduleId]: [...existing, data] });
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal menambah pelajaran", variant: "destructive" });
+    }
   };
 
   const updateLesson = async (l: Lesson) => {
-    await supabase
-      .from("lessons")
-      .update({
-        title: l.title,
-        content: l.content,
-        video_url: l.video_url,
-        duration_minutes: l.duration_minutes,
-        is_free_preview: l.is_free_preview,
-        position: l.position,
-      })
-      .eq("id", l.id);
+    await api.patch(`/lessons/${l.id}`, {
+      title: l.title,
+      content: l.content,
+      video_url: l.video_url,
+      duration_minutes: l.duration_minutes,
+      is_free_preview: l.is_free_preview,
+      position: l.position,
+    });
   };
 
   const deleteLesson = async (moduleId: string, lessonId: string) => {
     if (!confirm("Delete this lesson?")) return;
-    await supabase.from("lessons").delete().eq("id", lessonId);
+    await api.delete(`/lessons/${lessonId}`);
     setLessons({ ...lessons, [moduleId]: lessons[moduleId].filter((l) => l.id !== lessonId) });
   };
 

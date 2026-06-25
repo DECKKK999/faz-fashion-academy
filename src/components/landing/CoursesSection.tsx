@@ -1,31 +1,23 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-
-const courses = [
-  {
-    title: "Fashion Design",
-    tag: "Desain",
-    description: "Pelajari fondasi desain busana dari sketsa hingga prototipe.",
-    price: "Rp 299.000",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=700&h=500&fit=crop",
-  },
-  {
-    title: "Fashion Marketing & Communication",
-    tag: "Marketing",
-    description: "Strategi pemasaran digital khusus industri fashion.",
-    price: "Rp 399.000",
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&h=500&fit=crop",
-  },
-  {
-    title: "Pattern Making & Draping",
-    tag: "Teknik",
-    description: "Teknik pembuatan pola dan draping profesional.",
-    price: "Rp 499.000",
-    image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=700&h=500&fit=crop",
-  },
-];
+import { useEffect, useState } from "react";
+import { api, type Course } from "@/lib/api";
+import { formatRupiah } from "@/lib/format";
 
 const CoursesSection = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    api
+      .get<Course[]>("/courses")
+      .then((data) => {
+        // "Kelas Populer" = 3 kelas dengan siswa terbanyak
+        const popular = [...data].sort((a, b) => b.students_count - a.students_count).slice(0, 3);
+        setCourses(popular);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="py-32 px-6 md:px-16">
       <div className="container mx-auto max-w-7xl">
@@ -49,19 +41,21 @@ const CoursesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {courses.map((course) => (
-            <Link key={course.title} to="/kelas" className="group">
+            <Link key={course.id} to="/kelas" className="group">
               <div className="overflow-hidden mb-5 relative">
                 <img
-                  src={course.image}
+                  src={course.cover_image_url ?? ""}
                   alt={course.title}
                   className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
                   loading="lazy"
                   width={700}
                   height={500}
                 />
-                <span className="absolute bottom-3 left-3 bg-background/80 text-foreground text-[10px] tracking-editorial uppercase px-3 py-1 backdrop-blur-sm">
-                  {course.tag}
-                </span>
+                {course.category && (
+                  <span className="absolute bottom-3 left-3 bg-background/80 text-foreground text-[10px] tracking-editorial uppercase px-3 py-1 backdrop-blur-sm">
+                    {course.category}
+                  </span>
+                )}
               </div>
               <h3 className="text-sm font-light tracking-editorial uppercase text-foreground mb-2 group-hover:text-accent transition-colors">
                 {course.title}
@@ -70,7 +64,7 @@ const CoursesSection = () => {
                 {course.description}
               </p>
               <p className="text-sm font-medium text-accent normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
-                {course.price}
+                {formatRupiah(course.price_idr)}
               </p>
             </Link>
           ))}

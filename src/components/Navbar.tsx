@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, LogOut, Home } from "lucide-react";
+import { Menu, LogOut, Home, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CartButton from "@/components/CartButton";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sheet,
@@ -51,11 +52,18 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
+            <Link to="/wishlist" aria-label="Wishlist" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Heart size={18} />
+            </Link>
+            <CartButton />
             {user ? (
               <>
                 <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
+                <Link to="/akun" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                  Akun
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
@@ -100,11 +108,16 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
+                <Link to="/keranjang" className="text-sm tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Keranjang</Link>
+                <Link to="/wishlist" className="text-sm tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Wishlist</Link>
                 <div className="border-t border-border/50 pt-6 flex flex-col gap-3">
                   {user ? (
                     <>
                       <Button size="sm" asChild className="w-full rounded-none text-[11px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
                         <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild className="w-full rounded-none text-[11px] tracking-editorial uppercase">
+                        <Link to="/akun" onClick={() => setIsOpen(false)}>Akun</Link>
                       </Button>
                       <Button
                         variant="ghost"
