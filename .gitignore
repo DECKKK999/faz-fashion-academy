@@ -25,3 +25,9 @@ dist-ssr
 
 # local env
 .env
+
+# Server access secrets (SSH keys, sudo password) — must never be committed
+faz-lms-server-access/
+
+# Deploy artifacts
+deploy.env
