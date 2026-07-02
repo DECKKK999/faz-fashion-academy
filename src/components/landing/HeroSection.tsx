@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Shirt, Lightbulb, Users, Star, Sparkles } from "lucide-react";
 import heroFashion from "@/assets/hero-fashion.jpg";
-import fazLogoAsset from "@/assets/faz-academy-banner-v2.png.asset.json";
+import fazWordmark from "@/assets/faz-wordmark.png";
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";
@@ -38,7 +38,7 @@ const HeroSection = () => {
         <div className="relative z-10 animate-fade-in">
           {/* Wordmark */}
           <img
-            src={fazLogoAsset.url}
+            src={fazWordmark}
             alt="FAZ Academy"
             className="h-24 md:h-32 lg:h-40 w-auto"
             width={600}

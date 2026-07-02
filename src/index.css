@@ -4,14 +4,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
-@font-face {
-  font-family: 'Glasgow';
-  src: url('/__l5e/assets-v1/925eaa0e-3620-4a88-bf66-1a7d4fbd950d/Glasgow-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -78,14 +70,14 @@
   }
 
   h1, h2 {
-    font-family: 'Glasgow', 'Playfair Display', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif;
     font-style: normal;
     letter-spacing: -0.02em;
     text-transform: none;
     line-height: 1.1;
   }
   h3, h4, h5, h6 {
-    font-family: 'Glasgow', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
