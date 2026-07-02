@@ -41,13 +41,13 @@ const HeroSection = () => {
             src={fazWordmark}
             alt="FAZ Academy"
             className="h-24 md:h-32 lg:h-40 w-auto"
-            width={600}
-            height={200}
+            width={857}
+            height={456}
           />
 
 
           {/* Tagline pills */}
-          <div className="-mt-1 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
+          <div className="mt-5 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
             <span className="h-px w-6 bg-blue-500" />
             <span>Fashion</span>
             <Sparkles className="w-3 h-3" style={{ color: pink }} />
