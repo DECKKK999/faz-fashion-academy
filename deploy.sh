@@ -101,4 +101,4 @@ else
 fi
 REMOTE
 
-echo "==> [3/3] Deployed. Live at http://$REMOTE_HOST"
+echo "==> [3/3] Deployed. Live at https://belajar.fazacademy.id"
