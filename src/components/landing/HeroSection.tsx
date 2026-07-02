@@ -33,7 +33,7 @@ const HeroSection = () => {
         ))}
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center min-h-[90vh]">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-28 pb-16 md:pt-32 md:pb-24 grid lg:grid-cols-2 gap-12 items-center min-h-[90vh]">
         {/* Left content */}
         <div className="relative z-10 animate-fade-in">
           {/* Wordmark */}
