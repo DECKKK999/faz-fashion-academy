@@ -12,7 +12,10 @@ const Masuk = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const redirect = params.get("redirect") || "/dashboard";
+  // Hanya izinkan path internal (cegah open-redirect ke domain lain).
+  const rawRedirect = params.get("redirect") || "";
+  const redirect =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/dashboard";
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
