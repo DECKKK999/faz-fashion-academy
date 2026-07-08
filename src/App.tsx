@@ -13,17 +13,11 @@ import Kelas from "./pages/Kelas.tsx";
 import CourseDetail from "./pages/CourseDetail.tsx";
 import CoursePlayer from "./pages/CoursePlayer.tsx";
 import StartCheckout from "./pages/StartCheckout.tsx";
-import StartEbookCheckout from "./pages/StartEbookCheckout.tsx";
-import StartEventCheckout from "./pages/StartEventCheckout.tsx";
 import Checkout from "./pages/Checkout.tsx";
 import CartCheckout from "./pages/CartCheckout.tsx";
 import Cart from "./pages/Cart.tsx";
 import Wishlist from "./pages/Wishlist.tsx";
 import MyOrders from "./pages/MyOrders.tsx";
-import Ebook from "./pages/Ebook.tsx";
-import EbookDetail from "./pages/EbookDetail.tsx";
-import Event from "./pages/Event.tsx";
-import EventDetail from "./pages/EventDetail.tsx";
 import Tentang from "./pages/Tentang.tsx";
 import Daftar from "./pages/Daftar.tsx";
 import Masuk from "./pages/Masuk.tsx";
@@ -39,10 +33,6 @@ import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminOverview from "./pages/admin/AdminOverview.tsx";
 import AdminCourses from "./pages/admin/AdminCourses.tsx";
 import AdminCourseEdit from "./pages/admin/AdminCourseEdit.tsx";
-import AdminEbooks from "./pages/admin/AdminEbooks.tsx";
-import AdminEbookEdit from "./pages/admin/AdminEbookEdit.tsx";
-import AdminEvents from "./pages/admin/AdminEvents.tsx";
-import AdminEventEdit from "./pages/admin/AdminEventEdit.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import AdminCoupons from "./pages/admin/AdminCoupons.tsx";
 import AdminReviews from "./pages/admin/AdminReviews.tsx";
@@ -71,11 +61,7 @@ const App = () => (
                 <Route path="/kelas" element={<Kelas />} />
                 <Route path="/kelas/:slug" element={<CourseDetail />} />
                 <Route path="/belajar/:slug" element={<CoursePlayer />} />
-                <Route path="/ebook" element={<Ebook />} />
-                <Route path="/ebook/:slug" element={<EbookDetail />} />
                 <Route path="/tentang" element={<Tentang />} />
-                <Route path="/event" element={<Event />} />
-                <Route path="/event/:slug" element={<EventDetail />} />
                 <Route path="/daftar" element={<Daftar />} />
                 <Route path="/masuk" element={<Masuk />} />
                 <Route path="/lupa-password" element={<LupaPassword />} />
@@ -85,8 +71,6 @@ const App = () => (
 
                 {/* Terproteksi (login) */}
                 <Route path="/beli/:courseId" element={<ProtectedRoute><StartCheckout /></ProtectedRoute>} />
-                <Route path="/beli-ebook/:ebookId" element={<ProtectedRoute><StartEbookCheckout /></ProtectedRoute>} />
-                <Route path="/beli-event/:eventId" element={<ProtectedRoute><StartEventCheckout /></ProtectedRoute>} />
                 <Route path="/checkout/:orderId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                 <Route path="/checkout-group/:groupId" element={<ProtectedRoute><CartCheckout /></ProtectedRoute>} />
                 <Route path="/keranjang" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
@@ -101,10 +85,6 @@ const App = () => (
                   <Route index element={<AdminOverview />} />
                   <Route path="courses" element={<AdminCourses />} />
                   <Route path="courses/:id" element={<AdminCourseEdit />} />
-                  <Route path="ebooks" element={<AdminEbooks />} />
-                  <Route path="ebooks/:id" element={<AdminEbookEdit />} />
-                  <Route path="events" element={<AdminEvents />} />
-                  <Route path="events/:id" element={<AdminEventEdit />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="coupons" element={<AdminCoupons />} />
                   <Route path="reviews" element={<AdminReviews />} />

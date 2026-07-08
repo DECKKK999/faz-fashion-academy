@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { BookOpen, BookMarked, CalendarDays, CreditCard, LayoutDashboard, LogOut, Settings, Users, ArrowLeft, BarChart3, Ticket, Star, Award, Mail, Plug } from "lucide-react";
+import { BookOpen, CreditCard, LayoutDashboard, LogOut, Settings, Users, ArrowLeft, BarChart3, Ticket, Star, Award, Mail, Plug } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
@@ -8,8 +8,6 @@ const navItems = [
   { to: "/admin/orders", label: "Pembayaran", icon: CreditCard },
   { to: "/admin/coupons", label: "Kupon", icon: Ticket },
   { to: "/admin/courses", label: "Courses", icon: BookOpen },
-  { to: "/admin/ebooks", label: "E-Books", icon: BookMarked },
-  { to: "/admin/events", label: "Events", icon: CalendarDays },
   { to: "/admin/reviews", label: "Ulasan", icon: Star },
   { to: "/admin/certificates", label: "Sertifikat", icon: Award },
   { to: "/admin/users", label: "Users", icon: Users },

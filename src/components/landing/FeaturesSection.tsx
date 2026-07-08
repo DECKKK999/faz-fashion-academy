@@ -2,8 +2,8 @@ import { BookOpen, Video, Award, Calendar, ShoppingBag, Users } from "lucide-rea
 
 const features = [
   { icon: Video, title: "Kelas Video HD", description: "Materi berkualitas tinggi dengan video HD dari praktisi industri." },
-  { icon: BookOpen, title: "E-Book Eksklusif", description: "Koleksi lengkap dari pakar fashion Indonesia." },
-  { icon: Calendar, title: "Event & Workshop", description: "Workshop langsung, webinar, dan networking event." },
+  { icon: BookOpen, title: "Materi Terstruktur", description: "Kurikulum bab demi bab, dari fondasi hingga teknik lanjutan." },
+  { icon: Calendar, title: "Belajar Fleksibel", description: "Akses kapan saja, dari mana saja, sesuai ritmemu sendiri." },
   { icon: Award, title: "Sertifikat Resmi", description: "Diakui oleh industri fashion nasional." },
   { icon: ShoppingBag, title: "Produk Digital", description: "Template, pattern, dan resource siap pakai." },
   { icon: Users, title: "Komunitas", description: "Jaringan profesional dan sesama learner." },

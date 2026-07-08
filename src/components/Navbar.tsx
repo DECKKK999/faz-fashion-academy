@@ -15,8 +15,6 @@ import {
 
 const navLinks = [
   { label: "Kelas", href: "/kelas" },
-  { label: "E-Book", href: "/ebook" },
-  { label: "Event", href: "/event" },
   { label: "Tentang", href: "/tentang" },
 ];
 

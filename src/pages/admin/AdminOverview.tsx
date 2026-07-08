@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, BookMarked, CalendarDays, CreditCard, Users, GraduationCap, ArrowRight } from "lucide-react";
+import { BookOpen, CreditCard, Users, GraduationCap, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 
 type Stats = {
@@ -21,8 +21,6 @@ const AdminOverview = () => {
 
   const cards = [
     { label: "Courses", value: stats.courses, icon: BookOpen, to: "/admin/courses" },
-    { label: "E-Books", value: stats.ebooks, icon: BookMarked, to: "/admin/ebooks" },
-    { label: "Events", value: stats.events, icon: CalendarDays, to: "/admin/events" },
     { label: "Users", value: stats.students, icon: Users, to: "/admin/users" },
     { label: "Enrollments", value: stats.enrollments, icon: GraduationCap, to: "/admin/courses" },
   ];

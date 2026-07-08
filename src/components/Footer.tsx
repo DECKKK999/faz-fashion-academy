@@ -9,7 +9,7 @@ const Footer = () => {
             © 2026 FAZ Academy. Hak Cipta Dilindungi.
           </p>
           <div className="flex items-center gap-8">
-            {["Kelas", "E-Book", "Event", "Tentang", "Privasi"].map((item) => (
+            {["Kelas", "Tentang", "Privasi"].map((item) => (
               <Link
                 key={item}
                 to="/"

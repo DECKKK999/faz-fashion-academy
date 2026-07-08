@@ -104,7 +104,7 @@ const Tentang = () => {
                 >
                   FAZ Academy adalah platform tempat para praktisi fashion Indonesia — dari desainer haute couture hingga
                   pengrajin batik tradisional, dari ilustrator fashion hingga pakar sustainable fashion — bisa menuangkan
-                  keahlian mereka dalam bentuk e-book, kelas online, workshop, dan berbagai format lainnya.
+                  keahlian mereka dalam bentuk kelas online dan video pembelajaran yang terstruktur.
                 </p>
                 <p
                   className="text-sm text-muted-foreground leading-relaxed"
@@ -136,12 +136,12 @@ const Tentang = () => {
                     desc: "Video kursus dari desainer dan praktisi industri fashion Indonesia, diajarkan dalam konteks dan bahasa lokal.",
                   },
                   {
-                    title: "E-Book",
-                    desc: "Publikasi digital yang mendokumentasikan teknik, sejarah, dan filosofi fashion Indonesia secara mendalam.",
+                    title: "Materi Terstruktur",
+                    desc: "Kurikulum disusun bab demi bab, dari fondasi hingga teknik lanjutan, sehingga mudah diikuti dari nol.",
                   },
                   {
-                    title: "Workshop & Event",
-                    desc: "Pertemuan langsung dengan para ahli, networking session, dan hands-on workshop untuk belajar secara interaktif.",
+                    title: "Sertifikat Resmi",
+                    desc: "Sertifikat kelulusan setelah menyelesaikan seluruh materi kelas, sebagai bukti kompetensimu.",
                   },
                 ].map((item) => (
                   <div
