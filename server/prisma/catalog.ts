@@ -18,6 +18,8 @@ export const COURSE = {
   instructor_name: "FAZ Academy",
   // TODO: atur harga sebenarnya lewat Admin sebelum kursus dipromosikan (0 = gratis).
   price_idr: 0,
+  // Cover default (aset di frontend public/, disajikan dari root domain).
+  cover_image_url: "/course-cover-fashion-design.jpg",
 } as const;
 
 export type SeedLesson = { title: string; video_url: string; is_free_preview?: boolean };
@@ -87,6 +89,7 @@ export function createCatalogCourse(db: PrismaClient) {
       level: COURSE.level,
       instructor_name: COURSE.instructor_name,
       price_idr: COURSE.price_idr,
+      cover_image_url: COURSE.cover_image_url,
       is_published: true,
       modules: {
         create: MODULES.map((mod, mi) => ({
