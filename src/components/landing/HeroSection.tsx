@@ -40,9 +40,9 @@ const HeroSection = () => {
           <img
             src={fazWordmark}
             alt="FAZ Academy"
-            className="h-24 md:h-32 lg:h-40 w-auto"
-            width={857}
-            height={456}
+            className="h-12 md:h-16 lg:h-20 w-auto max-w-full"
+            width={2433}
+            height={400}
           />
 
 

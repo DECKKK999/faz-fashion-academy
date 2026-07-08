@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, LogOut, Home, Heart } from "lucide-react";
+import { Menu, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import fazWordmark from "@/assets/faz-wordmark.png";
 import CartButton from "@/components/CartButton";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -33,8 +34,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
         <div className="flex items-center justify-between h-14">
-          <Link to="/" className="flex items-center">
-            <Home className="h-6 w-6 text-foreground" />
+          <Link to="/" className="flex items-center" aria-label="FAZ Academy — Beranda">
+            <img src={fazWordmark} alt="FAZ Academy" className="h-6 md:h-7 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
