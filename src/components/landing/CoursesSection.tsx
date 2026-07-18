@@ -46,10 +46,10 @@ const CoursesSection = () => {
                 <img
                   src={course.cover_image_url ?? ""}
                   alt={course.title}
-                  className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
+                  className="w-full aspect-[2/1] object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
                   loading="lazy"
                   width={700}
-                  height={500}
+                  height={350}
                 />
                 {course.category && (
                   <span className="absolute bottom-3 left-3 bg-background/80 text-foreground text-[10px] tracking-editorial uppercase px-3 py-1 backdrop-blur-sm">

@@ -117,8 +117,8 @@ const CourseDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main */}
             <div className="lg:col-span-2">
-              <div className="aspect-[16/9] overflow-hidden rounded-lg bg-muted mb-6">
-                <img src={course.cover_image_url ?? ""} alt={course.title} className="w-full h-full object-cover" />
+              <div className="overflow-hidden rounded-lg bg-muted mb-6">
+                <img src={course.cover_image_url ?? ""} alt={course.title} className="w-full h-auto" />
               </div>
               <div className="flex items-center gap-2 mb-3">
                 {course.category && (
