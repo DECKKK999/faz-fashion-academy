@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Upload, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { api, type Order, type PaymentInfo } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, orderStatus, orderItemOf, orderItemTypeLabel } from "@/lib/format";
+import { trackPixelEvent } from "@/lib/metaPixel";
 import { toast } from "sonner";
 
 const Checkout = () => {
@@ -24,6 +25,7 @@ const Checkout = () => {
   const [payerName, setPayerName] = useState("");
   const [payerBank, setPayerBank] = useState("");
   const [transferDate, setTransferDate] = useState("");
+  const pixelTracked = useRef(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -36,6 +38,18 @@ const Checkout = () => {
         setInfo(i);
         setPayerName((prev) => prev || o.payer_name || profile?.full_name || "");
         setPayerBank((prev) => prev || o.payer_bank || "");
+        // InitiateCheckout hanya saat order masih berjalan, bukan saat revisit order yang sudah dibayar/ditutup.
+        if (!pixelTracked.current && (o.status === "pending" || o.status === "rejected")) {
+          pixelTracked.current = true;
+          trackPixelEvent("InitiateCheckout", {
+            value: o.total_idr,
+            currency: "IDR",
+            content_ids: o.course_id ? [o.course_id] : undefined,
+            content_name: orderItemOf(o)?.title,
+            content_type: "product",
+            num_items: 1,
+          });
+        }
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "Gagal memuat order"))
       .finally(() => setLoading(false));
@@ -60,6 +74,12 @@ const Checkout = () => {
       fd.append("transfer_date", transferDate);
       const updated = await api.upload<Order>(`/orders/${order.id}/proof`, fd);
       setOrder(updated);
+      trackPixelEvent("CompleteRegistration", {
+        value: updated.total_idr,
+        currency: "IDR",
+        content_name: orderItemOf(updated)?.title,
+        status: true,
+      });
       toast.success("Bukti terkirim. Menunggu verifikasi staff.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal mengirim bukti");

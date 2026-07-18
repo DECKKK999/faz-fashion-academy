@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Upload, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import SeoHead from "@/components/SeoHead";
 import { api, type Order, type OrderGroup, type PaymentInfo } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, orderStatus } from "@/lib/format";
+import { trackPixelEvent } from "@/lib/metaPixel";
 import { toast } from "sonner";
 
 function orderTitle(o: Order) {
@@ -41,6 +42,12 @@ const ProofForm = ({ order, onUpdated }: { order: Order; onUpdated: (o: Order) =
       fd.append("transfer_date", transferDate);
       const updated = await api.upload<Order>(`/orders/${order.id}/proof`, fd);
       onUpdated(updated);
+      trackPixelEvent("CompleteRegistration", {
+        value: updated.total_idr,
+        currency: "IDR",
+        content_name: orderTitle(updated),
+        status: true,
+      });
       toast.success("Bukti terkirim. Menunggu verifikasi staff.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Gagal mengirim bukti");
@@ -81,6 +88,7 @@ const CartCheckout = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [info, setInfo] = useState<PaymentInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const pixelTracked = useRef(false);
 
   useEffect(() => {
     if (!groupId) return;
@@ -91,6 +99,18 @@ const CartCheckout = () => {
       .then(([g, i]) => {
         setOrders(g.orders);
         setInfo(i);
+        // InitiateCheckout hanya bila masih ada pesanan yang berjalan di grup ini.
+        const active = g.orders.filter((o) => o.status === "pending" || o.status === "rejected");
+        if (!pixelTracked.current && active.length > 0) {
+          pixelTracked.current = true;
+          trackPixelEvent("InitiateCheckout", {
+            value: g.orders.reduce((s, o) => s + o.total_idr, 0),
+            currency: "IDR",
+            content_ids: g.orders.map((o) => o.course_id).filter(Boolean),
+            content_type: "product",
+            num_items: g.orders.length,
+          });
+        }
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "Gagal memuat pesanan"))
       .finally(() => setLoading(false));
