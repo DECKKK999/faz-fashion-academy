@@ -88,7 +88,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     const msg = err.code === "LIMIT_FILE_SIZE" ? "Ukuran file maksimal 5 MB" : err.message;
     return res.status(400).json({ error: msg });
   }
-  if (err instanceof Error && /file tidak didukung/i.test(err.message)) {
+  if (err instanceof Error && /file tidak didukung|harus berupa gambar|harus PDF/i.test(err.message)) {
     return res.status(400).json({ error: err.message });
   }
   console.error(err);

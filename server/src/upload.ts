@@ -44,6 +44,22 @@ export const uploadAvatar = multer({
   },
 });
 
+// Cover course (gambar saja, dinamai per course)
+export const uploadCourseCover = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
+      cb(null, `course-cover-${req.params.id ?? "x"}-${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) cb(null, true);
+    else cb(new Error("Cover harus berupa gambar (JPG/PNG/WebP)"));
+  },
+});
+
 // File e-book (PDF) disimpan di direktori PRIVAT — TIDAK disajikan statis.
 // Hanya bisa diunduh lewat endpoint ber-gate /api/ebooks/:id/download.
 export const PROTECTED_DIR = path.resolve(process.cwd(), "protected");

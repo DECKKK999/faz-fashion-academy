@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { optionalAuth, requireManage } from "../auth.js";
+import { uploadCourseCover } from "../upload.js";
 
 export const coursesRouter = Router();
 
@@ -119,6 +120,19 @@ coursesRouter.patch("/:id", ...requireManage, async (req, res) => {
   } catch (e: any) {
     if (e?.code === "P2025") return res.status(404).json({ error: "Course tidak ditemukan" });
     if (e?.code === "P2002") return res.status(409).json({ error: "Slug sudah dipakai" });
+    throw e;
+  }
+});
+
+// POST /api/courses/:id/cover — unggah cover image (field 'cover')
+coursesRouter.post("/:id/cover", ...requireManage, uploadCourseCover.single("cover"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "Gambar cover wajib diunggah" });
+  const cover_image_url = `/api/uploads/${req.file.filename}`;
+  try {
+    const course = await prisma.course.update({ where: { id: req.params.id }, data: { cover_image_url } });
+    res.json(course);
+  } catch (e: any) {
+    if (e?.code === "P2025") return res.status(404).json({ error: "Course tidak ditemukan" });
     throw e;
   }
 });

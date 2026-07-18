@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,25 @@ const AdminCourseEdit = () => {
   const [lessons, setLessons] = useState<Record<string, Lesson[]>>({});
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadCover = async (file: File) => {
+    if (!course) return;
+    setUploadingCover(true);
+    try {
+      const fd = new FormData();
+      fd.append("cover", file);
+      const updated = await api.upload<Course>(`/courses/${course.id}/cover`, fd);
+      setCourse({ ...course, cover_image_url: updated.cover_image_url });
+      toast({ title: "Cover uploaded" });
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : "Gagal mengunggah cover", variant: "destructive" });
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    }
+  };
 
   const loadAll = async () => {
     if (!id) return;
@@ -183,8 +202,45 @@ const AdminCourseEdit = () => {
           <Textarea rows={4} value={course.description ?? ""} onChange={(e) => setCourse({ ...course, description: e.target.value })} className="mt-1.5" />
         </div>
         <div className="col-span-2">
-          <Label className="text-[10px] tracking-editorial uppercase">Cover Image URL</Label>
-          <Input value={course.cover_image_url ?? ""} onChange={(e) => setCourse({ ...course, cover_image_url: e.target.value })} className="mt-1.5" />
+          <Label className="text-[10px] tracking-editorial uppercase">Cover Image</Label>
+          <div className="mt-1.5 flex items-start gap-4">
+            <div className="w-40 aspect-video shrink-0 border border-border/50 bg-foreground/[0.03] flex items-center justify-center overflow-hidden">
+              {course.cover_image_url ? (
+                <img src={course.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon size={20} className="text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadCover(file);
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-none gap-2"
+                disabled={uploadingCover}
+                onClick={() => coverInputRef.current?.click()}
+              >
+                <Upload size={13} /> {uploadingCover ? "Uploading..." : "Upload Cover"}
+              </Button>
+              <p className="text-[11px] text-muted-foreground">JPG/PNG/WebP, maks. 5 MB. Atau isi URL manual di bawah.</p>
+              <Input
+                placeholder="https://... (opsional)"
+                value={course.cover_image_url ?? ""}
+                onChange={(e) => setCourse({ ...course, cover_image_url: e.target.value || null })}
+                className="text-xs"
+              />
+            </div>
+          </div>
         </div>
         <div>
           <Label className="text-[10px] tracking-editorial uppercase">Instructor</Label>
