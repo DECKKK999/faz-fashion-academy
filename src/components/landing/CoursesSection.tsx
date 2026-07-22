@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, Users, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, type Course } from "@/lib/api";
-import { formatRupiah } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
 
 const CoursesSection = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -39,34 +40,53 @@ const CoursesSection = () => {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {courses.map((course) => (
-            <Link key={course.id} to="/kelas" className="group">
-              <div className="overflow-hidden mb-5 relative">
+            <div
+              key={course.id}
+              className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <Link to={`/kelas/${course.slug}`} className="relative overflow-hidden block">
                 <img
                   src={course.cover_image_url ?? ""}
                   alt={course.title}
-                  className="w-full aspect-[2/1] object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0"
+                  className="w-full aspect-[2/1] object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                   width={700}
                   height={350}
                 />
                 {course.category && (
-                  <span className="absolute bottom-3 left-3 bg-background/80 text-foreground text-[10px] tracking-editorial uppercase px-3 py-1 backdrop-blur-sm">
+                  <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
                     {course.category}
                   </span>
                 )}
+                {course.level && (
+                  <span className="absolute top-3 right-3 bg-card/90 text-foreground text-xs px-2 py-1 rounded-full">
+                    {course.level}
+                  </span>
+                )}
+              </Link>
+              <div className="p-5">
+                <Link to={`/kelas/${course.slug}`}>
+                  <h3 className="font-serif text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                    {course.title}
+                  </h3>
+                </Link>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                  {course.duration_minutes ? (
+                    <span className="flex items-center gap-1"><Clock size={12} /> {formatDuration(course.duration_minutes)}</span>
+                  ) : null}
+                  <span className="flex items-center gap-1"><Users size={12} /> {formatCount(course.students_count)}</span>
+                  {course.rating ? (
+                    <span className="flex items-center gap-1"><Star size={12} className="text-gold" /> {course.rating}</span>
+                  ) : null}
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-primary">{course.price_idr ? formatRupiah(course.price_idr) : "Gratis"}</p>
+                  <Button size="sm" asChild><Link to={`/kelas/${course.slug}`}>Lihat</Link></Button>
+                </div>
               </div>
-              <h3 className="text-sm font-light tracking-editorial uppercase text-foreground mb-2 group-hover:text-accent transition-colors">
-                {course.title}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-3 normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
-                {course.subtitle ?? course.description}
-              </p>
-              <p className="text-sm font-medium text-accent normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
-                {formatRupiah(course.price_idr)}
-              </p>
-            </Link>
+            </div>
           ))}
         </div>
 
