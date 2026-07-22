@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Lock, RotateCcw, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Lock, RotateCcw, Loader2, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LessonList from "@/components/player/LessonList";
 import CourseProgressBar from "@/components/player/CourseProgressBar";
-import { api, ApiError, type PlayerCourse, type PlayerLesson, type LessonProgressResult } from "@/lib/api";
+import { api, ApiError, type PlayerCourse, type PlayerLesson, type PlayerQuizSummary, type LessonProgressResult } from "@/lib/api";
 import { toast } from "sonner";
 
 // Parse YouTube id dari youtu.be/ID, watch?v=ID, /embed/ID, /shorts/ID
@@ -104,11 +104,19 @@ const CoursePlayer = () => {
       const r = await api.post<LessonProgressResult>(`/player/lessons/${active.id}/${endpoint}`);
       applyProgress(r);
       if (r.completed) {
-        toast.success(r.course_completed ? "Selamat! Kelas selesai." : "Pelajaran ditandai selesai");
+        toast.success(
+          r.course_completed
+            ? data?.quiz
+              ? "Semua pelajaran selesai — Final Quiz sudah terbuka."
+              : "Selamat! Kelas selesai."
+            : "Pelajaran ditandai selesai"
+        );
         if (next && !next.locked) selectLesson(next);
       } else {
         toast.success("Tanda selesai dibatalkan");
       }
+      // Status kunci Final Quiz ikut berubah saat kelas selesai / dibatalkan.
+      if (data?.quiz && data.quiz.unlocked !== r.course_completed) await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal memperbarui progres");
     } finally {
@@ -144,6 +152,7 @@ const CoursePlayer = () => {
     <div className="space-y-5">
       <CourseProgressBar completed={data.completed_count} total={data.total_lessons} pct={data.progress_pct} />
       <LessonList modules={data.modules} activeLessonId={activeId} onSelect={selectLesson} />
+      {data.quiz && <QuizCard quiz={data.quiz} courseSlug={data.course.slug} />}
     </div>
   );
 
@@ -242,6 +251,44 @@ const CoursePlayer = () => {
         </div>
       </div>
       <Footer />
+    </div>
+  );
+};
+
+// Kartu Final Quiz di sidebar: terkunci sampai semua pelajaran selesai.
+const QuizCard = ({ quiz, courseSlug }: { quiz: PlayerQuizSummary; courseSlug: string }) => {
+  const locked = !quiz.unlocked;
+  return (
+    <div className={`border rounded-lg p-4 ${quiz.passed ? "border-accent/40 bg-accent/5" : "border-border"}`}>
+      <div className="flex items-center gap-2 mb-2">
+        {locked ? (
+          <Lock size={14} className="text-muted-foreground" />
+        ) : quiz.passed ? (
+          <CheckCircle2 size={14} className="text-accent" />
+        ) : (
+          <ClipboardCheck size={14} className="text-foreground" />
+        )}
+        <span className="text-[10px] tracking-editorial uppercase text-muted-foreground">Final Quiz</span>
+      </div>
+      <p className="text-sm font-medium text-foreground mb-1">{quiz.title}</p>
+      <p className="text-xs text-muted-foreground mb-3">
+        {quiz.passed
+          ? `Lulus dengan nilai ${quiz.best_score}. Sertifikat siap diterbitkan.`
+          : locked
+            ? "Terbuka setelah semua pelajaran ditandai selesai."
+            : `${quiz.total_questions} soal · nilai lulus ≥ ${quiz.passing_score}${
+                quiz.best_score !== null ? ` · nilai terbaikmu ${quiz.best_score}` : ""
+              }`}
+      </p>
+      <Button asChild size="sm" variant={quiz.passed ? "outline" : "default"} className="w-full" disabled={locked}>
+        {locked ? (
+          <span>Terkunci</span>
+        ) : (
+          <Link to={`/belajar/${courseSlug}/quiz`}>
+            {quiz.passed ? "Lihat Hasil" : quiz.best_score !== null ? "Ulangi Kuis" : "Kerjakan Kuis"}
+          </Link>
+        )}
+      </Button>
     </div>
   );
 };

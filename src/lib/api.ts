@@ -233,9 +233,76 @@ export type PlayerCourse = {
   completed_count: number;
   progress_pct: number;
   resume_lesson_id: string | null;
+  quiz: PlayerQuizSummary | null;
+};
+export type PlayerQuizSummary = {
+  id: string;
+  title: string;
+  passing_score: number;
+  total_questions: number;
+  unlocked: boolean;
+  passed: boolean;
+  best_score: number | null;
 };
 export type LessonProgressResult = { lesson_id: string; completed: boolean; completed_at: string | null; progress_pct: number; completed_count: number; total_lessons: number; course_completed: boolean };
 export type CourseProgress = { completed_count: number; total_lessons: number; progress_pct: number; completed_at: string | null };
+
+// ===== Final Quiz =====
+export type QuizOptionPublic = { id: string; text: string; position: number };
+export type QuizQuestionPublic = { id: string; prompt: string; position: number; options: QuizOptionPublic[] };
+export type QuizAttempt = {
+  id: string;
+  score: number;
+  correct_count: number;
+  total_questions: number;
+  passing_score: number;
+  passed: boolean;
+  submitted_at: string;
+};
+export type QuizState = {
+  course: { id: string; slug: string; title: string };
+  quiz: { id: string; title: string; description: string | null; passing_score: number; total_questions: number } | null;
+  access: { enrolled: boolean; can_manage: boolean };
+  lessons: { total: number; completed: number; all_done: boolean };
+  unlocked: boolean;
+  questions: QuizQuestionPublic[];
+  attempts: QuizAttempt[];
+  best_attempt: QuizAttempt | null;
+  passed: boolean;
+};
+export type QuizSubmitResult = {
+  attempt_id: string;
+  submitted_at: string;
+  score: number;
+  correct_count: number;
+  total_questions: number;
+  passing_score: number;
+  passed: boolean;
+  results: { question_id: string; number: number; is_correct: boolean }[];
+};
+
+// Bentuk admin — termasuk kunci jawaban.
+export type AdminQuizOption = { id: string; text: string; is_correct: boolean; position: number };
+export type AdminQuizQuestion = {
+  id: string;
+  quiz_id: string;
+  prompt: string;
+  explanation: string | null;
+  position: number;
+  options: AdminQuizOption[];
+};
+export type AdminQuiz = {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string | null;
+  passing_score: number;
+  is_published: boolean;
+  questions: AdminQuizQuestion[];
+};
+export type AdminQuizAttempt = QuizAttempt & {
+  user: { id: string; email: string; profile: { full_name: string | null } | null };
+};
 
 // ===== Certificates =====
 export type Certificate = {
@@ -244,6 +311,7 @@ export type Certificate = {
   recipient_name: string;
   course_title: string;
   instructor_name: string | null;
+  quiz_score?: number | null;
   issued_at: string;
   revoked: boolean;
   revoked_at: string | null;

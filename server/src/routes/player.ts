@@ -77,6 +77,48 @@ async function buildPayload(course: NonNullable<CourseRecord>, userId: string | 
   const total_lessons = lessonIds.length;
   const completed_count = lessonIds.filter((id) => completedSet.has(id)).length;
   const progress_pct = total_lessons > 0 ? Math.round((completed_count / total_lessons) * 100) : 0;
+  const all_lessons_done = total_lessons > 0 && completed_count >= total_lessons;
+
+  // Ringkasan Final Quiz kelas (kalau ada) untuk kartu di sidebar player.
+  const quizRecord = await prisma.quiz.findUnique({
+    where: { course_id: course.id },
+    select: {
+      id: true,
+      title: true,
+      passing_score: true,
+      is_published: true,
+      _count: { select: { questions: true } },
+    },
+  });
+
+  let quiz: {
+    id: string;
+    title: string;
+    passing_score: number;
+    total_questions: number;
+    unlocked: boolean;
+    passed: boolean;
+    best_score: number | null;
+  } | null = null;
+
+  if (quizRecord && quizRecord._count.questions > 0 && (quizRecord.is_published || canManage)) {
+    const best = userId
+      ? await prisma.quizAttempt.findFirst({
+          where: { quiz_id: quizRecord.id, user_id: userId },
+          orderBy: [{ score: "desc" }, { submitted_at: "desc" }],
+          select: { score: true, passed: true },
+        })
+      : null;
+    quiz = {
+      id: quizRecord.id,
+      title: quizRecord.title,
+      passing_score: quizRecord.passing_score,
+      total_questions: quizRecord._count.questions,
+      unlocked: canManage || (enrolled && all_lessons_done),
+      passed: best?.passed ?? false,
+      best_score: best?.score ?? null,
+    };
+  }
 
   // resume_lesson_id: lesson accessible pertama yang belum selesai; fallback lesson accessible pertama
   let resume_lesson_id: string | null = null;
@@ -108,6 +150,7 @@ async function buildPayload(course: NonNullable<CourseRecord>, userId: string | 
       completed_count,
       progress_pct,
       resume_lesson_id,
+      quiz,
     };
   }
 }

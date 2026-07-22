@@ -63,6 +63,7 @@ model User {
   password_reset_tokens PasswordResetToken[]
   cart               Cart?
   wishlist_items     Wishlist[]
+  quiz_attempts      QuizAttempt[]
 
   @@map("users")
 }
@@ -119,6 +120,7 @@ model Course {
   reviews      Review[]
   certificates Certificate[]
   coupons      Coupon[]
+  quiz         Quiz?
 
   @@map("courses")
 }
@@ -335,6 +337,7 @@ model Certificate {
   recipient_name     String
   course_title       String
   instructor_name    String?
+  quiz_score         Int? // nilai Final Quiz (0-100) saat sertifikat diterbitkan
   issued_at          DateTime  @default(now())
   revoked            Boolean   @default(false)
   revoked_at         DateTime?
@@ -350,6 +353,95 @@ model Certificate {
   @@index([course_id])
   @@index([revoked])
   @@map("certificates")
+}
+
+// ---------------------------------------------------------------------------
+// Final Quiz — satu kuis per kelas, dikerjakan setelah semua pelajaran selesai.
+// Lulus (score >= passing_score) menjadi syarat penerbitan sertifikat.
+// ---------------------------------------------------------------------------
+
+model Quiz {
+  id            String   @id @default(uuid()) @db.Uuid
+  course_id     String   @unique @db.Uuid
+  title         String   @default("Final Quiz")
+  description   String?
+  passing_score Int      @default(70) // nilai minimum kelulusan (0-100)
+  is_published  Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  course    Course         @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id          String   @id @default(uuid()) @db.Uuid
+  quiz_id     String   @db.Uuid
+  prompt      String
+  explanation String? // catatan/pembahasan internal — tidak dikirim ke peserta
+  position    Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  quiz    Quiz                @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+  options QuizOption[]
+  answers QuizAttemptAnswer[]
+
+  @@index([quiz_id])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id          String   @id @default(uuid()) @db.Uuid
+  question_id String   @db.Uuid
+  text        String
+  is_correct  Boolean  @default(false)
+  position    Int      @default(0)
+  created_at  DateTime @default(now())
+
+  question QuizQuestion        @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  answers  QuizAttemptAnswer[]
+
+  @@index([question_id])
+  @@map("quiz_options")
+}
+
+model QuizAttempt {
+  id              String   @id @default(uuid()) @db.Uuid
+  quiz_id         String   @db.Uuid
+  user_id         String   @db.Uuid
+  score           Int // 0-100
+  correct_count   Int
+  total_questions Int
+  passing_score   Int
+  passed          Boolean  @default(false)
+  submitted_at    DateTime @default(now())
+
+  quiz    Quiz                @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+  user    User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  answers QuizAttemptAnswer[]
+
+  @@index([quiz_id, user_id])
+  @@index([user_id])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id          String  @id @default(uuid()) @db.Uuid
+  attempt_id  String  @db.Uuid
+  question_id String  @db.Uuid
+  option_id   String? @db.Uuid
+  is_correct  Boolean @default(false)
+
+  attempt  QuizAttempt  @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  option   QuizOption?  @relation(fields: [option_id], references: [id], onDelete: SetNull)
+
+  @@unique([attempt_id, question_id])
+  @@map("quiz_attempt_answers")
 }
 
 model Coupon {

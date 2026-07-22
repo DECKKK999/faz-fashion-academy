@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, Download, Copy, CheckCircle2, ShieldX, ExternalLink, GraduationCap } from "lucide-react";
+import { Award, Download, Copy, CheckCircle2, ShieldX, ExternalLink, GraduationCap, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { api, ApiError, type Certificate, type OrderCourse } from "@/lib/api";
 
-type EligibleCourse = { course: OrderCourse; completed: number; total: number };
-type CertificatesResponse = { certificates: Certificate[]; eligible: EligibleCourse[] };
+type EligibleCourse = { course: OrderCourse; completed: number; total: number; quiz_score: number | null };
+type QuizPendingCourse = {
+  course: OrderCourse;
+  completed: number;
+  total: number;
+  quiz: { id: string; passing_score: number; best_score: number | null; attempts_count: number };
+};
+type CertificatesResponse = {
+  certificates: Certificate[];
+  eligible: EligibleCourse[];
+  quiz_pending: QuizPendingCourse[];
+};
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
@@ -16,6 +26,7 @@ const formatDate = (iso: string) =>
 const Certificates = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [eligible, setEligible] = useState<EligibleCourse[]>([]);
+  const [quizPending, setQuizPending] = useState<QuizPendingCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -25,6 +36,7 @@ const Certificates = () => {
       const data = await api.get<CertificatesResponse>("/certificates");
       setCertificates(data.certificates);
       setEligible(data.eligible);
+      setQuizPending(data.quiz_pending ?? []);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : "Gagal memuat sertifikat");
     } finally {
@@ -133,6 +145,7 @@ const Certificates = () => {
                               style={{ letterSpacing: "normal", textTransform: "none" }}
                             >
                               Kelas selesai 100% ({e.completed}/{e.total} pelajaran)
+                              {e.quiz_score !== null && ` · Final Quiz lulus, nilai ${e.quiz_score}`}
                             </p>
                           </div>
                         </div>
@@ -143,6 +156,48 @@ const Certificates = () => {
                         >
                           <Award size={14} />
                           {issuing === e.course.id ? "Menerbitkan..." : "Terbitkan"}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Materi selesai tapi Final Quiz belum lulus */}
+              {quizPending.length > 0 && (
+                <section className="mb-16">
+                  <h2 className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">
+                    Menunggu Final Quiz
+                  </h2>
+                  <div className="space-y-3">
+                    {quizPending.map((p) => (
+                      <div
+                        key={p.course.id}
+                        className="flex items-center justify-between gap-4 border border-border p-5"
+                      >
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-10 h-10 flex items-center justify-center border border-border shrink-0">
+                            <ClipboardCheck size={18} className="text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-[12px] tracking-editorial uppercase text-foreground truncate">
+                              {p.course.title}
+                            </h3>
+                            <p
+                              className="text-[11px] text-muted-foreground"
+                              style={{ letterSpacing: "normal", textTransform: "none" }}
+                            >
+                              Materi selesai — lulus Final Quiz (nilai ≥ {p.quiz.passing_score}) untuk membuka
+                              sertifikat
+                              {p.quiz.best_score !== null && `. Nilai terbaikmu ${p.quiz.best_score}`}
+                            </p>
+                          </div>
+                        </div>
+                        <Button asChild variant="outline" className="rounded-none gap-2 shrink-0">
+                          <Link to={`/belajar/${p.course.slug}/quiz`}>
+                            <ClipboardCheck size={14} />
+                            {p.quiz.attempts_count > 0 ? "Ulangi Kuis" : "Kerjakan Kuis"}
+                          </Link>
                         </Button>
                       </div>
                     ))}
@@ -196,6 +251,14 @@ const Certificates = () => {
                           style={{ letterSpacing: "normal", textTransform: "none" }}
                         >
                           Instruktur: {cert.instructor_name}
+                        </p>
+                      )}
+                      {typeof cert.quiz_score === "number" && (
+                        <p
+                          className="text-[11px] text-muted-foreground"
+                          style={{ letterSpacing: "normal", textTransform: "none" }}
+                        >
+                          Nilai Final Quiz: {cert.quiz_score}/100
                         </p>
                       )}
                       <p

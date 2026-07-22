@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireAdmin } from "../auth.js";
 import { generateCertificatePdf } from "../lib/certificate-pdf.js";
+import { quizGate } from "./quiz.js";
 
 export const certificatesRouter = Router();
 export const adminCertificatesRouter = Router();
@@ -27,6 +28,7 @@ const ownSelect = {
   recipient_name: true,
   course_title: true,
   instructor_name: true,
+  quiz_score: true,
   issued_at: true,
   revoked: true,
   revoked_at: true,
@@ -83,16 +85,40 @@ certificatesRouter.get("/", requireAuth, async (req, res) => {
   });
   const issuedCourseIds = new Set(certificates.map((c) => c.course?.id).filter(Boolean) as string[]);
 
-  const eligible: { course: typeof enrollments[number]["course"]; completed: number; total: number }[] = [];
+  type EnrolledCourse = typeof enrollments[number]["course"];
+  const eligible: { course: EnrolledCourse; completed: number; total: number; quiz_score: number | null }[] = [];
+  // Materi sudah 100% tapi Final Quiz belum lulus → sertifikat belum bisa terbit.
+  const quiz_pending: {
+    course: EnrolledCourse;
+    completed: number;
+    total: number;
+    quiz: { id: string; passing_score: number; best_score: number | null; attempts_count: number };
+  }[] = [];
+
   for (const e of enrollments) {
     if (issuedCourseIds.has(e.course_id)) continue;
     const { total, completed } = await courseCompletion(req.user!.id, e.course_id);
-    if (total > 0 && completed >= total) {
-      eligible.push({ course: e.course, completed, total });
+    if (!(total > 0 && completed >= total)) continue;
+
+    const gate = await quizGate(req.user!.id, e.course_id);
+    if (gate.required && !gate.passed) {
+      quiz_pending.push({
+        course: e.course,
+        completed,
+        total,
+        quiz: {
+          id: gate.quiz_id!,
+          passing_score: gate.passing_score!,
+          best_score: gate.best_score,
+          attempts_count: gate.attempts_count,
+        },
+      });
+    } else {
+      eligible.push({ course: e.course, completed, total, quiz_score: gate.best_score });
     }
   }
 
-  res.json({ certificates, eligible });
+  res.json({ certificates, eligible, quiz_pending });
 });
 
 // POST /api/certificates/issue { course_id }
@@ -122,6 +148,17 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
     return res.status(409).json({ error: "Kelas belum selesai 100%", completed, total });
   }
 
+  // Kelas yang punya Final Quiz aktif wajib lulus dulu sebelum sertifikat terbit.
+  const gate = await quizGate(userId, course_id);
+  if (gate.required && !gate.passed) {
+    return res.status(409).json({
+      error: `Kamu belum lulus Final Quiz kelas ini (minimal ${gate.passing_score})`,
+      passing_score: gate.passing_score,
+      best_score: gate.best_score,
+      quiz_id: gate.quiz_id,
+    });
+  }
+
   const name = await recipientName(userId, req.user!.email);
 
   const certificate = await prisma.$transaction(async (tx) => {
@@ -140,6 +177,7 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
         recipient_name: name,
         course_title: course.title,
         instructor_name: course.instructor_name ?? null,
+        quiz_score: gate.best_score,
       },
       update: {},
       select: ownSelect,
@@ -175,6 +213,7 @@ certificatesRouter.get("/:id/download", requireAuth, async (req, res) => {
       recipient_name: true,
       course_title: true,
       instructor_name: true,
+      quiz_score: true,
       issued_at: true,
       revoked: true,
     },
@@ -197,6 +236,7 @@ certificatesRouter.get("/:id/download", requireAuth, async (req, res) => {
         recipient_name: certificate.recipient_name,
         course_title: certificate.course_title,
         instructor_name: certificate.instructor_name,
+        quiz_score: certificate.quiz_score,
         issued_at: certificate.issued_at,
         revoked: certificate.revoked,
       },

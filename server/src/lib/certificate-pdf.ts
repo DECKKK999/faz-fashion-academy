@@ -7,6 +7,7 @@ export type CertificatePdfData = {
   recipient_name: string;
   course_title: string;
   instructor_name: string | null;
+  quiz_score?: number | null;
   issued_at: Date;
   revoked: boolean;
 };
@@ -136,6 +137,18 @@ export async function generateCertificatePdf(
     .font("Helvetica-Oblique")
     .fontSize(20)
     .text(data.course_title, left, doc.y + 8, centerOpts);
+
+  // Nilai Final Quiz (hanya bila kelas memakai kuis)
+  if (typeof data.quiz_score === "number") {
+    doc
+      .fillColor(COLOR.muted)
+      .font("Helvetica")
+      .fontSize(10)
+      .text(`Nilai Final Quiz: ${data.quiz_score}/100`, left, doc.y + 10, {
+        ...centerOpts,
+        characterSpacing: 1,
+      });
+  }
 
   // ===== Footer row: instructor (left), QR (center), date + number (right) =====
   const footerY = pageH - m - 150;

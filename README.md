@@ -92,7 +92,30 @@ npm run create-admin -- email@contoh.com password "Nama" # buat admin baru
 ## Skema database
 
 Lihat `server/prisma/schema.prisma`. Tabel utama: `users`, `profiles`, `user_roles`,
-`courses`, `modules`, `lessons`, `enrollments`, `lesson_progress`.
+`courses`, `modules`, `lessons`, `enrollments`, `lesson_progress`,
+`quizzes`, `quiz_questions`, `quiz_options`, `quiz_attempts`.
+
+## Final Quiz & sertifikat
+
+Setiap kelas boleh punya satu **Final Quiz** (pilihan ganda). Alurnya:
+
+1. Peserta menyelesaikan semua pelajaran → kuis terbuka di `/belajar/<slug>/quiz`.
+2. Peserta mengerjakan kuis; percobaan tidak dibatasi. Hasil hanya menampilkan nilai
+   dan soal mana yang salah — kunci jawaban tidak pernah dikirim ke browser peserta.
+3. Setelah nilai ≥ `passing_score` (default 70), sertifikat bisa diterbitkan di `/sertifikat`.
+
+Kelas tanpa kuis (atau kuisnya nonaktif/kosong) tetap memakai aturan lama: sertifikat
+terbit begitu semua pelajaran selesai.
+
+Kelola soal lewat Admin: `/admin/courses/<id>/quiz` (tombol **Final Quiz** di halaman edit kelas).
+Untuk mengisi 10 soal bawaan dari dokumen Final Quiz:
+
+```bash
+cd server
+npm run seed:quiz                          # kelas katalog default
+npm run seed:quiz -- <slug-kelas>          # kelas lain
+npm run seed:quiz -- <slug-kelas> --replace # tulis ulang soal dari dokumen
+```
 
 ## Production (ringkas)
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload, ClipboardCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,9 +174,16 @@ const AdminCourseEdit = () => {
           <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Edit Course</p>
           <h1 className="text-3xl">{course.title || "Untitled"}</h1>
         </div>
-        <Button onClick={saveCourse} disabled={saving} className="rounded-none">
-          {saving ? "Saving..." : "Save Course"}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button asChild variant="outline" className="rounded-none gap-2">
+            <Link to={`/admin/courses/${course.id}/quiz`}>
+              <ClipboardCheck size={14} /> Final Quiz
+            </Link>
+          </Button>
+          <Button onClick={saveCourse} disabled={saving} className="rounded-none">
+            {saving ? "Saving..." : "Save Course"}
+          </Button>
+        </div>
       </div>
 
       {/* Course details */}

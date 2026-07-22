@@ -13,6 +13,7 @@ import Index from "./pages/Index.tsx";
 import Kelas from "./pages/Kelas.tsx";
 import CourseDetail from "./pages/CourseDetail.tsx";
 import CoursePlayer from "./pages/CoursePlayer.tsx";
+import CourseQuiz from "./pages/CourseQuiz.tsx";
 import StartCheckout from "./pages/StartCheckout.tsx";
 import Checkout from "./pages/Checkout.tsx";
 import CartCheckout from "./pages/CartCheckout.tsx";
@@ -34,6 +35,7 @@ import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminOverview from "./pages/admin/AdminOverview.tsx";
 import AdminCourses from "./pages/admin/AdminCourses.tsx";
 import AdminCourseEdit from "./pages/admin/AdminCourseEdit.tsx";
+import AdminCourseQuiz from "./pages/admin/AdminCourseQuiz.tsx";
 import AdminOrders from "./pages/admin/AdminOrders.tsx";
 import AdminCoupons from "./pages/admin/AdminCoupons.tsx";
 import AdminReviews from "./pages/admin/AdminReviews.tsx";
@@ -63,6 +65,7 @@ const App = () => (
                 <Route path="/kelas" element={<Kelas />} />
                 <Route path="/kelas/:slug" element={<CourseDetail />} />
                 <Route path="/belajar/:slug" element={<CoursePlayer />} />
+                <Route path="/belajar/:slug/quiz" element={<ProtectedRoute><CourseQuiz /></ProtectedRoute>} />
                 <Route path="/tentang" element={<Tentang />} />
                 <Route path="/daftar" element={<Daftar />} />
                 <Route path="/masuk" element={<Masuk />} />
@@ -87,6 +90,7 @@ const App = () => (
                   <Route index element={<AdminOverview />} />
                   <Route path="courses" element={<AdminCourses />} />
                   <Route path="courses/:id" element={<AdminCourseEdit />} />
+                  <Route path="courses/:id/quiz" element={<AdminCourseQuiz />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="coupons" element={<AdminCoupons />} />
                   <Route path="reviews" element={<AdminReviews />} />
