@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Shirt, Lightbulb, Users, Star, Sparkles } from "lucide-react";
-import heroFashion from "@/assets/hero-fashion.jpg";
 import fazWordmark from "@/assets/faz-wordmark.png";
+import heroCharacter from "@/assets/hero-character.png";
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";
@@ -33,14 +33,14 @@ const HeroSection = () => {
         ))}
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-28 pb-16 md:pt-32 md:pb-24 grid lg:grid-cols-2 gap-12 items-center min-h-[90vh]">
+      <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-20 pb-16 md:pt-24 md:pb-20 grid lg:grid-cols-2 gap-12 items-center">
         {/* Left content */}
         <div className="relative z-10 animate-fade-in">
           {/* Wordmark */}
           <img
             src={fazWordmark}
             alt="FAZ Academy"
-            className="h-12 md:h-16 lg:h-20 w-auto max-w-full"
+            className="h-10 md:h-14 lg:h-16 w-auto max-w-full"
             width={2433}
             height={400}
           />
@@ -60,7 +60,7 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h2 className="mt-10 text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
+          <h2 className="mt-16 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
             <span style={{ color: "hsl(222 47% 15%)" }}>Where </span>
             <span style={{ color: pink }} className="italic">Passion</span>
             <Sparkles className="inline-block w-6 h-6 ml-2 align-middle" style={{ color: pink }} />
@@ -110,19 +110,21 @@ const HeroSection = () => {
 
         {/* Right image */}
         <div className="relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full blur-3xl opacity-40"
-            style={{ background: `radial-gradient(circle, ${pink}, transparent 70%)` }}
+          <div className="absolute top-[8%] right-0 w-[80%] aspect-square rounded-full blur-3xl opacity-60 pointer-events-none"
+            style={{ background: `radial-gradient(circle, ${blue}26, ${pink}1f, transparent 72%)` }}
           />
-          <div className="absolute -bottom-10 -left-10 w-72 h-72 rounded-full blur-3xl opacity-40"
-            style={{ background: `radial-gradient(circle, ${blue}, transparent 70%)` }}
-          />
-          <img
-            src={heroFashion}
-            alt="FAZ Academy fashion atelier with draped mannequins"
-            className="relative w-full h-auto object-cover rounded-2xl"
-            width={1280}
-            height={1280}
-          />
+          {/* Cropped frame: the source PNG (hero-character.png) is left untouched; this wrapper
+              scales/offsets it so only the figure (not the large transparent margin) is shown. */}
+          <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg ml-auto overflow-hidden" style={{ aspectRatio: "1450 / 1870" }}>
+            <img
+              src={heroCharacter}
+              alt="Ilustrasi desainer fashion Indonesia dengan gaun flowing gradient pink dan biru, merepresentasikan FAZ Academy sebagai platform edukasi fashion"
+              className="absolute max-w-none"
+              style={{ width: "148.96%", height: "auto", left: "-27.31%", top: "-11.65%" }}
+              width={2160}
+              height={2160}
+            />
+          </div>
         </div>
       </div>
     </section>
