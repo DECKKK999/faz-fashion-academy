@@ -72,7 +72,10 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
   if (enrolled) return res.status(409).json({ error: "Kamu sudah memiliki kelas ini", enrolled: true });
 
   if (course.price_idr <= 0) {
-    await prisma.enrollment.create({ data: { user_id: userId, course_id } });
+    await prisma.$transaction([
+      prisma.enrollment.create({ data: { user_id: userId, course_id } }),
+      prisma.course.update({ where: { id: course_id }, data: { students_count: { increment: 1 } } }),
+    ]);
     return res.status(201).json({ free: true });
   }
 
@@ -320,11 +323,13 @@ adminOrdersRouter.post("/:id/approve", ...requireAdmin, async (req, res) => {
     });
 
     if (order.item_type === "course" && order.course_id) {
-      await tx.enrollment.upsert({
+      const alreadyEnrolled = await tx.enrollment.findUnique({
         where: { user_id_course_id: { user_id: order.user_id, course_id: order.course_id } },
-        create: { user_id: order.user_id, course_id: order.course_id },
-        update: {},
       });
+      if (!alreadyEnrolled) {
+        await tx.enrollment.create({ data: { user_id: order.user_id, course_id: order.course_id } });
+        await tx.course.update({ where: { id: order.course_id }, data: { students_count: { increment: 1 } } });
+      }
     } else if (order.item_type === "ebook" && order.ebook_id) {
       await tx.ebookGrant.upsert({
         where: { user_id_ebook_id: { user_id: order.user_id, ebook_id: order.ebook_id } },

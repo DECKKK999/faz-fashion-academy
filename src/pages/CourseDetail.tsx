@@ -20,6 +20,7 @@ const CourseDetail = () => {
   const [state, setState] = useState<PurchaseState>({ enrolled: false, order: null });
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -137,12 +138,27 @@ const CourseDetail = () => {
                 {course.rating ? <span className="flex items-center gap-1"><Star size={14} className="text-gold" /> {course.rating}</span> : null}
               </div>
 
-              {course.description && (
-                <div className="prose prose-sm max-w-none">
-                  <h2 className="font-serif text-xl font-semibold text-foreground mb-3">Tentang Kelas</h2>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{course.description}</p>
-                </div>
-              )}
+              {course.description && (() => {
+                const paragraphs = course.description.split(/\n\s*\n/);
+                const hasMore = paragraphs.length > 1;
+                return (
+                  <div className="prose prose-sm max-w-none">
+                    <h2 className="font-serif text-xl font-semibold text-foreground mb-3">Tentang Kelas</h2>
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {descExpanded ? course.description : paragraphs[0]}
+                    </p>
+                    {hasMore && (
+                      <button
+                        type="button"
+                        onClick={() => setDescExpanded((v) => !v)}
+                        className="mt-2 text-sm font-medium text-primary hover:underline"
+                      >
+                        {descExpanded ? "Lihat lebih sedikit" : "Lihat lebih"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
 
               {course.instructor_name && (
                 <div className="mt-8 flex items-center gap-3">
