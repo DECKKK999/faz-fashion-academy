@@ -55,18 +55,22 @@ const CoursesSection = () => {
                   width={700}
                   height={350}
                 />
-                {course.category && (
-                  <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
-                    {course.category}
-                  </span>
-                )}
-                {course.level && (
-                  <span className="absolute top-3 right-3 bg-card/90 text-foreground text-xs px-2 py-1 rounded-full">
-                    {course.level}
-                  </span>
-                )}
               </Link>
               <div className="p-5">
+                {(course.category || course.level) && (
+                  <div className="flex items-center gap-2 mb-3">
+                    {course.category && (
+                      <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
+                        {course.category}
+                      </span>
+                    )}
+                    {course.level && (
+                      <span className="bg-muted text-foreground text-xs px-2 py-1 rounded-full">
+                        {course.level}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <Link to={`/kelas/${course.slug}`}>
                   <h3 className="font-serif text-lg font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                     {course.title}
