@@ -61,7 +61,7 @@ const CoursesSection = () => {
                 {course.title}
               </h3>
               <p className="text-sm text-muted-foreground mb-3 normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
-                {course.description}
+                {course.subtitle ?? course.description}
               </p>
               <p className="text-sm font-medium text-accent normal-case" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
                 {formatRupiah(course.price_idr)}
