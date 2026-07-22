@@ -47,16 +47,16 @@ const HeroSection = () => {
 
 
           {/* Tagline pills */}
-          <div className="mt-5 flex items-center gap-2 flex-wrap text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
-            <span className="h-px w-6 bg-blue-500" />
+          <div className="mt-5 flex items-center gap-1.5 flex-wrap text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-foreground/70 max-w-[244px] md:max-w-[340px] lg:max-w-[389px]">
+            <span className="h-px w-3 bg-blue-500" />
             <span>Fashion</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-2 h-2" style={{ color: pink }} />
             <span>Creativity</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-2 h-2" style={{ color: pink }} />
             <span>Community</span>
-            <Sparkles className="w-3 h-3" style={{ color: pink }} />
+            <Sparkles className="w-2 h-2" style={{ color: pink }} />
             <span>Future</span>
-            <span className="h-px w-6 bg-blue-500" />
+            <span className="h-px w-3 bg-blue-500" />
           </div>
 
           {/* Headline */}
