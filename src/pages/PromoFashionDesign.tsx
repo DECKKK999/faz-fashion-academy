@@ -195,9 +195,9 @@ const PromoFashionDesign = () => {
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
           ))}
         </div>
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid lg:grid-cols-2 gap-10 items-start">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           {/* Left: copy (headline/badge live inside the creative image now — not duplicated here) */}
-          <div>
+          <div className="min-w-0">
             {/* Stat row */}
             <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 shadow-sm">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
