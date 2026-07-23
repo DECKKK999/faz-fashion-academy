@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Play,
   PlayCircle,
   BookOpen,
   Sparkles,
   GraduationCap,
+  Award,
+  ClipboardCheck,
   Star,
   Users,
   Clock,
@@ -22,11 +25,19 @@ import { formatRupiah, formatCount } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
+import promoLennyCard from "@/assets/promo-lenny-card.png";
 
 const PROMO_QUOTA = 100;
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";
+
+const heroStats = [
+  { icon: BookOpen, value: "6 Bab", label: "Materi terstruktur dan aplikatif" },
+  { icon: Clock, value: "Durasi: 1 Jam", label: "Belajar efektif kapan saja" },
+  { icon: ClipboardCheck, value: "Final Quiz", label: "Uji pemahaman untuk memperkuat hasil belajar" },
+  { icon: Award, value: "Sertifikat", label: "Sertifikat dari FAZ Academy dan Bu Lenny Agustin" },
+];
 
 const highlights = [
   { icon: BookOpen, label: "6 Bab Terstruktur", desc: "Dari fondasi bisnis sampai strategi scale-up" },
@@ -145,87 +156,140 @@ const PromoFashionDesign = () => {
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
           ))}
         </div>
-        <div className="relative max-w-4xl mx-auto px-6 md:px-12 pt-14 pb-12 text-center">
-          <div className="flex items-center justify-center gap-2 mb-5 flex-wrap text-[10px] md:text-xs tracking-[0.25em] uppercase text-foreground/70">
-            {course.category && <span className="bg-primary/10 text-primary px-3 py-1 rounded-full">{course.category}</span>}
-            {course.level && <span className="border border-border px-3 py-1 rounded-full">{course.level}</span>}
-          </div>
-
-          <h1 className="text-4xl md:text-5xl leading-[1.1] tracking-tight mb-5">
-            <span style={{ color: "hsl(222 47% 15%)" }}>Wujudkan </span>
-            <span style={{ color: pink }} className="italic">Brand Fashion</span>
-            <br />
-            <span style={{ color: "hsl(222 47% 15%)" }}>Impianmu, </span>
-            <span style={{ color: blue }} className="italic">Sekarang.</span>
-          </h1>
-
-          <p className="max-w-xl mx-auto text-sm md:text-base text-foreground/70 leading-relaxed mb-8">
-            {course.subtitle ?? "Belajar membangun brand pakaian dari nol bersama Lenny Agustin, khusus untuk 100 siswa pertama."}
-          </p>
-
-          {/* Price block */}
-          <div className="inline-flex flex-col items-center bg-card border border-border rounded-2xl px-8 py-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid lg:grid-cols-2 gap-10 items-center">
+          {/* Left: copy */}
+          <div>
+            {/* Online class badge */}
+            <div className="flex items-center gap-3 mb-6">
               <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
-                style={{ background: pink }}
+                className="inline-flex items-center gap-2 pl-1.5 pr-4 py-1.5 rounded-full text-white text-xs font-semibold tracking-wide"
+                style={{ background: `linear-gradient(90deg, ${pink}, ${blue})` }}
               >
+                <span className="w-6 h-6 rounded-full bg-white/25 flex items-center justify-center">
+                  <Play size={12} fill="white" className="text-white ml-0.5" />
+                </span>
+                ONLINE CLASS
+              </span>
+              <span className="h-px flex-1 max-w-[120px]" style={{ background: `linear-gradient(90deg, ${pink}, ${blue}, transparent)` }} />
+            </div>
+
+            {/* Headline (from the real course title, split at the colon) */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase leading-[1.1] tracking-tight mb-5">
+              {(() => {
+                const [head, ...rest] = course.title.split(": ");
+                const tail = rest.join(": ");
+                return tail ? (
+                  <>
+                    <span style={{ color: pink }}>{head}:</span>
+                    <br />
+                    <span style={{ color: "hsl(222 47% 15%)" }}>{tail}</span>
+                  </>
+                ) : (
+                  <span style={{ color: "hsl(222 47% 15%)" }}>{course.title}</span>
+                );
+              })()}
+            </h1>
+
+            <p className="max-w-md text-sm md:text-base text-foreground/70 leading-relaxed mb-8">
+              Panduan lengkap untuk mengubah ide menjadi brand fashion yang kuat dan berkelanjutan dengan strategi bisnis yang tepat.
+            </p>
+
+            {/* Stat row */}
+            <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 shadow-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                {heroStats.map(({ icon: Icon, value, label }, i) => (
+                  <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
+                    <div
+                      className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
+                      style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
+                    >
+                      <Icon size={18} className="text-white" />
+                    </div>
+                    <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
+                    <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Trust bar */}
+            <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8">
+              <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
+              <p className="text-xs md:text-sm font-medium text-foreground">
+                Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
+              </p>
+            </div>
+
+            {/* Price block */}
+            <div className="flex items-center gap-4 mb-2">
+              <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
                 HEMAT {discountPct}%
               </span>
             </div>
             <p className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-1">{formatRupiah(PROMO_PRICE)}</p>
-            <p className="text-xs text-muted-foreground">Harga khusus {PROMO_QUOTA} siswa pertama</p>
-          </div>
+            <p className="text-xs text-muted-foreground mb-6">Harga khusus {PROMO_QUOTA} siswa pertama</p>
 
-          {/* Spots progress */}
-          <div className="max-w-sm mx-auto mb-8">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-              <span>{spotsTaken} siswa sudah bergabung</span>
-              <span>{spotsLeft} slot tersisa</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
-              />
-            </div>
-          </div>
-
-          {alreadyHasCourse ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-2 text-emerald-600 text-sm">
-                <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
+            {/* Spots progress */}
+            <div className="max-w-sm mb-6">
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+                <span>{spotsTaken} siswa sudah bergabung</span>
+                <span>{spotsLeft} slot tersisa</span>
               </div>
-              <Button asChild size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
-                <a href={`/belajar/${course.slug}`}>Lanjut Belajar</a>
-              </Button>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+                />
+              </div>
             </div>
-          ) : (
-            <Button
-              onClick={handleClaim}
-              size="lg"
-              className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
-              style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
-            >
-              Klaim Promo Sekarang
-            </Button>
-          )}
 
-          <div className="flex items-center justify-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap">
-            {course.duration_minutes ? (
+            {alreadyHasCourse ? (
+              <div className="flex flex-col items-start gap-3">
+                <div className="flex items-center gap-2 text-emerald-600 text-sm">
+                  <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
+                </div>
+                <Button asChild size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
+                  <a href={`/belajar/${course.slug}`}>Lanjut Belajar</a>
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleClaim}
+                size="lg"
+                className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
+                style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
+              >
+                Klaim Promo Sekarang
+              </Button>
+            )}
+
+            <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap pb-10 lg:pb-0">
+              {course.duration_minutes ? (
+                <span className="flex items-center gap-1">
+                  <Clock size={14} /> {Math.round(course.duration_minutes / 60)} jam materi
+                </span>
+              ) : null}
               <span className="flex items-center gap-1">
-                <Clock size={14} /> {Math.round(course.duration_minutes / 60)} jam materi
+                <Users size={14} /> {formatCount(course.students_count)} siswa
               </span>
-            ) : null}
-            <span className="flex items-center gap-1">
-              <Users size={14} /> {formatCount(course.students_count)} siswa
-            </span>
-            {aggregate?.average ? (
-              <span className="flex items-center gap-1">
-                <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
-              </span>
-            ) : null}
+              {aggregate?.average ? (
+                <span className="flex items-center gap-1">
+                  <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Right: instructor photo + card */}
+          <div className="relative flex justify-center lg:justify-end">
+            <img
+              src={promoLennyCard}
+              alt="Lenny Agustin, Fashion Designer & Owner of Funky Kebaya, instruktur kelas ini"
+              className="w-full max-w-xs sm:max-w-sm lg:max-w-md h-auto"
+              width={900}
+              height={1240}
+            />
           </div>
         </div>
       </section>
