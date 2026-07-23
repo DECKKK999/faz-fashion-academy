@@ -21,11 +21,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatCount } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import StarRatingInput from "@/components/course/StarRatingInput";
+import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
 
-const SLUG = "kelas-fashion-design-faz";
-const COUPON_CODE = "PROMO100";
 const PROMO_QUOTA = 100;
-const PROMO_PRICE = 195000;
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";

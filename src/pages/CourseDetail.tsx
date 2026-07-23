@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { api, type Course, type PurchaseState } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
+import { PROMO_COUPON_CODE, PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
 import CourseReviews from "@/components/course/CourseReviews";
 import WishlistButton from "@/components/WishlistButton";
 import SeoHead from "@/components/SeoHead";
@@ -39,13 +40,16 @@ const CourseDetail = () => {
       .finally(() => setLoading(false));
   }, [slug, user]);
 
+  const onPromo = isPromoCourse(course?.slug);
+
   const handleBuy = () => {
     if (!course) return;
+    const target = onPromo ? `/beli/${course.id}?coupon=${PROMO_COUPON_CODE}` : `/beli/${course.id}`;
     if (!user) {
-      navigate(`/masuk?redirect=${encodeURIComponent(`/beli/${course.id}`)}`);
+      navigate(`/masuk?redirect=${encodeURIComponent(target)}`);
       return;
     }
-    navigate(`/beli/${course.id}`);
+    navigate(target);
   };
 
   if (loading) {
@@ -180,10 +184,18 @@ const CourseDetail = () => {
             {/* Purchase card */}
             <div className="lg:col-span-1">
               <div className="border border-border rounded-lg p-6 sticky top-24 bg-card">
+                {onPromo && course.price_idr > 0 ? (
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-muted-foreground line-through">{formatRupiah(course.price_idr)}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">PROMO</span>
+                  </div>
+                ) : null}
                 <p className="text-3xl font-serif font-bold text-foreground mb-1">
-                  {course.price_idr > 0 ? formatRupiah(course.price_idr) : "Gratis"}
+                  {course.price_idr > 0 ? formatRupiah(onPromo ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
                 </p>
-                <p className="text-xs text-muted-foreground mb-6">Akses selamanya setelah pembayaran terverifikasi.</p>
+                <p className="text-xs text-muted-foreground mb-6">
+                  {onPromo ? "Harga khusus 100 siswa pertama. " : ""}Akses selamanya setelah pembayaran terverifikasi.
+                </p>
                 {renderCta()}
                 <div className="mt-3">
                   <WishlistButton product_type="course" product_id={course.id} variant="full" className="w-full px-4 py-2" />

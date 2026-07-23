@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useEffect, useMemo, useState } from "react";
 import { api, type Course } from "@/lib/api";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
+import { PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
 
 const Kelas = () => {
   const [activeCategory, setActiveCategory] = useState("Semua");
@@ -119,7 +120,14 @@ const Kelas = () => {
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="font-semibold text-primary">{course.price_idr ? formatRupiah(course.price_idr) : "Gratis"}</p>
+                    <div>
+                      {isPromoCourse(course.slug) && course.price_idr > 0 && (
+                        <p className="text-[11px] text-muted-foreground line-through leading-none">{formatRupiah(course.price_idr)}</p>
+                      )}
+                      <p className="font-semibold text-primary">
+                        {course.price_idr ? formatRupiah(isPromoCourse(course.slug) ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
+                      </p>
+                    </div>
                     <Button size="sm" asChild><Link to={`/kelas/${course.slug}`}>Lihat</Link></Button>
                   </div>
                 </div>
