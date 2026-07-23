@@ -12,6 +12,8 @@ type Props = {
   canReview: boolean;
 };
 
+const VISIBLE_REVIEWS_COUNT = 5;
+
 const EMPTY_AGGREGATE: ReviewAggregate = {
   average: null,
   count: 0,
@@ -32,6 +34,7 @@ const CourseReviews = ({ courseId, canReview }: Props) => {
   const [aggregate, setAggregate] = useState<ReviewAggregate>(EMPTY_AGGREGATE);
   const [myReview, setMyReview] = useState<Review | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewsExpanded, setReviewsExpanded] = useState(false);
 
   // form state
   const [rating, setRating] = useState(0);
@@ -175,29 +178,40 @@ const CourseReviews = ({ courseId, canReview }: Props) => {
       ) : reviews.length === 0 ? (
         <p className="text-sm text-muted-foreground">Belum ada ulasan untuk kelas ini.</p>
       ) : (
-        <div className="space-y-6">
-          {reviews.map((r) => (
-            <div key={r.id} className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-muted overflow-hidden flex items-center justify-center text-foreground text-sm font-medium shrink-0">
-                {r.reviewer?.avatar_url ? (
-                  <img src={r.reviewer.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  (r.reviewer?.full_name ?? "?").charAt(0).toUpperCase()
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-foreground">{r.reviewer?.full_name ?? "Pengguna"}</p>
-                  <p className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</p>
+        <>
+          <div className="space-y-6">
+            {(reviewsExpanded ? reviews : reviews.slice(0, VISIBLE_REVIEWS_COUNT)).map((r) => (
+              <div key={r.id} className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-muted overflow-hidden flex items-center justify-center text-foreground text-sm font-medium shrink-0">
+                  {r.reviewer?.avatar_url ? (
+                    <img src={r.reviewer.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    (r.reviewer?.full_name ?? "?").charAt(0).toUpperCase()
+                  )}
                 </div>
-                <div className="mt-1 mb-2">
-                  <StarRatingInput value={r.rating} readOnly size={14} />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-foreground">{r.reviewer?.full_name ?? "Pengguna"}</p>
+                    <p className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</p>
+                  </div>
+                  <div className="mt-1 mb-2">
+                    <StarRatingInput value={r.rating} readOnly size={14} />
+                  </div>
+                  {r.body && <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{r.body}</p>}
                 </div>
-                {r.body && <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{r.body}</p>}
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          {reviews.length > VISIBLE_REVIEWS_COUNT && (
+            <button
+              type="button"
+              onClick={() => setReviewsExpanded((v) => !v)}
+              className="mt-6 text-sm font-medium text-primary hover:underline"
+            >
+              {reviewsExpanded ? "Lihat lebih sedikit" : "Lihat lebih"}
+            </button>
+          )}
+        </>
       )}
     </section>
   );
