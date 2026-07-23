@@ -5,6 +5,8 @@ import { prisma } from "../db.js";
 import { requireAuth } from "../auth.js";
 import { ORDER_EXPIRY_HOURS, UNIQUE_CODE_MIN, UNIQUE_CODE_MAX } from "../config/payment.js";
 import { sendMailSafe, templates } from "../mailer/index.js";
+import { evaluateCoupon } from "../lib/coupon.js";
+import { PROMO_COURSE_SLUG, PROMO_COUPON_CODE } from "../config/promo.js";
 import type { OrderItemType } from "@prisma/client";
 
 export const cartRouter = Router();
@@ -219,7 +221,7 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
   if (rows.length === 0) return res.status(400).json({ error: "Keranjang kosong" });
 
   // Validasi setiap item terhadap produk live + entitlement saat ini.
-  type PayItem = { product_type: OrderItemType; product_id: string; title: string; cover: string | null; price_idr: number };
+  type PayItem = { product_type: OrderItemType; product_id: string; slug: string; title: string; cover: string | null; price_idr: number };
   const payItems: PayItem[] = [];
   const freeCourseIds: string[] = [];
   const freeEbookIds: string[] = [];
@@ -261,6 +263,7 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
     payItems.push({
       product_type: row.product_type,
       product_id: row.product_id,
+      slug: live.slug,
       title: live.title,
       cover: live.cover_image_url,
       price_idr: live.price_idr,
@@ -301,7 +304,22 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
     for (const it of payItems) {
       const unique_code = randomUniqueCode();
       const base_price_idr = it.price_idr;
-      const total_idr = base_price_idr + unique_code;
+
+      // Kelas promo peluncuran: kupon ter-apply otomatis juga di jalur keranjang,
+      // sama seperti checkout langsung — bukan cuma andalan frontend kirim coupon_code.
+      let discount_idr = 0;
+      let coupon_id: string | null = null;
+      let coupon_code: string | null = null;
+      if (it.product_type === "course" && it.slug === PROMO_COURSE_SLUG) {
+        const ev = await evaluateCoupon({ code: PROMO_COUPON_CODE, course_id: it.product_id, base_price_idr });
+        if (ev.valid && ev.coupon) {
+          discount_idr = ev.discount_idr;
+          coupon_id = ev.coupon.id;
+          coupon_code = ev.coupon.code;
+        }
+      }
+
+      const total_idr = Math.max(0, base_price_idr - discount_idr) + unique_code;
       const order = await tx.order.create({
         data: {
           user_id: userId,
@@ -311,7 +329,9 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
           event_id: it.product_type === "event" ? it.product_id : null,
           base_price_idr,
           unique_code,
-          discount_idr: 0,
+          discount_idr,
+          coupon_id,
+          coupon_code,
           total_idr,
           order_group_id,
           expires_at,
@@ -322,6 +342,12 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
           event: { select: { id: true, slug: true, title: true, cover_image_url: true, category: true, date_label: true, location: true } },
         },
       });
+      if (coupon_id) {
+        await tx.couponRedemption.create({
+          data: { coupon_id, user_id: userId, order_id: order.id, course_id: it.product_id, discount_idr },
+        });
+        await tx.coupon.update({ where: { id: coupon_id }, data: { used_count: { increment: 1 } } });
+      }
       orders.push(order);
     }
 

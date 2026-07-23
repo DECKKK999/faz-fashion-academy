@@ -6,6 +6,7 @@ import { requireAuth, requireAdmin } from "../auth.js";
 import { uploadProof } from "../upload.js";
 import { ORDER_EXPIRY_HOURS, UNIQUE_CODE_MIN, UNIQUE_CODE_MAX } from "../config/payment.js";
 import { evaluateCoupon } from "../lib/coupon.js";
+import { PROMO_COURSE_SLUG, PROMO_COUPON_CODE } from "../config/promo.js";
 import { sendMailSafe, templates } from "../mailer/index.js";
 
 export const ordersRouter = Router();
@@ -85,12 +86,15 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
   });
   if (existing) return res.status(200).json({ order: existing, resumed: true });
 
-  // kupon (opsional)
+  // Kupon: pakai yang dikirim client, atau — untuk kelas promo peluncuran — otomatis
+  // ter-apply walau client tidak mengirim apa-apa. Ini menutup celah kalau ada jalur
+  // checkout lain (baru, atau yang lupa diteruskan) yang tidak menyertakan coupon_code.
+  const effectiveCouponCode = coupon_code || (course.slug === PROMO_COURSE_SLUG ? PROMO_COUPON_CODE : undefined);
   let discount_idr = 0;
   let coupon_id: string | null = null;
   let coupon_code_snap: string | null = null;
-  if (coupon_code) {
-    const ev = await evaluateCoupon({ code: coupon_code, course_id, base_price_idr: course.price_idr });
+  if (effectiveCouponCode) {
+    const ev = await evaluateCoupon({ code: effectiveCouponCode, course_id, base_price_idr: course.price_idr });
     if (ev.valid && ev.coupon) {
       discount_idr = ev.discount_idr;
       coupon_id = ev.coupon.id;
