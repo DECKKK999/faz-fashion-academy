@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { api, ApiError, type Order } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,8 @@ import { toast } from "sonner";
 // Menangani: belum login (redirect), kelas gratis (langsung enroll), sudah punya kelas, order aktif (resume).
 const StartCheckout = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  const [searchParams] = useSearchParams();
+  const couponCode = searchParams.get("coupon");
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const started = useRef(false);
@@ -16,7 +18,8 @@ const StartCheckout = () => {
   useEffect(() => {
     if (loading || !courseId) return;
     if (!user) {
-      navigate(`/masuk?redirect=${encodeURIComponent(`/beli/${courseId}`)}`, { replace: true });
+      const redirect = `/beli/${courseId}${couponCode ? `?coupon=${encodeURIComponent(couponCode)}` : ""}`;
+      navigate(`/masuk?redirect=${encodeURIComponent(redirect)}`, { replace: true });
       return;
     }
     if (started.current) return;
@@ -26,6 +29,7 @@ const StartCheckout = () => {
       try {
         const res = await api.post<{ order?: Order; free?: boolean; resumed?: boolean }>("/orders", {
           course_id: courseId,
+          ...(couponCode ? { coupon_code: couponCode } : {}),
         });
         if (res.free) {
           toast.success("Kelas gratis berhasil diambil!");

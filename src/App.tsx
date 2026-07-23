@@ -12,6 +12,7 @@ import AdminRoute from "@/components/AdminRoute";
 import Index from "./pages/Index.tsx";
 import Kelas from "./pages/Kelas.tsx";
 import CourseDetail from "./pages/CourseDetail.tsx";
+import PromoFashionDesign from "./pages/PromoFashionDesign.tsx";
 import CoursePlayer from "./pages/CoursePlayer.tsx";
 import CourseQuiz from "./pages/CourseQuiz.tsx";
 import StartCheckout from "./pages/StartCheckout.tsx";
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/kelas" element={<Kelas />} />
                 <Route path="/kelas/:slug" element={<CourseDetail />} />
+                <Route path="/promo/fashion-design" element={<PromoFashionDesign />} />
                 <Route path="/belajar/:slug" element={<CoursePlayer />} />
                 <Route path="/belajar/:slug/quiz" element={<ProtectedRoute><CourseQuiz /></ProtectedRoute>} />
                 <Route path="/tentang" element={<Tentang />} />
