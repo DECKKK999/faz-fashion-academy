@@ -107,6 +107,10 @@ export default {
           from: { backgroundPosition: "200% 0" },
           to: { backgroundPosition: "-200% 0" },
         },
+        "marquee-right": {
+          from: { transform: "translateX(-50%)" },
+          to: { transform: "translateX(0%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -115,6 +119,7 @@ export default {
         "fade-in-left": "fade-in-left 0.6s ease-out forwards",
         "scale-in": "scale-in 0.4s ease-out forwards",
         "shimmer": "shimmer 3s ease-in-out infinite",
+        "marquee-right": "marquee-right 28s linear infinite",
       },
     },
   },

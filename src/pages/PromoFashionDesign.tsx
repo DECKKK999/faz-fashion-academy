@@ -86,6 +86,26 @@ const MinimalFooter = () => (
   </footer>
 );
 
+// Baris ulasan yang terus bergeser ke kanan — dobel array-nya supaya
+// loop-nya mulus tanpa jeda (paruh pertama tepat menyambung paruh kedua).
+const ReviewsMarquee = ({ reviews }: { reviews: Review[] }) => {
+  if (reviews.length === 0) return null;
+  const items = [...reviews, ...reviews];
+  return (
+    <div className="relative w-full max-w-lg overflow-hidden mt-6 mb-2 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="flex gap-3 w-max animate-marquee-right hover:[animation-play-state:paused]">
+        {items.map((r, i) => (
+          <div key={`${r.id}-${i}`} className="shrink-0 w-60 bg-card border border-border rounded-xl px-4 py-3">
+            <StarRatingInput value={r.rating} readOnly size={11} className="mb-1.5" />
+            <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">"{r.body}"</p>
+            <p className="text-[10px] font-medium text-foreground mt-1.5">{r.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const PromoFashionDesign = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -93,6 +113,7 @@ const PromoFashionDesign = () => {
   const [state, setState] = useState<PurchaseState>({ enrolled: false, order: null });
   const [aggregate, setAggregate] = useState<CourseReviewsResponse["aggregate"] | null>(null);
   const [testimonials, setTestimonials] = useState<Review[]>([]);
+  const [marqueeReviews, setMarqueeReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -115,6 +136,7 @@ const PromoFashionDesign = () => {
               .sort((a, b) => b.rating - a.rating)
               .slice(0, 3)
           );
+          setMarqueeReviews(r.reviews.filter((rv) => rv.body).slice(0, 12));
         } catch {
           /* ignore */
         }
@@ -246,7 +268,7 @@ const PromoFashionDesign = () => {
               </Button>
             )}
 
-            <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap pb-10 lg:pb-0">
+            <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap">
               {course.duration_minutes ? (
                 <span className="flex items-center gap-1">
                   <Clock size={14} /> {Math.round(course.duration_minutes / 60)} jam materi
@@ -260,6 +282,11 @@ const PromoFashionDesign = () => {
                   <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
                 </span>
               ) : null}
+            </div>
+
+            {/* Ulasan bergeser — bukti sosial langsung di bawah info siswa & rating */}
+            <div className="pb-10 lg:pb-0">
+              <ReviewsMarquee reviews={marqueeReviews} />
             </div>
           </div>
 
