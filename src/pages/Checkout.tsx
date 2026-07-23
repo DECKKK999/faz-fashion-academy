@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { api, type Order, type PaymentInfo } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, orderStatus, orderItemOf, orderItemTypeLabel } from "@/lib/format";
-import { trackPixelEvent } from "@/lib/metaPixel";
+import { trackPixelEvent, trackPurchaseOnce } from "@/lib/metaPixel";
 import { toast } from "sonner";
 
 const Checkout = () => {
@@ -42,6 +42,18 @@ const Checkout = () => {
         if (!pixelTracked.current && (o.status === "pending" || o.status === "rejected")) {
           pixelTracked.current = true;
           trackPixelEvent("InitiateCheckout", {
+            value: o.total_idr,
+            currency: "IDR",
+            content_ids: o.course_id ? [o.course_id] : undefined,
+            content_name: orderItemOf(o)?.title,
+            content_type: "product",
+            num_items: 1,
+          });
+        }
+        // Purchase: order sudah diverifikasi admin. De-dup per order_id via localStorage
+        // supaya revisit halaman ini tidak mengirim event dobel.
+        if (o.status === "paid") {
+          trackPurchaseOnce(o.id, {
             value: o.total_idr,
             currency: "IDR",
             content_ids: o.course_id ? [o.course_id] : undefined,

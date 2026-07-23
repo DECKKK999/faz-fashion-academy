@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  Play,
   PlayCircle,
   BookOpen,
   Sparkles,
@@ -17,15 +16,14 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { api, type Course, type PurchaseState, type CourseReviewsResponse, type Review } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatCount } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
-import promoLennyCard from "@/assets/promo-lenny-card.png";
+import promoLennyCard from "@/assets/promo-lenny-card.jpg";
+import fazWordmark from "@/assets/faz-wordmark.png";
 
 const PROMO_QUOTA = 100;
 
@@ -68,6 +66,25 @@ const faqs = [
     a: `Ini promo peluncuran khusus untuk ${PROMO_QUOTA} siswa pertama. Begitu kuota terpenuhi, harga kembali ke harga normal.`,
   },
 ];
+
+// Header + footer khusus halaman promo: sengaja tanpa menu/keranjang/wishlist/login
+// supaya traffic iklan tidak punya jalan keluar sebelum sampai ke tombol beli.
+const MinimalHeader = () => (
+  <header className="sticky top-0 z-50 h-14 flex items-center px-4 sm:px-6 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <img src={fazWordmark} alt="FAZ Academy" className="h-6 md:h-7 w-auto" />
+  </header>
+);
+
+const MinimalFooter = () => (
+  <footer className="py-8 px-6 text-center border-t border-border">
+    <p className="text-[11px] tracking-editorial uppercase text-muted-foreground">
+      © 2026 FAZ Academy · Pembayaran aman & terverifikasi manual oleh tim kami
+    </p>
+    <Link to="/tentang" className="text-[11px] text-muted-foreground underline mt-1 inline-block">
+      Tentang FAZ Academy
+    </Link>
+  </footer>
+);
 
 const PromoFashionDesign = () => {
   const navigate = useNavigate();
@@ -124,8 +141,8 @@ const PromoFashionDesign = () => {
   if (loading || !course) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="pt-32 text-center text-muted-foreground text-sm">Memuat...</div>
+        <MinimalHeader />
+        <div className="pt-16 text-center text-muted-foreground text-sm">Memuat...</div>
       </div>
     );
   }
@@ -139,7 +156,7 @@ const PromoFashionDesign = () => {
         description={`Khusus ${PROMO_QUOTA} siswa pertama: ${course.title} cuma ${formatRupiah(PROMO_PRICE)} (harga normal ${formatRupiah(normalPrice)}).`}
         image={course.cover_image_url ?? undefined}
       />
-      <Navbar />
+      <MinimalHeader />
 
       {/* Urgency bar */}
       <div
@@ -157,43 +174,8 @@ const PromoFashionDesign = () => {
           ))}
         </div>
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid lg:grid-cols-2 gap-10 items-start">
-          {/* Left: copy */}
+          {/* Left: copy (headline/badge live inside the creative image now — not duplicated here) */}
           <div>
-            {/* Online class badge */}
-            <div className="flex items-center gap-3 mb-6">
-              <span
-                className="inline-flex items-center gap-2 pl-1.5 pr-4 py-1.5 rounded-full text-white text-xs font-semibold tracking-wide"
-                style={{ background: `linear-gradient(90deg, ${pink}, ${blue})` }}
-              >
-                <span className="w-6 h-6 rounded-full bg-white/25 flex items-center justify-center">
-                  <Play size={12} fill="white" className="text-white ml-0.5" />
-                </span>
-                ONLINE CLASS
-              </span>
-              <span className="h-px flex-1 max-w-[120px]" style={{ background: `linear-gradient(90deg, ${pink}, ${blue}, transparent)` }} />
-            </div>
-
-            {/* Headline (from the real course title, split at the colon) */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase leading-[1.1] tracking-tight mb-5">
-              {(() => {
-                const [head, ...rest] = course.title.split(": ");
-                const tail = rest.join(": ");
-                return tail ? (
-                  <>
-                    <span style={{ color: pink }}>{head}:</span>
-                    <br />
-                    <span style={{ color: "hsl(222 47% 15%)" }}>{tail}</span>
-                  </>
-                ) : (
-                  <span style={{ color: "hsl(222 47% 15%)" }}>{course.title}</span>
-                );
-              })()}
-            </h1>
-
-            <p className="max-w-md text-sm md:text-base text-foreground/70 leading-relaxed mb-8">
-              Panduan lengkap untuk mengubah ide menjadi brand fashion yang kuat dan berkelanjutan dengan strategi bisnis yang tepat.
-            </p>
-
             {/* Stat row */}
             <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 shadow-sm">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
@@ -282,7 +264,7 @@ const PromoFashionDesign = () => {
           </div>
 
           {/* Right: promo creative (full image, unmodified) */}
-          <div className="relative flex justify-center lg:justify-end mt-6 lg:mt-16">
+          <div className="relative flex justify-center lg:justify-end">
             <img
               src={promoLennyCard}
               alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
@@ -419,7 +401,7 @@ const PromoFashionDesign = () => {
         </section>
       )}
 
-      <Footer />
+      <MinimalFooter />
 
       {/* Sticky mobile CTA */}
       {!alreadyHasCourse && (
