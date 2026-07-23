@@ -195,59 +195,51 @@ const PromoFashionDesign = () => {
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
           ))}
         </div>
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          {/* Left: copy (headline/badge live inside the creative image now — not duplicated here) */}
-          <div className="min-w-0">
-            {/* Stat row */}
-            <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 shadow-sm">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-                {heroStats.map(({ icon: Icon, value, label }, i) => (
-                  <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
-                    <div
-                      className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
-                      style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
-                    >
-                      <Icon size={18} className="text-white" />
-                    </div>
-                    <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
-                    <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid grid-cols-1 lg:grid-cols-2 gap-x-10 items-start">
+          {/* Urutan di mobile: poster -> harga promo -> stat kelas -> sisanya.
+              Di desktop (lg+) dikembalikan ke layout 2 kolom aslinya lewat col-start/row-start. */}
 
-            {/* Trust bar */}
-            <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8">
-              <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
-              <p className="text-xs md:text-sm font-medium text-foreground">
-                Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
-              </p>
-            </div>
+          {/* Poster (mobile: pertama · desktop: kolom kanan) */}
+          <div className="relative flex justify-center lg:justify-end order-1 lg:order-none lg:col-start-2 lg:row-start-1">
+            <img
+              src={promoLennyCard}
+              alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
+              className="w-full max-w-sm sm:max-w-md lg:max-w-xl h-auto rounded-2xl"
+              width={1000}
+              height={1250}
+            />
+          </div>
 
-            {/* Price block */}
-            <div className="flex items-center gap-4 mb-2">
-              <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
-                HEMAT {discountPct}%
-              </span>
-            </div>
+          {/* Harga coret + badge hemat */}
+          <div className="flex items-center gap-4 mb-2 order-2 lg:order-none lg:col-start-1 lg:row-start-3">
+            <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
+              HEMAT {discountPct}%
+            </span>
+          </div>
+
+          {/* Harga promo besar */}
+          <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-4">
             <p className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-1">{formatRupiah(PROMO_PRICE)}</p>
             <p className="text-xs text-muted-foreground mb-6">Harga khusus {PROMO_QUOTA} siswa pertama</p>
+          </div>
 
-            {/* Spots progress */}
-            <div className="max-w-sm mb-6">
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-                <span>{spotsTaken} siswa sudah bergabung</span>
-                <span>{spotsLeft} slot tersisa</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
-                />
-              </div>
+          {/* Spots progress */}
+          <div className="max-w-sm mb-6 order-4 lg:order-none lg:col-start-1 lg:row-start-5">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+              <span>{spotsTaken} siswa sudah bergabung</span>
+              <span>{spotsLeft} slot tersisa</span>
             </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+              />
+            </div>
+          </div>
 
+          {/* Tombol klaim */}
+          <div className="order-5 lg:order-none lg:col-start-1 lg:row-start-6">
             {alreadyHasCourse ? (
               <div className="flex flex-col items-start gap-3">
                 <div className="flex items-center gap-2 text-emerald-600 text-sm">
@@ -267,38 +259,54 @@ const PromoFashionDesign = () => {
                 Klaim Promo Sekarang
               </Button>
             )}
+          </div>
 
-            <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap">
-              {course.duration_minutes ? (
-                <span className="flex items-center gap-1">
-                  <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
-                </span>
-              ) : null}
-              <span className="flex items-center gap-1">
-                <Users size={14} /> {formatCount(course.students_count)} siswa
-              </span>
-              {aggregate?.average ? (
-                <span className="flex items-center gap-1">
-                  <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
-                </span>
-              ) : null}
-            </div>
-
-            {/* Ulasan bergeser — bukti sosial langsung di bawah info siswa & rating */}
-            <div className="pb-10 lg:pb-0">
-              <ReviewsMarquee reviews={marqueeReviews} />
+          {/* Stat kelas: 6 Bab / Durasi / Final Quiz / Sertifikat */}
+          <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 mt-6 lg:mt-0 shadow-sm order-6 lg:order-none lg:col-start-1 lg:row-start-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              {heroStats.map(({ icon: Icon, value, label }, i) => (
+                <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
+                    style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
+                  >
+                    <Icon size={18} className="text-white" />
+                  </div>
+                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
+                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Right: promo creative (full image, unmodified) */}
-          <div className="relative flex justify-center lg:justify-end">
-            <img
-              src={promoLennyCard}
-              alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
-              className="w-full max-w-sm sm:max-w-md lg:max-w-xl h-auto rounded-2xl"
-              width={1000}
-              height={1250}
-            />
+          {/* Trust bar */}
+          <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8 order-7 lg:order-none lg:col-start-1 lg:row-start-2">
+            <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
+            <p className="text-xs md:text-sm font-medium text-foreground">
+              Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
+            </p>
+          </div>
+
+          {/* Info durasi/siswa/rating */}
+          <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap order-8 lg:order-none lg:col-start-1 lg:row-start-7">
+            {course.duration_minutes ? (
+              <span className="flex items-center gap-1">
+                <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
+              </span>
+            ) : null}
+            <span className="flex items-center gap-1">
+              <Users size={14} /> {formatCount(course.students_count)} siswa
+            </span>
+            {aggregate?.average ? (
+              <span className="flex items-center gap-1">
+                <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
+              </span>
+            ) : null}
+          </div>
+
+          {/* Ulasan bergeser — bukti sosial langsung di bawah info siswa & rating */}
+          <div className="pb-10 lg:pb-0 order-9 lg:order-none lg:col-start-1 lg:row-start-8">
+            <ReviewsMarquee reviews={marqueeReviews} />
           </div>
         </div>
       </section>
