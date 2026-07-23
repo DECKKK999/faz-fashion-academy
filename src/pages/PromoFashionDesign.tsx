@@ -282,7 +282,7 @@ const PromoFashionDesign = () => {
           </div>
 
           {/* Right: promo creative (full image, unmodified) */}
-          <div className="relative flex justify-center lg:justify-end">
+          <div className="relative flex justify-center lg:justify-end mt-6 lg:mt-16">
             <img
               src={promoLennyCard}
               alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
