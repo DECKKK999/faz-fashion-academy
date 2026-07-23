@@ -200,7 +200,7 @@ const PromoFashionDesign = () => {
               Di desktop (lg+) dikembalikan ke layout 2 kolom aslinya lewat col-start/row-start. */}
 
           {/* Poster (mobile: pertama · desktop: kolom kanan) */}
-          <div className="relative flex justify-center lg:justify-end order-1 lg:order-none lg:col-start-2 lg:row-start-1 mb-8 lg:mb-0">
+          <div className="relative flex justify-center lg:justify-end order-1 lg:order-none lg:col-start-2 lg:[grid-row:1/9] mb-8 lg:mb-0">
             <img
               src={promoLennyCard}
               alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
