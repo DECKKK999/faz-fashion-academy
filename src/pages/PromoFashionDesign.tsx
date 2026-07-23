@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  PlayCircle,
   BookOpen,
-  Sparkles,
   GraduationCap,
   Award,
   ClipboardCheck,
@@ -16,7 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { api, type Course, type PurchaseState, type CourseReviewsResponse, type Review } from "@/lib/api";
+import { api, type Course, type PurchaseState, type CourseReviewsResponse, type Review, type PlayerCourse } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatCount, formatDuration } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
@@ -24,24 +22,33 @@ import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
 import fazWordmark from "@/assets/faz-wordmark.png";
+import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
 
 const PROMO_QUOTA = 100;
 
 const pink = "hsl(330 81% 55%)";
 const blue = "hsl(220 80% 55%)";
 
+// Ubah link YouTube (youtu.be / watch?v= / sudah-embed) jadi URL embed yang bisa dipakai di iframe.
+const toYoutubeEmbedUrl = (url: string): string | null => {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if (u.hostname.includes("youtube.com")) {
+      if (u.pathname === "/watch") return `https://www.youtube.com/embed/${u.searchParams.get("v")}`;
+      if (u.pathname.startsWith("/embed/")) return url;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 const heroStats = [
   { icon: BookOpen, value: "6 Bab", label: "Materi terstruktur dan aplikatif" },
   { icon: Clock, value: "Durasi: 1 Jam", label: "Belajar efektif kapan saja" },
   { icon: ClipboardCheck, value: "Final Quiz", label: "Uji pemahaman untuk memperkuat hasil belajar" },
   { icon: Award, value: "Sertifikat", label: "Sertifikat dari FAZ Academy dan Bu Lenny Agustin" },
-];
-
-const highlights = [
-  { icon: BookOpen, label: "6 Bab Terstruktur", desc: "Dari fondasi bisnis sampai strategi scale-up" },
-  { icon: PlayCircle, label: "12 Video Materi", desc: "Bisa diakses & diulang kapan saja" },
-  { icon: Sparkles, label: "1 Video Pengantar", desc: "Kenali alur belajar sebelum mulai" },
-  { icon: GraduationCap, label: "Final Quiz + Sertifikat", desc: "Bukti resmi penyelesaian kelas" },
 ];
 
 const faqs = [
@@ -116,6 +123,7 @@ const PromoFashionDesign = () => {
   const [marqueeReviews, setMarqueeReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -137,6 +145,13 @@ const PromoFashionDesign = () => {
               .slice(0, 3)
           );
           setMarqueeReviews(r.reviews.filter((rv) => rv.body).slice(0, 12));
+        } catch {
+          /* ignore */
+        }
+        try {
+          const player = await api.get<PlayerCourse>(`/player/courses/by-slug/${SLUG}`);
+          const introLesson = player.modules.flatMap((m) => m.lessons).find((l) => l.is_free_preview && l.video_url);
+          if (introLesson?.video_url) setIntroVideoUrl(introLesson.video_url);
         } catch {
           /* ignore */
         }
@@ -172,7 +187,7 @@ const PromoFashionDesign = () => {
   const alreadyHasCourse = state.enrolled || (state.order && state.order.status === "paid");
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20">
       <SeoHead
         title={`Promo ${PROMO_QUOTA} Siswa Pertama — ${course.title}`}
         description={`Khusus ${PROMO_QUOTA} siswa pertama: ${course.title} cuma ${formatRupiah(PROMO_PRICE)} (harga normal ${formatRupiah(normalPrice)}).`}
@@ -195,12 +210,10 @@ const PromoFashionDesign = () => {
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
           ))}
         </div>
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid grid-cols-1 lg:grid-cols-2 gap-x-10 items-start">
-          {/* Urutan di mobile: poster -> harga promo -> stat kelas -> sisanya.
-              Di desktop (lg+) dikembalikan ke layout 2 kolom aslinya lewat col-start/row-start. */}
-
-          {/* Poster (mobile: pertama · desktop: kolom kanan) */}
-          <div className="relative flex justify-center lg:justify-end order-1 lg:order-none lg:col-start-2 lg:[grid-row:1/9] mb-8 lg:mb-0">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-x-10 items-start lg:items-stretch">
+          {/* Poster (mobile: pertama · desktop: kolom kiri). Cuma 2 grid item (poster + konten harga)
+              supaya tinggi tiap kolom independen — nggak ada lagi row-start manual yang gampang buggy. */}
+          <div className="relative flex justify-center lg:justify-start order-1 lg:order-1 mb-8 lg:mb-0">
             <img
               src={promoLennyCard}
               alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
@@ -210,125 +223,137 @@ const PromoFashionDesign = () => {
             />
           </div>
 
-          {/* Harga coret + badge hemat */}
-          <div className="flex items-center gap-4 mb-2 order-2 lg:order-none lg:col-start-1 lg:row-start-3">
-            <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
-              HEMAT {discountPct}%
-            </span>
-          </div>
-
-          {/* Harga promo besar */}
-          <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-4">
-            <p className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-1">{formatRupiah(PROMO_PRICE)}</p>
-            <p className="text-xs text-muted-foreground mb-6">Harga khusus {PROMO_QUOTA} siswa pertama</p>
-          </div>
-
-          {/* Spots progress */}
-          <div className="max-w-sm mb-6 order-4 lg:order-none lg:col-start-1 lg:row-start-5">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-              <span>{spotsTaken} siswa sudah bergabung</span>
-              <span>{spotsLeft} slot tersisa</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
-              />
-            </div>
-          </div>
-
-          {/* Tombol klaim */}
-          <div className="order-5 lg:order-none lg:col-start-1 lg:row-start-6">
-            {alreadyHasCourse ? (
-              <div className="flex flex-col items-start gap-3">
-                <div className="flex items-center gap-2 text-emerald-600 text-sm">
-                  <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
+          {/* Konten kanan: instruktur ngisi ruang atas, harga+CTA+ulasan ditempel ke bawah (lg:mt-auto) */}
+          <div className="order-2 lg:order-2 flex flex-col lg:h-full">
+            {/* Instruktur — mobile: urutan ke-4 (terakhir) · desktop: ngisi ruang kosong antara ulasan & harga */}
+            {course.instructor_name && (
+              <div className="flex items-center gap-4 bg-card/60 border border-border rounded-2xl px-5 py-4 mb-6 order-4 lg:order-none">
+                <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground text-base font-medium shrink-0">
+                  {course.instructor_name.charAt(0)}
                 </div>
-                <Button asChild size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
-                  <a href={`/belajar/${course.slug}`}>Lanjut Belajar</a>
-                </Button>
+                <div>
+                  <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-0.5">Instruktur</p>
+                  <p className="font-serif text-base font-semibold text-foreground">{course.instructor_name}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Desainer visioner, dikenal lewat karya-karyanya yang berani, ceria, kontemporer, dan kaya sentuhan budaya Indonesia.
+                  </p>
+                </div>
               </div>
-            ) : (
-              <Button
-                onClick={handleClaim}
-                size="lg"
-                className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
-                style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
-              >
-                Klaim Promo Sekarang
-              </Button>
             )}
-          </div>
 
-          {/* Stat kelas: 6 Bab / Durasi / Final Quiz / Sertifikat */}
-          <div className="bg-card border border-border rounded-2xl px-5 py-6 mb-6 mt-6 lg:mt-0 shadow-sm order-6 lg:order-none lg:col-start-1 lg:row-start-1">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-              {heroStats.map(({ icon: Icon, value, label }, i) => (
-                <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
-                  <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
-                    style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
-                  >
-                    <Icon size={18} className="text-white" />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
-                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
+            {/* Harga + CTA dst — mobile: urutan ke-2 (setelah poster) · desktop: ditempel ke bawah kolom kanan (lg:mt-auto) */}
+            <div className="order-2 lg:order-none lg:mt-auto">
+              {/* Harga coret + badge hemat */}
+              <div className="flex items-center gap-4 mb-2">
+                <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
+                  HEMAT {discountPct}%
+                </span>
+              </div>
+
+              {/* Harga promo besar */}
+              <p className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-1">{formatRupiah(PROMO_PRICE)}</p>
+              <p className="text-xs text-muted-foreground mb-6">Harga khusus {PROMO_QUOTA} siswa pertama</p>
+
+              {/* Spots progress */}
+              <div className="max-w-sm mb-6">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+                  <span>{spotsTaken} siswa sudah bergabung</span>
+                  <span>{spotsLeft} slot tersisa</span>
                 </div>
-              ))}
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+                  />
+                </div>
+              </div>
+
+              {/* Tombol klaim */}
+              {alreadyHasCourse ? (
+                <div className="flex flex-col items-start gap-3">
+                  <div className="flex items-center gap-2 text-emerald-600 text-sm">
+                    <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
+                  </div>
+                  <Button asChild size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
+                    <a href={`/belajar/${course.slug}`}>Lanjut Belajar</a>
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={handleClaim}
+                  size="lg"
+                  className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
+                  style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
+                >
+                  Klaim Promo Sekarang
+                </Button>
+              )}
+
+              {/* Trust bar */}
+              <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8 mt-6">
+                <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
+                <p className="text-xs md:text-sm font-medium text-foreground">
+                  Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
+                </p>
+              </div>
+
+              {/* Info durasi/siswa/rating */}
+              <div className="flex items-center gap-5 text-xs text-muted-foreground flex-wrap">
+                {course.duration_minutes ? (
+                  <span className="flex items-center gap-1">
+                    <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
+                  </span>
+                ) : null}
+                <span className="flex items-center gap-1">
+                  <Users size={14} /> {formatCount(course.students_count)} siswa
+                </span>
+                {aggregate?.average ? (
+                  <span className="flex items-center gap-1">
+                    <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
+                  </span>
+                ) : null}
+              </div>
+
+              {/* Ulasan bergeser — di bawah info siswa & rating */}
+              <div className="pb-10 lg:pb-0">
+                <ReviewsMarquee reviews={marqueeReviews} />
+              </div>
             </div>
-          </div>
-
-          {/* Trust bar */}
-          <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8 order-7 lg:order-none lg:col-start-1 lg:row-start-2">
-            <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
-            <p className="text-xs md:text-sm font-medium text-foreground">
-              Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
-            </p>
-          </div>
-
-          {/* Info durasi/siswa/rating */}
-          <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap order-8 lg:order-none lg:col-start-1 lg:row-start-7">
-            {course.duration_minutes ? (
-              <span className="flex items-center gap-1">
-                <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
-              </span>
-            ) : null}
-            <span className="flex items-center gap-1">
-              <Users size={14} /> {formatCount(course.students_count)} siswa
-            </span>
-            {aggregate?.average ? (
-              <span className="flex items-center gap-1">
-                <Star size={14} className="text-gold" /> {aggregate.average.toFixed(1)} ({aggregate.count} ulasan)
-              </span>
-            ) : null}
-          </div>
-
-          {/* Ulasan bergeser — bukti sosial langsung di bawah info siswa & rating */}
-          <div className="pb-10 lg:pb-0 order-9 lg:order-none lg:col-start-1 lg:row-start-8">
-            <ReviewsMarquee reviews={marqueeReviews} />
           </div>
         </div>
       </section>
 
-      {/* Highlights */}
+      {/* Apa yang Kamu Dapatkan — pakai stat card yang sama dengan hero, supaya info gak dobel dengan desain beda */}
       <section className="max-w-5xl mx-auto px-6 md:px-12 py-16">
         <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
           Apa yang Kamu Dapatkan
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {highlights.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="text-center border border-border rounded-xl p-5 bg-card">
-              <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center mx-auto mb-3"
-                style={{ background: `linear-gradient(135deg, ${pink}22, ${blue}22)` }}
-              >
-                <Icon size={20} style={{ color: pink }} />
+        <div className="bg-card border border-border rounded-2xl px-5 py-6 shadow-sm max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+            {heroStats.map(({ icon: Icon, value, label }, i) => (
+              <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
+                  style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
+                >
+                  <Icon size={18} className="text-white" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
+                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
               </div>
-              <p className="text-sm font-semibold text-foreground mb-1">{label}</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Contoh Sertifikat — preview watermark saja, tidak bisa diunduh */}
+        <div className="max-w-3xl mx-auto mt-8 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">Contoh Sertifikat</p>
+          <img
+            src={sertifikatContoh}
+            alt="Contoh sertifikat kelulusan FAZ Academy (sampel, bukan sertifikat resmi)"
+            className="w-full rounded-2xl border border-border shadow-sm"
+          />
         </div>
       </section>
 
@@ -342,20 +367,18 @@ const PromoFashionDesign = () => {
         </section>
       )}
 
-      {/* Instructor */}
-      {course.instructor_name && (
-        <section className="bg-muted/40 py-14 px-6 md:px-12">
-          <div className="max-w-3xl mx-auto flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-card border border-border flex items-center justify-center text-foreground text-lg font-medium shrink-0">
-              {course.instructor_name.charAt(0)}
-            </div>
-            <div>
-              <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-1">Instruktur</p>
-              <p className="font-serif text-lg font-semibold text-foreground">{course.instructor_name}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Desainer visioner, dikenal lewat karya-karyanya yang berani, ceria, kontemporer, dan kaya sentuhan budaya Indonesia.
-              </p>
-            </div>
+      {/* Cuplikan Kelas — teaser video intro, section sendiri di bawah Tentang Kelas */}
+      {introVideoUrl && toYoutubeEmbedUrl(introVideoUrl) && (
+        <section className="max-w-3xl mx-auto px-6 md:px-12 pb-16">
+          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-6 text-center">Cuplikan Kelas</h2>
+          <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-sm bg-black">
+            <iframe
+              src={toYoutubeEmbedUrl(introVideoUrl) ?? undefined}
+              title="Cuplikan kelas Memulai Bisnis Pakaian"
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </section>
       )}
@@ -438,20 +461,34 @@ const PromoFashionDesign = () => {
 
       <MinimalFooter />
 
-      {/* Sticky mobile CTA */}
+      {/* Sticky CTA — tetap kelihatan pas di-scroll, di mobile & desktop. Ada sisa slot buat nambah urgensi. */}
       {!alreadyHasCourse && (
-        <div className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-card border-t border-border p-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] text-muted-foreground line-through leading-none">{formatRupiah(normalPrice)}</p>
-            <p className="text-base font-serif font-bold text-foreground leading-tight">{formatRupiah(PROMO_PRICE)}</p>
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border">
+          <div className="max-w-7xl mx-auto px-3 md:px-12 pt-2">
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+              <span>🔥 Sisa {spotsLeft} slot promo</span>
+              <span>{spotsTaken}/{PROMO_QUOTA} siswa bergabung</span>
+            </div>
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+              />
+            </div>
           </div>
-          <Button
-            onClick={handleClaim}
-            className="flex-1 rounded-full text-xs tracking-[0.1em] uppercase font-semibold"
-            style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
-          >
-            Klaim Promo
-          </Button>
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 md:justify-end md:px-12 p-3 pt-2">
+            <div className="md:mr-6">
+              <p className="text-[10px] text-muted-foreground line-through leading-none">{formatRupiah(normalPrice)}</p>
+              <p className="text-base font-serif font-bold text-foreground leading-tight">{formatRupiah(PROMO_PRICE)}</p>
+            </div>
+            <Button
+              onClick={handleClaim}
+              className="flex-1 md:flex-none md:px-10 rounded-full text-xs tracking-[0.1em] uppercase font-semibold"
+              style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
+            >
+              Klaim Promo
+            </Button>
+          </div>
         </div>
       )}
     </div>
