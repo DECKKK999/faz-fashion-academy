@@ -23,6 +23,7 @@ import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRIC
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
 import fazWordmark from "@/assets/faz-wordmark.png";
 import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
+import lennyAvatar from "@/assets/lenny-avatar.jpg";
 
 const PROMO_QUOTA = 100;
 
@@ -227,15 +228,20 @@ const PromoFashionDesign = () => {
           <div className="order-2 lg:order-2 flex flex-col lg:h-full">
             {/* Instruktur — mobile: urutan ke-4 (terakhir) · desktop: ngisi ruang kosong antara ulasan & harga */}
             {course.instructor_name && (
-              <div className="flex items-center gap-4 bg-card/60 border border-border rounded-2xl px-5 py-4 mb-6 order-4 lg:order-none">
-                <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground text-base font-medium shrink-0">
-                  {course.instructor_name.charAt(0)}
-                </div>
+              <div className="flex items-start gap-4 bg-card/60 border border-border rounded-2xl px-5 py-4 mb-6 order-4 lg:order-none">
+                <img
+                  src={lennyAvatar}
+                  alt={course.instructor_name}
+                  className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
+                />
                 <div>
                   <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-0.5">Instruktur</p>
                   <p className="font-serif text-base font-semibold text-foreground">{course.instructor_name}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Desainer visioner, dikenal lewat karya-karyanya yang berani, ceria, kontemporer, dan kaya sentuhan budaya Indonesia.
+                    Desainer mode dan National Chair IFC yang dikenal lewat karya-karyanya yang berani, ceria, kontemporer, dan kaya sentuhan budaya Indonesia.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Kini, ia juga menyandang gelar Dr. Lenny Agustin Ernawati, M.Sn., setelah meraih gelar Doktor Ilmu Pengetahuan Budaya dari Universitas Indonesia.
                   </p>
                 </div>
               </div>
@@ -357,13 +363,15 @@ const PromoFashionDesign = () => {
         </div>
       </section>
 
-      {/* Tentang kelas */}
+      {/* Tentang kelas — background selang-seling sama kayak Hero */}
       {course.description && (
-        <section className="max-w-3xl mx-auto px-6 md:px-12 pb-16">
-          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-4 text-center">Tentang Kelas</h2>
-          <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
-            {course.description}
-          </p>
+        <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50">
+          <div className="max-w-3xl mx-auto px-6 md:px-12 py-16">
+            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-4 text-center">Tentang Kelas</h2>
+            <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
+              {course.description}
+            </p>
+          </div>
         </section>
       )}
 
@@ -383,20 +391,22 @@ const PromoFashionDesign = () => {
         </section>
       )}
 
-      {/* Testimonials */}
+      {/* Testimonials — background selang-seling sama kayak Hero */}
       {testimonials.length > 0 && (
-        <section className="max-w-5xl mx-auto px-6 md:px-12 py-16">
-          <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
-            Kata Mereka yang Sudah Bergabung
-          </h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {testimonials.map((t) => (
-              <div key={t.id} className="border border-border rounded-xl p-5 bg-card flex flex-col">
-                <StarRatingInput value={t.rating} readOnly size={14} className="mb-3" />
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.body}"</p>
-                <p className="text-xs font-medium text-foreground mt-4">{t.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
-              </div>
-            ))}
+        <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50">
+          <div className="max-w-5xl mx-auto px-6 md:px-12 py-16">
+            <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
+              Kata Mereka yang Sudah Bergabung
+            </h2>
+            <div className="grid md:grid-cols-3 gap-5">
+              {testimonials.map((t) => (
+                <div key={t.id} className="border border-border rounded-xl p-5 bg-card flex flex-col">
+                  <StarRatingInput value={t.rating} readOnly size={14} className="mb-3" />
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.body}"</p>
+                  <p className="text-xs font-medium text-foreground mt-4">{t.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
