@@ -281,14 +281,14 @@ const PromoFashionDesign = () => {
             </div>
           </div>
 
-          {/* Right: instructor photo + card */}
+          {/* Right: promo creative (full image, unmodified) */}
           <div className="relative flex justify-center lg:justify-end">
             <img
               src={promoLennyCard}
-              alt="Lenny Agustin, Fashion Designer & Owner of Funky Kebaya, mentor kelas ini"
+              alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
               className="w-full max-w-xs sm:max-w-sm lg:max-w-md h-auto rounded-2xl"
-              width={900}
-              height={943}
+              width={1000}
+              height={1250}
             />
           </div>
         </div>
