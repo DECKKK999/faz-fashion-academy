@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { api, type Course, type PurchaseState, type CourseReviewsResponse, type Review } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatRupiah, formatCount } from "@/lib/format";
+import { formatRupiah, formatCount, formatDuration } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
@@ -271,7 +271,7 @@ const PromoFashionDesign = () => {
             <div className="flex items-center gap-5 text-xs text-muted-foreground mt-6 flex-wrap">
               {course.duration_minutes ? (
                 <span className="flex items-center gap-1">
-                  <Clock size={14} /> {Math.round(course.duration_minutes / 60)} jam materi
+                  <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
                 </span>
               ) : null}
               <span className="flex items-center gap-1">
