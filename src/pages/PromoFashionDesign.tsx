@@ -156,7 +156,7 @@ const PromoFashionDesign = () => {
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
           ))}
         </div>
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 pt-12 pb-0 md:pb-12 grid lg:grid-cols-2 gap-10 items-start">
           {/* Left: copy */}
           <div>
             {/* Online class badge */}
@@ -286,7 +286,7 @@ const PromoFashionDesign = () => {
             <img
               src={promoLennyCard}
               alt="Promo kelas Memulai Bisnis Pakaian bersama Lenny Agustin, mentor FAZ Academy"
-              className="w-full max-w-xs sm:max-w-sm lg:max-w-md h-auto rounded-2xl"
+              className="w-full max-w-sm sm:max-w-md lg:max-w-xl h-auto rounded-2xl"
               width={1000}
               height={1250}
             />
