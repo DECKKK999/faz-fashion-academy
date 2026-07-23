@@ -296,16 +296,8 @@ const PromoFashionDesign = () => {
                 </Button>
               )}
 
-              {/* Trust bar */}
-              <div className="flex items-center gap-3 bg-card/80 border border-border rounded-full px-5 py-3 mb-8 mt-6">
-                <ShieldCheck size={18} style={{ color: blue }} className="shrink-0" />
-                <p className="text-xs md:text-sm font-medium text-foreground">
-                  Materi disusun bersama praktisi berpengalaman — bangun brand fashion-mu dari nol!
-                </p>
-              </div>
-
               {/* Info durasi/siswa/rating */}
-              <div className="flex items-center gap-5 text-xs text-muted-foreground flex-wrap">
+              <div className="flex items-center gap-5 text-xs text-muted-foreground flex-wrap mt-6">
                 {course.duration_minutes ? (
                   <span className="flex items-center gap-1">
                     <Clock size={14} /> {formatDuration(course.duration_minutes)} materi
@@ -377,7 +369,7 @@ const PromoFashionDesign = () => {
 
       {/* Cuplikan Kelas — teaser video intro, section sendiri di bawah Tentang Kelas */}
       {introVideoUrl && toYoutubeEmbedUrl(introVideoUrl) && (
-        <section className="max-w-3xl mx-auto px-6 md:px-12 pb-16">
+        <section className="max-w-3xl mx-auto px-6 md:px-12 py-16">
           <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-6 text-center">Cuplikan Kelas</h2>
           <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-sm bg-black">
             <iframe
