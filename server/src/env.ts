@@ -32,6 +32,13 @@ export const env = {
 
   // ===== Payment gateway scaffold (opsional; kosong = manual transfer saja) =====
   PAYMENT_GATEWAY: (process.env.PAYMENT_GATEWAY ?? "") as "" | "midtrans" | "xendit",
+
+  // ===== Google Sheets sync untuk certificate_codes (opsional) =====
+  // GOOGLE_SERVICE_ACCOUNT_JSON: isi mentah file JSON service account (bukan path).
+  GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "",
+  CERTIFICATE_SHEET_ID: process.env.CERTIFICATE_SHEET_ID ?? "",
+  CERTIFICATE_SHEET_TAB: process.env.CERTIFICATE_SHEET_TAB ?? "Data Sertifikat Kelas 1.0",
 };
 
 export const smtpConfigured = !!(env.SMTP_HOST && env.SMTP_USER);
+export const googleSheetsConfigured = !!(env.GOOGLE_SERVICE_ACCOUNT_JSON && env.CERTIFICATE_SHEET_ID);

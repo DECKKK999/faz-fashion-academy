@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireAdmin } from "../auth.js";
 import { generateCertificatePdf } from "../lib/certificate-pdf.js";
+import { claimCertificateCode } from "../lib/certificate-code-pool.js";
+import { pushPendingCertificateCodesToSheet } from "../lib/certificate-sheet-sync.js";
 import { quizGate } from "./quiz.js";
 
 export const certificatesRouter = Router();
@@ -44,12 +45,6 @@ const adminSelect = {
 
 function isAdmin(req: { user?: { roles: string[] } }) {
   return req.user?.roles.includes("admin") ?? false;
-}
-
-function generateCertificateNumber(): string {
-  const year = new Date().getFullYear();
-  const rand = randomBytes(4).toString("hex").toUpperCase(); // 8 hex chars
-  return `FAZ-${year}-${rand}`;
 }
 
 async function recipientName(userId: string, email: string): Promise<string> {
@@ -166,11 +161,27 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
     if (!enrollment.completed_at) {
       await tx.enrollment.update({ where: { id: enrollment.id }, data: { completed_at: new Date() } });
     }
-    // Upsert idempoten berdasarkan @@unique([user_id, course_id]).
-    return tx.certificate.upsert({
+
+    // Cek ulang di dalam transaksi (race guard) sebelum klaim kode baru —
+    // jangan sampai request duplikat yang lolos dari cek `existing` di atas
+    // ikut memakan satu kode dari pool.
+    const already = await tx.certificate.findUnique({
       where: { user_id_course_id: { user_id: userId, course_id } },
-      create: {
-        certificate_number: generateCertificateNumber(),
+      select: ownSelect,
+    });
+    if (already) return already;
+
+    // Nomor sertifikat = kode dari certificate_codes (pool 100 kode dari
+    // sheet, atau kode baru dengan format sama kalau pool-nya habis).
+    const { code } = await claimCertificateCode(tx, {
+      recipientName: name,
+      courseTitle: course.title,
+      instructorName: course.instructor_name ?? null,
+    });
+
+    return tx.certificate.create({
+      data: {
+        certificate_number: code,
         user_id: userId,
         course_id,
         enrollment_id: enrollment.id,
@@ -179,10 +190,13 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
         instructor_name: course.instructor_name ?? null,
         quiz_score: gate.best_score,
       },
-      update: {},
       select: ownSelect,
     });
   });
+
+  // Push balik ke Google Sheets (best-effort — gagal di sini nggak boleh
+  // menggagalkan penerbitan sertifikat; job berkala akan retry).
+  pushPendingCertificateCodesToSheet().catch((e) => console.error("[certificates] push ke sheet gagal:", e));
 
   res.status(201).json(certificate);
 });

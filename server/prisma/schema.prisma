@@ -370,9 +370,15 @@ model CertificateCode {
   revoked         Boolean   @default(false)
   revoked_at      DateTime?
   revoked_reason  String?
+  // Kapan terakhir berhasil di-push ke Google Sheets. Null = belum sinkron
+  // (baru diklaim otomatis oleh sistem, atau push sebelumnya gagal) — dipakai
+  // job retry berkala buat nyusul push yang sempat gagal.
+  sheet_synced_at DateTime?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @default(now()) @updatedAt
 
+  @@index([recipient_name])
+  @@index([sheet_synced_at])
   @@map("certificate_codes")
 }
 

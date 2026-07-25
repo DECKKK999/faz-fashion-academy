@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import multer from "multer";
-import { env } from "./env.js";
+import { env, googleSheetsConfigured } from "./env.js";
 import { UPLOAD_DIR } from "./upload.js";
 import { authLimiter } from "./middleware/rateLimit.js";
 import { authRouter } from "./routes/auth.js";
@@ -29,6 +29,7 @@ import { libraryRouter } from "./routes/library.js";
 import { cartRouter } from "./routes/cart.js";
 import { wishlistRouter } from "./routes/wishlist.js";
 import { gatewayRouter, adminGatewayRouter } from "./routes/gateway.js";
+import { pullCertificateCodesFromSheet, pushPendingCertificateCodesToSheet } from "./lib/certificate-sheet-sync.js";
 
 const app = express();
 
@@ -101,3 +102,27 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 app.listen(env.PORT, () => {
   console.log(`API server berjalan di http://localhost:${env.PORT}`);
 });
+
+// Sinkronisasi berkala certificate_codes <-> Google Sheets (kalau dikonfigurasi):
+// tarik perubahan manual dari sheet, lalu coba lagi push baris yang sempat
+// gagal dikirim langsung saat penerbitan sertifikat.
+const CERTIFICATE_SHEET_SYNC_INTERVAL_MS = 10 * 60 * 1000; // 10 menit
+if (googleSheetsConfigured) {
+  let syncing = false;
+  const runCertificateSheetSync = async () => {
+    if (syncing) return;
+    syncing = true;
+    try {
+      await pullCertificateCodesFromSheet();
+      await pushPendingCertificateCodesToSheet();
+    } catch (e) {
+      console.error("[certificate-sheet-sync] gagal jalan:", e);
+    } finally {
+      syncing = false;
+    }
+  };
+  runCertificateSheetSync();
+  setInterval(runCertificateSheetSync, CERTIFICATE_SHEET_SYNC_INTERVAL_MS);
+} else {
+  console.log("[certificate-sheet-sync] nonaktif — GOOGLE_SERVICE_ACCOUNT_JSON / CERTIFICATE_SHEET_ID belum diisi");
+}
