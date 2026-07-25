@@ -31,3 +31,6 @@ faz-lms-server-access/
 
 # Deploy artifacts
 deploy.env
+
+# Local editor/tooling config
+.claude/
