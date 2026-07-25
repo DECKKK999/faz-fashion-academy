@@ -1,4 +1,4 @@
-import { google, type sheets_v4 } from "googleapis";
+import { auth, sheets, type sheets_v4 } from "@googleapis/sheets";
 import { env, googleSheetsConfigured } from "../env.js";
 
 // Kolom di tab sertifikat (sama untuk kedua sumber file yang dulu diimpor:
@@ -26,11 +26,11 @@ function getClient(): sheets_v4.Sheets {
     throw new Error("Google Sheets belum dikonfigurasi (GOOGLE_SERVICE_ACCOUNT_JSON / CERTIFICATE_SHEET_ID kosong)");
   }
   const credentials = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_JSON);
-  const auth = new google.auth.GoogleAuth({
+  const googleAuth = new auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
-  cachedClient = google.sheets({ version: "v4", auth });
+  cachedClient = sheets({ version: "v4", auth: googleAuth });
   return cachedClient;
 }
 
