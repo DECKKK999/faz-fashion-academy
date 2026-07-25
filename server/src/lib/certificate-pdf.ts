@@ -30,17 +30,31 @@ const NAME_MAX_WIDTH = 100; // biar nggak nabrak teks berikutnya kalau nama panj
 const CERT_ID = { x: 739.32, y: 577.5, size: 13, color: rgb(0.55, 0.55, 0.55), rotate: -90 };
 const CERT_ID_MASK = { x: 736, y: 573.5, width: 243, height: 18, rotate: -90 };
 
+// "Date of issue" value ("Jakarta, 22 Juli 2026" di template asli) — posisi
+// juga diambil dari ekstraksi teks PDF, sama seperti NAME/CERT_ID di atas.
+const DATE = { x: 254.13, y: 55.18, size: 12, color: rgb(0.07, 0.07, 0.07) };
+const DATE_MASK = { x: 250, y: 51, width: 190, height: 16 };
+const DATE_MAX_WIDTH = 180;
+
 function fitFontSize(font: PDFFont, text: string, maxWidth: number, startSize: number): number {
   let size = startSize;
   while (size > 8 && font.widthOfTextAtSize(text, size) > maxWidth) size -= 0.5;
   return size;
 }
 
+const MONTHS_ID = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+function formatIssuedDateLabel(d: Date): string {
+  return `Jakarta, ${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 /**
  * Mengisi sertifikat FAZ Academy dari template PDF asli (dibuat di luar
- * sistem, lihat certificate-template.pdf) — hanya dua field yang diganti:
- * nama penerima dan nomor sertifikat. Elemen lain (pita, lencana, tanda
- * tangan, tanggal, tag) dipakai persis seperti di file aslinya.
+ * sistem, lihat certificate-template.pdf) — hanya tiga field yang diganti:
+ * nama penerima, nomor sertifikat, dan tanggal terbit. Elemen lain (pita,
+ * lencana, tanda tangan, tag) dipakai persis seperti di file aslinya.
  */
 export async function generateCertificatePdf(
   data: CertificatePdfData,
@@ -79,6 +93,12 @@ export async function generateCertificatePdf(
     color: CERT_ID.color,
     rotate: degrees(CERT_ID.rotate),
   });
+
+  // ---- Tanggal terbit ----
+  page.drawRectangle({ x: DATE_MASK.x, y: DATE_MASK.y, width: DATE_MASK.width, height: DATE_MASK.height, color: rgb(1, 1, 1) });
+  const dateLabel = formatIssuedDateLabel(data.issued_at);
+  const dateSize = fitFontSize(fontBold, dateLabel, DATE_MAX_WIDTH, DATE.size);
+  page.drawText(dateLabel, { x: DATE.x, y: DATE.y, size: dateSize, font: fontBold, color: DATE.color });
 
   // Watermark "DICABUT" bila sertifikat dicabut admin — satu-satunya elemen
   // tambahan di luar template, dan hanya muncul untuk kasus revoke.
