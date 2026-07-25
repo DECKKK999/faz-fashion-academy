@@ -30,6 +30,7 @@ import VerifikasiEmail from "./pages/VerifikasiEmail.tsx";
 import Akun from "./pages/Akun.tsx";
 import Certificates from "./pages/Certificates.tsx";
 import VerifyCertificate from "./pages/VerifyCertificate.tsx";
+import VerifikasiSertifikat from "./pages/VerifikasiSertifikat.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
@@ -74,6 +75,7 @@ const App = () => (
                 <Route path="/lupa-password" element={<LupaPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/verifikasi-email" element={<VerifikasiEmail />} />
+                <Route path="/verifikasi" element={<VerifikasiSertifikat />} />
                 <Route path="/verifikasi/:certificateNumber" element={<VerifyCertificate />} />
 
                 {/* Terproteksi (login) */}

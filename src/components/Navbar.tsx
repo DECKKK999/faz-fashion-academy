@@ -17,6 +17,7 @@ import {
 const navLinks = [
   { label: "Kelas", href: "/kelas" },
   { label: "Tentang", href: "/tentang" },
+  { label: "Verifikasi Sertifikat", href: "/verifikasi" },
 ];
 
 const Navbar = () => {

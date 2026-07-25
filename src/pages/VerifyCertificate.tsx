@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ShieldCheck, ShieldX, ShieldAlert, Award } from "lucide-react";
+import { ShieldCheck, ShieldX, ShieldAlert, Award, Clock, Download } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
 
 type VerifyResult = {
-  valid: true;
-  revoked: boolean;
+  valid: boolean;
+  not_issued?: boolean;
+  revoked?: boolean;
   certificate_number: string;
-  recipient_name: string;
-  course_title: string;
-  instructor_name: string | null;
-  issued_at: string;
-  revoked_at: string | null;
+  recipient_name?: string;
+  course_title?: string;
+  instructor_name?: string | null;
+  issued_at?: string;
+  revoked_at?: string | null;
 };
 
 const formatDate = (iso: string) =>
@@ -32,7 +33,8 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 const VerifyCertificate = () => {
   const { certificateNumber } = useParams<{ certificateNumber: string }>();
   const [result, setResult] = useState<VerifyResult | null>(null);
-  const [status, setStatus] = useState<"loading" | "valid" | "revoked" | "invalid">("loading");
+  const [status, setStatus] = useState<"loading" | "valid" | "revoked" | "not_issued" | "invalid">("loading");
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -45,7 +47,7 @@ const VerifyCertificate = () => {
         const data = await api.get<VerifyResult>(`/certificates/verify/${encodeURIComponent(certificateNumber)}`);
         if (!active) return;
         setResult(data);
-        setStatus(data.revoked ? "revoked" : "valid");
+        setStatus(data.not_issued ? "not_issued" : data.revoked ? "revoked" : "valid");
       } catch (e) {
         if (!active) return;
         if (e instanceof ApiError && e.status === 404) setStatus("invalid");
@@ -57,10 +59,33 @@ const VerifyCertificate = () => {
     };
   }, [certificateNumber]);
 
+  const handleDownload = async () => {
+    if (!certificateNumber) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/certificates/verify/${encodeURIComponent(certificateNumber)}/download`);
+      if (!res.ok) throw new Error("Gagal mengunduh sertifikat");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sertifikat-${certificateNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // no-op — tombol tetap bisa dicoba lagi
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const banner = {
     loading: { icon: Award, color: "text-muted-foreground", border: "border-border", title: "Memverifikasi...", sub: "Memeriksa keaslian sertifikat." },
     valid: { icon: ShieldCheck, color: "text-emerald-600", border: "border-emerald-600/40", title: "Sertifikat Sah", sub: "Sertifikat ini diterbitkan dan terverifikasi oleh FAZ Academy." },
     revoked: { icon: ShieldAlert, color: "text-amber-600", border: "border-amber-600/40", title: "Sertifikat Dicabut", sub: "Sertifikat ini pernah diterbitkan namun telah dicabut dan tidak lagi berlaku." },
+    not_issued: { icon: Clock, color: "text-amber-600", border: "border-amber-600/40", title: "Sertifikat Belum Diterbitkan", sub: "Nomor ini terdaftar di sistem kami, tapi belum diberikan ke peserta manapun." },
     invalid: { icon: ShieldX, color: "text-red-600", border: "border-red-600/40", title: "Sertifikat Tidak Ditemukan", sub: "Nomor sertifikat tidak terdaftar di sistem kami." },
   }[status];
 
@@ -103,10 +128,10 @@ const VerifyCertificate = () => {
 
           {result && (status === "valid" || status === "revoked") && (
             <div className="border border-border p-8">
-              <Row label="Penerima" value={result.recipient_name} />
-              <Row label="Kelas" value={result.course_title} />
+              <Row label="Penerima" value={result.recipient_name!} />
+              <Row label="Kelas" value={result.course_title!} />
               {result.instructor_name && <Row label="Instruktur" value={result.instructor_name} />}
-              <Row label="Diterbitkan" value={formatDate(result.issued_at)} />
+              <Row label="Diterbitkan" value={formatDate(result.issued_at!)} />
               <Row label="Nomor Sertifikat" value={result.certificate_number} />
               {status === "revoked" && result.revoked_at && (
                 <Row label="Dicabut Pada" value={formatDate(result.revoked_at)} />
@@ -114,7 +139,13 @@ const VerifyCertificate = () => {
             </div>
           )}
 
-          <div className="mt-10">
+          <div className="mt-10 flex flex-wrap gap-3">
+            {status === "valid" && (
+              <Button onClick={handleDownload} disabled={downloading} className="rounded-none gap-2">
+                <Download size={14} />
+                {downloading ? "Mengunduh..." : "Unduh Sertifikat"}
+              </Button>
+            )}
             <Button asChild variant="outline" className="rounded-none">
               <Link to="/">Kembali ke Beranda</Link>
             </Button>

@@ -249,33 +249,96 @@ certificatesRouter.get("/:id/download", requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/certificates/verify/:certificateNumber — PUBLIK, tanpa PII selain yang tercetak di sertifikat
-certificatesRouter.get("/verify/:certificateNumber", async (req, res) => {
+// Cari nomor sertifikat di tabel Certificate (terbit otomatis dari kelas) atau
+// certificate_codes (batch kode yang di-pre-generate di luar sistem).
+async function findCertificateByNumber(certificateNumber: string) {
   const certificate = await prisma.certificate.findUnique({
-    where: { certificate_number: req.params.certificateNumber },
+    where: { certificate_number: certificateNumber },
     select: {
       certificate_number: true,
       recipient_name: true,
       course_title: true,
       instructor_name: true,
+      quiz_score: true,
       issued_at: true,
       revoked: true,
       revoked_at: true,
     },
   });
+  if (certificate) return { source: "auto" as const, issued: true, ...certificate };
 
-  if (!certificate) return res.status(404).json({ valid: false });
+  const code = await prisma.certificateCode.findUnique({ where: { code: certificateNumber } });
+  if (!code) return null;
+
+  const issued = Boolean(code.recipient_name && code.issued_at);
+  return {
+    source: "batch" as const,
+    issued,
+    certificate_number: code.code,
+    recipient_name: code.recipient_name,
+    course_title: code.course_title,
+    instructor_name: code.instructor_name,
+    quiz_score: null as number | null,
+    issued_at: code.issued_at,
+    revoked: code.revoked,
+    revoked_at: code.revoked_at,
+  };
+}
+
+// GET /api/certificates/verify/:certificateNumber — PUBLIK, tanpa PII selain yang tercetak di sertifikat
+certificatesRouter.get("/verify/:certificateNumber", async (req, res) => {
+  const result = await findCertificateByNumber(req.params.certificateNumber);
+  if (!result) return res.status(404).json({ valid: false });
+
+  if (!result.issued) {
+    // Kode terdaftar (dari batch pre-generate) tapi belum diberikan ke peserta.
+    return res.json({ valid: false, not_issued: true, certificate_number: result.certificate_number });
+  }
 
   res.json({
     valid: true,
-    revoked: certificate.revoked,
-    certificate_number: certificate.certificate_number,
-    recipient_name: certificate.recipient_name,
-    course_title: certificate.course_title,
-    instructor_name: certificate.instructor_name,
-    issued_at: certificate.issued_at,
-    revoked_at: certificate.revoked_at,
+    not_issued: false,
+    revoked: result.revoked,
+    certificate_number: result.certificate_number,
+    recipient_name: result.recipient_name,
+    course_title: result.course_title,
+    instructor_name: result.instructor_name,
+    issued_at: result.issued_at,
+    revoked_at: result.revoked_at,
   });
+});
+
+// GET /api/certificates/verify/:certificateNumber/download — PUBLIK, unduh PDF
+// (siapa pun yang punya nomor sertifikat bisa mengunduhnya — sama seperti verifikasi).
+certificatesRouter.get("/verify/:certificateNumber/download", async (req, res) => {
+  const result = await findCertificateByNumber(req.params.certificateNumber);
+  if (!result || !result.issued || result.revoked || !result.issued_at) {
+    return res.status(404).json({ error: "Sertifikat tidak ditemukan" });
+  }
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="sertifikat-${result.certificate_number}.pdf"`,
+  );
+
+  try {
+    await generateCertificatePdf(
+      {
+        certificate_number: result.certificate_number,
+        recipient_name: result.recipient_name!,
+        course_title: result.course_title,
+        instructor_name: result.instructor_name,
+        quiz_score: result.quiz_score,
+        issued_at: result.issued_at,
+        revoked: result.revoked,
+      },
+      res,
+    );
+  } catch (e) {
+    if (!res.headersSent) res.status(500).json({ error: "Gagal membuat PDF sertifikat" });
+    else res.end();
+  }
 });
 
 // ============ ADMIN ============

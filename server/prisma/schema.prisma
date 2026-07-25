@@ -355,6 +355,27 @@ model Certificate {
   @@map("certificates")
 }
 
+// Sertifikat dari batch kode yang di-pre-generate di luar sistem (mis. cetak
+// fisik / acara offline), tidak terikat ke User/Enrollment karena penerima
+// belum tentu punya akun. Diisi (recipient_name + issued_at) belakangan saat
+// sertifikat benar-benar diberikan ke peserta. Dicek terpisah dari tabel
+// Certificate saat verifikasi publik.
+model CertificateCode {
+  id              String    @id @default(uuid()) @db.Uuid
+  code            String    @unique
+  course_title    String
+  instructor_name String?
+  recipient_name  String?
+  issued_at       DateTime?
+  revoked         Boolean   @default(false)
+  revoked_at      DateTime?
+  revoked_reason  String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now()) @updatedAt
+
+  @@map("certificate_codes")
+}
+
 // ---------------------------------------------------------------------------
 // Final Quiz — satu kuis per kelas, dikerjakan setelah semua pelajaran selesai.
 // Lulus (score >= passing_score) menjadi syarat penerbitan sertifikat.
