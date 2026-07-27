@@ -62,7 +62,7 @@ const AdminPaymentGateway = () => {
         <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Admin</p>
         <h1 className="text-3xl">Payment Gateway</h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Status integrasi gateway pembayaran (Midtrans / Xendit) sebagai alternatif transfer manual.
+          Status integrasi gateway pembayaran (DOKU, atau Midtrans / Xendit sebagai scaffold) sebagai pengganti transfer manual.
           Konfigurasi dikelola lewat environment variable di server &mdash; panel ini hanya untuk melihat status.
         </p>
       </div>
@@ -78,8 +78,10 @@ const AdminPaymentGateway = () => {
               <AlertTriangle size={16} className="text-muted-foreground mt-0.5 shrink-0" />
               <div className="text-sm text-muted-foreground">
                 Gateway pembayaran <span className="text-foreground">belum diaktifkan</span>. Sistem saat ini hanya
-                menerima transfer manual. Aktifkan dengan menyetel env <code className="text-foreground">PAYMENT_GATEWAY</code>
-                {" "}ke <code className="text-foreground">midtrans</code> atau <code className="text-foreground">xendit</code>.
+                menerima transfer manual. Isi <code className="text-foreground">DOKU_CLIENT_ID</code> &amp;{" "}
+                <code className="text-foreground">DOKU_SECRET_KEY</code> untuk mengaktifkan DOKU, atau setel env{" "}
+                <code className="text-foreground">PAYMENT_GATEWAY</code> ke <code className="text-foreground">midtrans</code>{" "}
+                atau <code className="text-foreground">xendit</code> (scaffold, belum diimplementasi).
               </div>
             </div>
           )}
@@ -121,8 +123,9 @@ const AdminPaymentGateway = () => {
 
           <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
             Daftarkan URL webhook di atas pada dashboard provider agar status pembayaran otomatis tersinkron.
-            Catatan: implementasi webhook saat ini masih scaffold (membaca JSON body); produksi sebaiknya
-            beralih ke raw body untuk verifikasi signature.
+            {config.gateway === "doku"
+              ? " Webhook DOKU sudah diverifikasi lewat signature (raw body), bukan lagi scaffold."
+              : " Catatan: implementasi webhook Midtrans/Xendit di atas masih scaffold (membaca JSON body); produksi sebaiknya beralih ke raw body untuk verifikasi signature."}
           </p>
         </>
       )}

@@ -9,8 +9,10 @@
 
 import type { Request } from "express";
 import type { Order } from "@prisma/client";
+import { dokuConfigured } from "../env.js";
+import { createDokuPayment, verifyDokuWebhook } from "./doku.js";
 
-export type GatewayName = "midtrans" | "xendit";
+export type GatewayName = "midtrans" | "xendit" | "doku";
 
 /** Status yang dinormalisasi dari callback/webhook gateway. */
 export type GatewayChargeStatus = "paid" | "pending" | "failed";
@@ -31,10 +33,15 @@ export interface WebhookResult {
   raw_status?: string;
 }
 
+export interface ChargeCustomer {
+  name: string;
+  email: string;
+}
+
 export interface PaymentGateway {
   readonly name: GatewayName;
   /** Membuat charge/invoice di gateway untuk sebuah order. */
-  createCharge(order: Order): Promise<ChargeResult>;
+  createCharge(order: Order, customer?: ChargeCustomer): Promise<ChargeResult>;
   /** Memverifikasi & mem-parse payload webhook menjadi hasil ternormalisasi. */
   verifyWebhook(req: Request): Promise<WebhookResult>;
 }
@@ -60,7 +67,7 @@ class MidtransGateway implements PaymentGateway {
     return key;
   }
 
-  async createCharge(_order: Order): Promise<ChargeResult> {
+  async createCharge(_order: Order, _customer?: ChargeCustomer): Promise<ChargeResult> {
     // Memastikan kunci tersedia; bila tidak → "belum dikonfigurasi".
     this.serverKey;
     // SCAFFOLD: implementasi nyata memanggil Snap API Midtrans di sini.
@@ -90,7 +97,7 @@ class XenditGateway implements PaymentGateway {
     return key;
   }
 
-  async createCharge(_order: Order): Promise<ChargeResult> {
+  async createCharge(_order: Order, _customer?: ChargeCustomer): Promise<ChargeResult> {
     this.secretKey;
     // SCAFFOLD: implementasi nyata memanggil Invoice API Xendit di sini.
     throw new Error('Integrasi Xendit belum dikonfigurasi (createCharge masih scaffold)');
@@ -103,8 +110,30 @@ class XenditGateway implements PaymentGateway {
   }
 }
 
-/** Nama gateway aktif menurut env (atau null bila transfer manual). */
+// ===================== DOKU Checkout (implementasi nyata) =====================
+//
+// Kunci dibaca dari env.ts: DOKU_CLIENT_ID, DOKU_SECRET_KEY, DOKU_MODE. Lihat
+// ./doku.ts untuk detail signature HMAC-SHA256 dan panggilan API-nya.
+
+class DokuGateway implements PaymentGateway {
+  readonly name = "doku" as const;
+
+  async createCharge(order: Order, customer?: ChargeCustomer): Promise<ChargeResult> {
+    if (!dokuConfigured) notConfigured(this.name);
+    return createDokuPayment(order, customer ?? { name: "Pelanggan FAZ Academy", email: "" });
+  }
+
+  async verifyWebhook(req: Request): Promise<WebhookResult> {
+    if (!dokuConfigured) notConfigured(this.name);
+    const rawBody = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : JSON.stringify(req.body);
+    return verifyDokuWebhook(rawBody, req.headers as Record<string, string | string[] | undefined>);
+  }
+}
+
+/** Nama gateway aktif — DOKU menang otomatis begitu kredensialnya terisi,
+ * apa pun nilai PAYMENT_GATEWAY (tidak perlu set PAYMENT_GATEWAY=doku juga). */
 export function activeGatewayName(): GatewayName | null {
+  if (dokuConfigured) return "doku";
   const name = (process.env.PAYMENT_GATEWAY ?? "").trim().toLowerCase();
   if (name === "midtrans" || name === "xendit") return name;
   return null;
@@ -112,6 +141,7 @@ export function activeGatewayName(): GatewayName | null {
 
 /** Apakah server key / secret key untuk gateway aktif sudah diisi. */
 export function hasServerKey(name: GatewayName): boolean {
+  if (name === "doku") return dokuConfigured;
   if (name === "midtrans") return !!(process.env.MIDTRANS_SERVER_KEY ?? "");
   if (name === "xendit") return !!(process.env.XENDIT_SECRET_KEY ?? "");
   return false;
@@ -119,6 +149,8 @@ export function hasServerKey(name: GatewayName): boolean {
 
 /** Apakah secret webhook untuk gateway aktif sudah diisi. */
 export function hasWebhookSecret(name: GatewayName): boolean {
+  // DOKU pakai Secret Key yang sama untuk menandatangani request & memverifikasi webhook.
+  if (name === "doku") return dokuConfigured;
   if (name === "midtrans") return !!(process.env.MIDTRANS_WEBHOOK_SECRET ?? "");
   if (name === "xendit") return !!(process.env.XENDIT_WEBHOOK_TOKEN ?? "");
   return false;
@@ -130,6 +162,7 @@ export function hasWebhookSecret(name: GatewayName): boolean {
  */
 export function getGateway(): PaymentGateway | null {
   const name = activeGatewayName();
+  if (name === "doku") return new DokuGateway();
   if (name === "midtrans") return new MidtransGateway();
   if (name === "xendit") return new XenditGateway();
   return null;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Copy, Upload, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Copy, Upload, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +18,10 @@ const Checkout = () => {
   const { profile } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [info, setInfo] = useState<PaymentInfo | null>(null);
+  const [gatewayEnabled, setGatewayEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [charging, setCharging] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
   const [payerName, setPayerName] = useState("");
@@ -32,10 +34,12 @@ const Checkout = () => {
     Promise.all([
       api.get<Order>(`/orders/${orderId}`),
       api.get<PaymentInfo>("/payment-info"),
+      api.get<{ enabled: boolean }>("/payment-gateway/status").catch(() => ({ enabled: false })),
     ])
-      .then(([o, i]) => {
+      .then(([o, i, gw]) => {
         setOrder(o);
         setInfo(i);
+        setGatewayEnabled(gw.enabled);
         setPayerName((prev) => prev || o.payer_name || profile?.full_name || "");
         setPayerBank((prev) => prev || o.payer_bank || "");
         // InitiateCheckout hanya saat order masih berjalan, bukan saat revisit order yang sudah dibayar/ditutup.
@@ -66,6 +70,28 @@ const Checkout = () => {
       .catch((e) => toast.error(e instanceof Error ? e.message : "Gagal memuat order"))
       .finally(() => setLoading(false));
   }, [orderId, profile]);
+
+  // Order lagi "processing" (charge DOKU sudah dibuat, menunggu webhook) —
+  // poll berkala sampai statusnya berubah jadi paid/failed/dst.
+  useEffect(() => {
+    if (!orderId || !gatewayEnabled || order?.status !== "processing") return;
+    const interval = setInterval(() => {
+      api.get<Order>(`/orders/${orderId}`).then(setOrder).catch(() => {});
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [orderId, gatewayEnabled, order?.status]);
+
+  const payWithDoku = async () => {
+    if (!order) return;
+    setCharging(true);
+    try {
+      const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${order.id}/charge`);
+      window.location.href = charge.redirect_url;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal membuat pembayaran");
+      setCharging(false);
+    }
+  };
 
   const copy = (text: string) => {
     navigator.clipboard?.writeText(text);
@@ -175,6 +201,13 @@ const Checkout = () => {
               <p className="text-sm text-muted-foreground mt-1">Bukti transfer sudah kami terima. Verifikasi maksimal 1x24 jam kerja.</p>
             </div>
           )}
+          {gatewayEnabled && order.status === "processing" && (
+            <div className="border border-blue-500/30 bg-blue-500/10 rounded-lg p-6 text-center mb-6">
+              <Loader2 className="mx-auto text-blue-600 mb-2 animate-spin" size={28} />
+              <p className="font-medium text-foreground">Menunggu konfirmasi pembayaran</p>
+              <p className="text-sm text-muted-foreground mt-1">Halaman ini akan otomatis memperbarui begitu DOKU mengonfirmasi pembayaranmu.</p>
+            </div>
+          )}
           {order.status === "rejected" && (
             <div className="border border-red-500/30 bg-red-500/10 rounded-lg p-5 mb-6">
               <div className="flex items-center gap-2 text-red-600 font-medium mb-1"><AlertCircle size={18} /> Bukti ditolak</div>
@@ -190,8 +223,24 @@ const Checkout = () => {
             </div>
           )}
 
-          {/* Instruksi pembayaran + total */}
-          {!isClosed && order.status !== "paid" && (
+          {/* Bayar via DOKU */}
+          {!isClosed && gatewayEnabled && ["pending", "rejected", "failed"].includes(order.status) && (
+            <div className="border border-border rounded-lg p-6 mb-6">
+              <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
+              <p className="text-3xl font-serif font-bold text-foreground mb-1">{formatRupiah(order.total_idr)}</p>
+              {order.discount_idr > 0 && (
+                <p className="text-xs text-muted-foreground mb-4">
+                  Harga {formatRupiah(order.base_price_idr)} − diskon {order.coupon_code ? `(${order.coupon_code}) ` : ""}{formatRupiah(order.discount_idr)}
+                </p>
+              )}
+              <Button onClick={payWithDoku} disabled={charging} className="w-full">
+                {charging ? "Menyiapkan pembayaran..." : "Bayar Sekarang"}
+              </Button>
+            </div>
+          )}
+
+          {/* Instruksi pembayaran + total (transfer manual) */}
+          {!isClosed && !gatewayEnabled && order.status !== "paid" && (
             <>
               <div className="border border-border rounded-lg p-6 mb-6">
                 <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>

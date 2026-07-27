@@ -31,7 +31,12 @@ export const env = {
   AUTH_RATE_LIMIT_WINDOW_MIN: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MIN ?? 15),
 
   // ===== Payment gateway scaffold (opsional; kosong = manual transfer saja) =====
-  PAYMENT_GATEWAY: (process.env.PAYMENT_GATEWAY ?? "") as "" | "midtrans" | "xendit",
+  PAYMENT_GATEWAY: (process.env.PAYMENT_GATEWAY ?? "") as "" | "midtrans" | "xendit" | "doku",
+
+  // ===== DOKU Checkout (opsional; kosong = manual transfer saja) =====
+  DOKU_CLIENT_ID: process.env.DOKU_CLIENT_ID ?? "",
+  DOKU_SECRET_KEY: process.env.DOKU_SECRET_KEY ?? "",
+  DOKU_MODE: (process.env.DOKU_MODE ?? "sandbox") as "sandbox" | "production",
 
   // ===== Google Sheets sync untuk certificate_codes (opsional) =====
   // GOOGLE_SERVICE_ACCOUNT_JSON: isi mentah file JSON service account (bukan path).
@@ -42,3 +47,5 @@ export const env = {
 
 export const smtpConfigured = !!(env.SMTP_HOST && env.SMTP_USER);
 export const googleSheetsConfigured = !!(env.GOOGLE_SERVICE_ACCOUNT_JSON && env.CERTIFICATE_SHEET_ID);
+export const dokuConfigured = !!(env.DOKU_CLIENT_ID && env.DOKU_SECRET_KEY);
+export const DOKU_BASE_URL = env.DOKU_MODE === "production" ? "https://api.doku.com" : "https://api-sandbox.doku.com";

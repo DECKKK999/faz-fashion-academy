@@ -4,7 +4,8 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireAdmin } from "../auth.js";
 import { uploadProof } from "../upload.js";
-import { ORDER_EXPIRY_HOURS, UNIQUE_CODE_MIN, UNIQUE_CODE_MAX } from "../config/payment.js";
+import { ORDER_EXPIRY_HOURS } from "../config/payment.js";
+import { computeOrderTotal } from "../lib/order-total.js";
 import { evaluateCoupon } from "../lib/coupon.js";
 import { PROMO_COURSE_SLUG, PROMO_COUPON_CODE } from "../config/promo.js";
 import { sendMailSafe, templates } from "../mailer/index.js";
@@ -13,10 +14,6 @@ export const ordersRouter = Router();
 export const adminOrdersRouter = Router();
 
 const ACTIVE_STATUSES = ["pending", "awaiting_verification"] as const;
-
-function randomUniqueCode() {
-  return Math.floor(Math.random() * (UNIQUE_CODE_MAX - UNIQUE_CODE_MIN + 1)) + UNIQUE_CODE_MIN;
-}
 
 function ticketCode() {
   const raw = randomBytes(6).toString("hex").toUpperCase();
@@ -102,9 +99,8 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
     }
   }
 
-  const unique_code = randomUniqueCode();
   const base_price_idr = course.price_idr;
-  const total_idr = Math.max(0, base_price_idr - discount_idr) + unique_code;
+  const { unique_code, total_idr } = computeOrderTotal(base_price_idr, discount_idr);
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -166,7 +162,7 @@ ordersRouter.post("/ebook", requireAuth, async (req, res) => {
   });
   if (existing) return res.status(200).json({ order: existing, resumed: true });
 
-  const unique_code = randomUniqueCode();
+  const { unique_code, total_idr } = computeOrderTotal(ebook.price_idr, 0);
   const order = await prisma.order.create({
     data: {
       user_id: userId,
@@ -174,7 +170,7 @@ ordersRouter.post("/ebook", requireAuth, async (req, res) => {
       ebook_id,
       base_price_idr: ebook.price_idr,
       unique_code,
-      total_idr: ebook.price_idr + unique_code,
+      total_idr,
       expires_at: EXPIRY(),
     },
     include: orderInclude,
@@ -214,7 +210,7 @@ ordersRouter.post("/event", requireAuth, async (req, res) => {
   });
   if (existing) return res.status(200).json({ order: existing, resumed: true });
 
-  const unique_code = randomUniqueCode();
+  const { unique_code, total_idr } = computeOrderTotal(event.price_idr, 0);
   const order = await prisma.order.create({
     data: {
       user_id: userId,
@@ -222,7 +218,7 @@ ordersRouter.post("/event", requireAuth, async (req, res) => {
       event_id,
       base_price_idr: event.price_idr,
       unique_code,
-      total_idr: event.price_idr + unique_code,
+      total_idr,
       expires_at: EXPIRY(),
     },
     include: orderInclude,

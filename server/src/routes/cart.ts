@@ -3,7 +3,8 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth } from "../auth.js";
-import { ORDER_EXPIRY_HOURS, UNIQUE_CODE_MIN, UNIQUE_CODE_MAX } from "../config/payment.js";
+import { ORDER_EXPIRY_HOURS } from "../config/payment.js";
+import { computeOrderTotal } from "../lib/order-total.js";
 import { sendMailSafe, templates } from "../mailer/index.js";
 import { evaluateCoupon } from "../lib/coupon.js";
 import { PROMO_COURSE_SLUG, PROMO_COUPON_CODE } from "../config/promo.js";
@@ -12,10 +13,6 @@ import type { OrderItemType } from "@prisma/client";
 export const cartRouter = Router();
 
 const EXPIRY = () => new Date(Date.now() + ORDER_EXPIRY_HOURS * 60 * 60 * 1000);
-
-function randomUniqueCode() {
-  return Math.floor(Math.random() * (UNIQUE_CODE_MAX - UNIQUE_CODE_MIN + 1)) + UNIQUE_CODE_MIN;
-}
 
 function ticketCode() {
   const raw = randomBytes(6).toString("hex").toUpperCase();
@@ -302,7 +299,6 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
 
     const orders = [];
     for (const it of payItems) {
-      const unique_code = randomUniqueCode();
       const base_price_idr = it.price_idr;
 
       // Kelas promo peluncuran: kupon ter-apply otomatis juga di jalur keranjang,
@@ -319,7 +315,7 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
         }
       }
 
-      const total_idr = Math.max(0, base_price_idr - discount_idr) + unique_code;
+      const { unique_code, total_idr } = computeOrderTotal(base_price_idr, discount_idr);
       const order = await tx.order.create({
         data: {
           user_id: userId,

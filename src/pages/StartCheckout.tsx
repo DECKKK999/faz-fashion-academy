@@ -37,6 +37,16 @@ const StartCheckout = () => {
           return;
         }
         if (res.order) {
+          try {
+            const { enabled } = await api.get<{ enabled: boolean }>("/payment-gateway/status");
+            if (enabled) {
+              const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${res.order.id}/charge`);
+              window.location.href = charge.redirect_url;
+              return;
+            }
+          } catch {
+            // Gateway gagal — lanjut ke transfer manual di bawah.
+          }
           navigate(`/checkout/${res.order.id}`, { replace: true });
           return;
         }

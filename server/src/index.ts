@@ -35,6 +35,10 @@ const app = express();
 
 app.set("trust proxy", 1); // agar rate-limit & secure cookie melihat IP/proto asli di belakang proxy
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+// Raw body (bukan JSON-parsed) khusus webhook gateway pembayaran — verifikasi
+// signature DOKU/dst. butuh byte mentah, jadi ini harus dipasang SEBELUM
+// express.json() global di bawah supaya body belum keburu di-parse.
+app.use("/api/payment-gateway/webhook", express.raw({ type: "*/*", limit: "1mb" }));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(

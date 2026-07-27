@@ -38,12 +38,24 @@ function itemTitle(order: { course?: { title: string } | null; ebook?: { title: 
   return order.course?.title ?? order.ebook?.title ?? order.event?.title ?? "Pesanan";
 }
 
+async function displayName(userId: string, email: string) {
+  const p = await prisma.profile.findUnique({ where: { user_id: userId }, select: { full_name: true } });
+  return p?.full_name || email.split("@")[0];
+}
+
 const adminOrderInclude = {
   course: { select: { title: true } },
   ebook: { select: { title: true } },
   event: { select: { title: true } },
   user: { select: { id: true, email: true, profile: { select: { full_name: true } } } },
 };
+
+// ============ PUBLIC: status gateway (dipakai frontend checkout) ============
+
+// GET /api/payment-gateway/status
+gatewayRouter.get("/status", (_req, res) => {
+  res.json({ enabled: !!getGateway() });
+});
 
 // ============ BUYER: buat charge di gateway ============
 
@@ -65,9 +77,11 @@ gatewayRouter.post("/orders/:id/charge", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "Batas waktu pembayaran sudah lewat" });
   }
 
+  const name = await displayName(order.user_id, req.user!.email);
+
   let charge;
   try {
-    charge = await gateway.createCharge(order);
+    charge = await gateway.createCharge(order, { name, email: req.user!.email });
   } catch (e: any) {
     return res.status(503).json({ error: e?.message || "Gateway pembayaran tidak tersedia" });
   }
