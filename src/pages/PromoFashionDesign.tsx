@@ -18,10 +18,10 @@ import { api, type Course, type PurchaseState, type CourseReviewsResponse, type 
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatCount, formatDuration } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
+import Navbar from "@/components/Navbar";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
-import fazWordmark from "@/assets/faz-wordmark.png";
 import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
 import lennyAvatar from "@/assets/lenny-avatar.jpg";
 
@@ -74,14 +74,6 @@ const faqs = [
     a: `Ini promo peluncuran khusus untuk ${PROMO_QUOTA} siswa pertama. Begitu kuota terpenuhi, harga kembali ke harga normal.`,
   },
 ];
-
-// Header + footer khusus halaman promo: sengaja tanpa menu/keranjang/wishlist/login
-// supaya traffic iklan tidak punya jalan keluar sebelum sampai ke tombol beli.
-const MinimalHeader = () => (
-  <header className="sticky top-0 z-50 h-14 flex items-center px-4 sm:px-6 bg-background/80 backdrop-blur-xl border-b border-border/50">
-    <img src={fazWordmark} alt="FAZ Academy" className="h-6 md:h-7 w-auto" />
-  </header>
-);
 
 const MinimalFooter = () => (
   <footer className="py-8 px-6 text-center border-t border-border">
@@ -179,8 +171,8 @@ const PromoFashionDesign = () => {
   if (loading || !course) {
     return (
       <div className="min-h-screen bg-background">
-        <MinimalHeader />
-        <div className="pt-16 text-center text-muted-foreground text-sm">Memuat...</div>
+        <Navbar />
+        <div className="pt-24 text-center text-muted-foreground text-sm">Memuat...</div>
       </div>
     );
   }
@@ -194,11 +186,11 @@ const PromoFashionDesign = () => {
         description={`Khusus ${PROMO_QUOTA} siswa pertama: ${course.title} cuma ${formatRupiah(PROMO_PRICE)} (harga normal ${formatRupiah(normalPrice)}).`}
         image={course.cover_image_url ?? undefined}
       />
-      <MinimalHeader />
+      <Navbar />
 
-      {/* Urgency bar */}
+      {/* Urgency bar — mt-14 buat kasih ruang navbar yang fixed (tinggi 56px) */}
       <div
-        className="sticky top-14 z-40 text-center text-[11px] md:text-xs font-medium tracking-wide py-2 px-4 text-white"
+        className="mt-14 sticky top-14 z-40 text-center text-[11px] md:text-xs font-medium tracking-wide py-2 px-4 text-white"
         style={{ background: `linear-gradient(90deg, ${pink}, ${blue})` }}
       >
         🔥 PROMO PELUNCURAN — Khusus {PROMO_QUOTA} Siswa Pertama · Sisa {spotsLeft} Slot
