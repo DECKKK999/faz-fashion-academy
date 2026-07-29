@@ -40,7 +40,9 @@ if [[ ! -f "$SSH_KEY" ]]; then
   exit 1
 fi
 chmod 600 "$SSH_KEY" 2>/dev/null || true
-SSH="ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new"
+# Array, not a plain string — SCRIPT_DIR (and therefore SSH_KEY) can contain
+# spaces, and an unquoted "$SSH ..." word-splits the -i argument apart.
+SSH=(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new)
 
 # ---------------- 1. push local branch ----------------
 echo "==> [1/3] Push $BRANCH to origin"
@@ -58,7 +60,7 @@ git push origin "$BRANCH"
 
 # ---------------- 2. build + reload on server ----------------
 echo "==> [2/3] Deploy on $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR"
-$SSH "$REMOTE_USER@$REMOTE_HOST" \
+"${SSH[@]}" "$REMOTE_USER@$REMOTE_HOST" \
   "REMOTE_DIR='$REMOTE_DIR' APP_NAME='$APP_NAME' BRANCH='$BRANCH' MIGRATE='$MIGRATE' RESTART='$RESTART' bash -s" <<'REMOTE'
 set -euo pipefail
 export NODE_OPTIONS="--max-old-space-size=1536"
