@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import fazWordmark from "@/assets/faz-wordmark.png";
 import CartButton from "@/components/CartButton";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sheet,
@@ -22,8 +23,16 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,11 +41,15 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 border-b transition-shadow duration-300 ${
+        scrolled ? "glass-panel border-border/60 shadow-sm" : "bg-background/60 backdrop-blur-xl border-border/50"
+      }`}
+    >
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
         <div className="flex items-center justify-between h-14">
           <Link to="/" className="flex items-center" aria-label="FAZ Academy — Beranda">
-            <img src={fazWordmark} alt="FAZ Academy" className="h-6 md:h-7 w-auto" />
+            <img src={fazWordmark} alt="FAZ Academy" className="h-6 md:h-7 w-auto wordmark-adaptive" />
           </Link>
 
           <div className="hidden md:flex items-center gap-10">
@@ -52,13 +65,14 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
+            <ThemeToggle />
             <Link to="/wishlist" aria-label="Wishlist" className="text-muted-foreground hover:text-foreground transition-colors">
               <Heart size={18} />
             </Link>
             <CartButton />
             {user ? (
               <>
-                <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Button size="sm" variant="outline" className="h-8 rounded-full text-[13px] tracking-editorial uppercase px-5" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <Link to="/akun" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
@@ -77,7 +91,7 @@ const Navbar = () => {
                 <Link to="/masuk" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
                   Masuk
                 </Link>
-                <Button size="sm" className="h-7 text-[13px] tracking-editorial uppercase rounded-none px-5 bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20" asChild>
+                <Button size="sm" variant="gradient" className="h-8 rounded-full text-[13px] tracking-editorial uppercase px-5" asChild>
                   <Link to="/daftar">Daftar</Link>
                 </Button>
               </>
@@ -85,12 +99,14 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <button className="text-foreground p-1">
-                <Menu size={20} />
-              </button>
-            </SheetTrigger>
+          <div className="flex md:hidden items-center gap-3">
+            <ThemeToggle />
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <button className="text-foreground p-1">
+                  <Menu size={20} />
+                </button>
+              </SheetTrigger>
             <SheetContent side="right" className="w-[280px] bg-background border-border">
               <SheetHeader>
                 <SheetTitle className="text-xs tracking-wide-editorial uppercase font-light text-foreground text-left">
@@ -113,17 +129,17 @@ const Navbar = () => {
                 <div className="border-t border-border/50 pt-6 flex flex-col gap-3">
                   {user ? (
                     <>
-                      <Button size="sm" asChild className="w-full rounded-none text-[11px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
+                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
                         <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
                       </Button>
-                      <Button variant="outline" size="sm" asChild className="w-full rounded-none text-[11px] tracking-editorial uppercase">
+                      <Button variant="outline" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
                         <Link to="/akun" onClick={() => setIsOpen(false)}>Akun</Link>
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleSignOut}
-                        className="w-full rounded-none text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground flex items-center gap-2"
+                        className="w-full rounded-full text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground flex items-center gap-2"
                       >
                         <LogOut size={14} />
                         Keluar
@@ -131,10 +147,10 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <Button variant="ghost" size="sm" asChild className="w-full text-[11px] tracking-editorial uppercase rounded-none">
+                      <Button variant="ghost" size="sm" asChild className="w-full text-[12px] tracking-editorial uppercase rounded-full">
                         <Link to="/masuk" onClick={() => setIsOpen(false)}>Masuk</Link>
                       </Button>
-                      <Button size="sm" asChild className="w-full rounded-none text-[11px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20">
+                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
                         <Link to="/daftar" onClick={() => setIsOpen(false)}>Daftar</Link>
                       </Button>
                     </>
@@ -142,7 +158,8 @@ const Navbar = () => {
                 </div>
               </div>
             </SheetContent>
-          </Sheet>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>

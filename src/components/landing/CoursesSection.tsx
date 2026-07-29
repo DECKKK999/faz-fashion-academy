@@ -5,6 +5,8 @@ import { api, type Course } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
 import { PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
+import Kicker from "@/components/landing/Kicker";
+import Reveal from "@/components/landing/Reveal";
 
 const CoursesSection = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -24,9 +26,12 @@ const CoursesSection = () => {
     <section className="py-32 px-6 md:px-16">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-4">
-          <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal">
-            Kelas Populer
-          </h2>
+          <div>
+            <Kicker index="02" className="mb-3">Katalog</Kicker>
+            <h2 className="text-3xl md:text-5xl font-light text-foreground tracking-normal">
+              Kelas Populer
+            </h2>
+          </div>
           <Link
             to="/kelas"
             className="hidden md:flex items-center gap-2 text-[13px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
@@ -42,10 +47,11 @@ const CoursesSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {courses.map((course) => (
-            <div
+          {courses.map((course, idx) => (
+            <Reveal
               key={course.id}
-              className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              delayMs={idx * 80}
+              className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <Link to={`/kelas/${course.slug}`} className="relative overflow-hidden block">
                 <img
@@ -89,7 +95,7 @@ const CoursesSection = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     {isPromoCourse(course.slug) && course.price_idr > 0 && (
-                      <p className="text-[11px] text-muted-foreground line-through leading-none">{formatRupiah(course.price_idr)}</p>
+                      <p className="text-[12px] text-muted-foreground line-through leading-none">{formatRupiah(course.price_idr)}</p>
                     )}
                     <p className="font-semibold text-primary">
                       {course.price_idr ? formatRupiah(isPromoCourse(course.slug) ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
@@ -98,14 +104,14 @@ const CoursesSection = () => {
                   <Button size="sm" asChild><Link to={`/kelas/${course.slug}`}>Lihat</Link></Button>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
         <div className="md:hidden text-center mt-12">
           <Link
             to="/kelas"
-            className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
           >
             Lihat semua kelas <ArrowRight size={12} />
           </Link>

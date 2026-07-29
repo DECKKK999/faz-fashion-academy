@@ -4,6 +4,8 @@ import { ArrowLeft, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
 import SeoHead from "@/components/SeoHead";
 import AddToCartButton from "@/components/AddToCartButton";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -35,16 +37,17 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <SeoHead title="Wishlist" description="Daftar keinginan produk FAZ Academy." />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-5xl">
-          <Link to="/kelas" className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/kelas" className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={13} /> Lanjut Belanja
           </Link>
 
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-8">Wishlist</h1>
+          <PageHeader kicker="Simpanan" title="Wishlist" />
 
           {loading ? (
             <p className="text-muted-foreground text-sm">Memuat wishlist...</p>
@@ -57,12 +60,12 @@ const Wishlist = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {items.map((item) => (
-                <div key={item.id} className="border border-border rounded-lg overflow-hidden group">
+                <div key={item.id} className="bg-card border border-border rounded-lg overflow-hidden group hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
                   <Link to={detailPath(item.product_type, item.slug)} className="block aspect-[16/10] overflow-hidden bg-muted">
                     <img src={item.cover_image_url ?? ""} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   </Link>
                   <div className="p-4">
-                    <span className="text-[9px] tracking-editorial uppercase text-muted-foreground">{typeLabel[item.product_type]}</span>
+                    <span className="text-[10px] tracking-editorial uppercase text-muted-foreground">{typeLabel[item.product_type]}</span>
                     <Link to={detailPath(item.product_type, item.slug)} className="block font-medium text-foreground hover:text-accent transition-colors leading-tight mt-1 mb-2">
                       {item.title}
                     </Link>
@@ -73,7 +76,7 @@ const Wishlist = () => {
                         onClick={() => handleRemove(item.id)}
                         disabled={removing === item.id}
                         aria-label="Hapus dari wishlist"
-                        className="p-2 text-muted-foreground hover:text-red-600 transition-colors disabled:opacity-50"
+                        className="p-2 text-muted-foreground hover:text-red-500 transition-colors disabled:opacity-50"
                       >
                         <Trash2 size={16} />
                       </button>

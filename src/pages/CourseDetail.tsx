@@ -4,6 +4,7 @@ import { Clock, Users, Star, ArrowLeft, CheckCircle2, BadgeCheck } from "lucide-
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
 import { api, type Course, type PurchaseState } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
@@ -54,7 +55,8 @@ const CourseDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        <GrainOverlay />
         <Navbar />
         <div className="pt-32 text-center text-muted-foreground text-sm">Memuat...</div>
       </div>
@@ -63,7 +65,8 @@ const CourseDetail = () => {
 
   if (notFound || !course) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        <GrainOverlay />
         <Navbar />
         <div className="pt-32 pb-32 text-center">
           <p className="text-muted-foreground mb-4">Kelas tidak ditemukan.</p>
@@ -79,16 +82,16 @@ const CourseDetail = () => {
     if (state.enrolled) {
       return (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-emerald-600 text-sm">
+          <div className="flex items-center gap-2 text-emerald-500 text-sm">
             <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
           </div>
-          <Button asChild className="w-full" size="lg"><Link to={`/belajar/${course.slug}`}>Mulai Belajar</Link></Button>
+          <Button asChild variant="gradient" className="w-full rounded-full" size="lg"><Link to={`/belajar/${course.slug}`}>Mulai Belajar</Link></Button>
         </div>
       );
     }
     if (order && (order.status === "pending" || order.status === "awaiting_verification")) {
       return (
-        <Button asChild className="w-full" size="lg">
+        <Button asChild variant="gradient" className="w-full rounded-full" size="lg">
           <Link to={`/checkout/${order.id}`}>
             {order.status === "pending" ? "Lanjutkan Pembayaran" : "Lihat Status Pembayaran"}
           </Link>
@@ -97,25 +100,26 @@ const CourseDetail = () => {
     }
     if (order && order.status === "rejected") {
       return (
-        <Button asChild className="w-full" size="lg">
+        <Button asChild variant="gradient" className="w-full rounded-full" size="lg">
           <Link to={`/checkout/${order.id}`}>Kirim Ulang Bukti</Link>
         </Button>
       );
     }
     return (
-      <Button onClick={handleBuy} className="w-full" size="lg">
+      <Button onClick={handleBuy} variant="gradient" className="w-full rounded-full" size="lg">
         {course.price_idr > 0 ? "Beli Kelas" : "Ambil Kelas (Gratis)"}
       </Button>
     );
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <SeoHead title={`${course.title} — FAZ Academy`} description={course.subtitle ?? course.description ?? undefined} image={course.cover_image_url ?? undefined} />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-5xl">
-          <Link to="/kelas" className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/kelas" className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={13} /> Katalog Kelas
           </Link>
 
@@ -127,10 +131,10 @@ const CourseDetail = () => {
               </div>
               <div className="flex items-center gap-2 mb-3">
                 {course.category && (
-                  <span className="text-[10px] tracking-editorial uppercase bg-primary/10 text-primary px-3 py-1 rounded-full">{course.category}</span>
+                  <span className="text-[11px] tracking-editorial uppercase bg-primary/10 text-primary px-3 py-1 rounded-full">{course.category}</span>
                 )}
                 {course.level && (
-                  <span className="text-[10px] tracking-editorial uppercase border border-border px-3 py-1 rounded-full text-muted-foreground">{course.level}</span>
+                  <span className="text-[11px] tracking-editorial uppercase border border-border px-3 py-1 rounded-full text-muted-foreground">{course.level}</span>
                 )}
               </div>
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">{course.title}</h1>
@@ -170,7 +174,7 @@ const CourseDetail = () => {
                     {course.instructor_name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-[10px] tracking-editorial uppercase text-muted-foreground">Instruktur</p>
+                    <p className="text-[11px] tracking-editorial uppercase text-muted-foreground">Instruktur</p>
                     <p className="text-sm text-foreground">{course.instructor_name}</p>
                   </div>
                 </div>
@@ -183,11 +187,11 @@ const CourseDetail = () => {
 
             {/* Purchase card */}
             <div className="lg:col-span-1">
-              <div className="border border-border rounded-lg p-6 sticky top-24 bg-card">
+              <div className="glass-panel rounded-2xl p-6 sticky top-24 shadow-lg">
                 {onPromo && course.price_idr > 0 ? (
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm text-muted-foreground line-through">{formatRupiah(course.price_idr)}</span>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">PROMO</span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">PROMO</span>
                   </div>
                 ) : null}
                 <p className="text-3xl font-serif font-bold text-foreground mb-1">

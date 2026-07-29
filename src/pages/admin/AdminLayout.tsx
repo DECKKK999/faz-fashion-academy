@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { BookOpen, CreditCard, LayoutDashboard, LogOut, Settings, Users, ArrowLeft, BarChart3, Ticket, Star, Award, Mail, Plug } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,13 +21,22 @@ const AdminLayout = () => {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
 
+  // Radix portals (Dialog, Sheet, dropdown menus, toasts) render into
+  // document.body, outside this component's DOM subtree — a class on the
+  // wrapper div below wouldn't reach them. Toggling it on <body> instead
+  // means the CSS var overrides in .admin-scope reach portaled content too.
+  useEffect(() => {
+    document.body.classList.add("admin-scope");
+    return () => document.body.classList.remove("admin-scope");
+  }, []);
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="admin-scope min-h-screen bg-background flex">
       <aside className="w-60 border-r border-border/50 flex flex-col">
         <div className="h-14 px-5 flex items-center border-b border-border/50">
           <Link to="/" className="text-[11px] tracking-[0.3em] uppercase text-foreground">

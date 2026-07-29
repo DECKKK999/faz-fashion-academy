@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
 import SeoHead from "@/components/SeoHead";
 import { api, type Order, type OrderGroup, type PaymentInfo } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -76,7 +77,7 @@ const ProofForm = ({ order, onUpdated }: { order: Order; onUpdated: (o: Order) =
         <Label className="text-xs">Tanggal Transfer</Label>
         <Input type="date" value={transferDate} onChange={(e) => setTransferDate(e.target.value)} />
       </div>
-      <Button type="submit" size="sm" className="gap-2" disabled={submitting}>
+      <Button type="submit" variant="gradient" size="sm" className="rounded-full gap-2" disabled={submitting}>
         <Upload size={14} /> {submitting ? "Mengirim..." : "Saya Sudah Transfer"}
       </Button>
     </form>
@@ -151,12 +152,13 @@ const CartCheckout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <SeoHead title="Konfirmasi Pembayaran" />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
-          <Link to="/pesanan" className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/pesanan" className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={13} /> Pesanan Saya
           </Link>
 
@@ -165,7 +167,7 @@ const CartCheckout = () => {
 
           {allPaid && (
             <div className="border border-emerald-500/30 bg-emerald-500/10 rounded-lg p-6 text-center mb-6">
-              <CheckCircle2 className="mx-auto text-emerald-600 mb-2" size={28} />
+              <CheckCircle2 className="mx-auto text-emerald-500 mb-2" size={28} />
               <p className="font-medium text-foreground">Semua pembayaran terverifikasi!</p>
               <p className="text-sm text-muted-foreground mt-1 mb-4">Semua akses sudah aktif di akunmu.</p>
               <Button asChild><Link to="/dashboard">Buka Dashboard</Link></Button>
@@ -174,14 +176,14 @@ const CartCheckout = () => {
 
           {/* Total gabungan */}
           <div className="border border-border rounded-lg p-6 mb-6">
-            <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">Total Gabungan</p>
+            <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">Total Gabungan</p>
             <p className="text-3xl font-serif font-bold text-foreground">{formatRupiah(combinedTotal)}</p>
             <p className="text-xs text-muted-foreground mt-1">Transfer setiap pesanan secara terpisah sesuai nominal masing-masing (termasuk kode unik).</p>
 
             {info?.bank_accounts?.length ? (
               <>
                 <div className="border-t border-border my-5" />
-                <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-3">Rekening Tujuan</p>
+                <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-3">Rekening Tujuan</p>
                 <div className="space-y-3">
                   {info.bank_accounts.map((b) => (
                     <div key={b.bank} className="flex items-center justify-between border border-border/60 rounded p-3">
@@ -211,33 +213,33 @@ const CartCheckout = () => {
                       <p className="font-medium text-foreground truncate">{orderTitle(order)}</p>
                       <p className="text-xs text-muted-foreground">{order.item_type === "course" ? "Kelas" : order.item_type === "ebook" ? "E-Book" : "Event"}</p>
                     </div>
-                    <span className={`text-[10px] tracking-editorial uppercase px-3 py-1 rounded-full shrink-0 ${st.className}`}>{st.label}</span>
+                    <span className={`text-[11px] tracking-editorial uppercase px-3 py-1 rounded-full shrink-0 ${st.className}`}>{st.label}</span>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] tracking-editorial uppercase text-muted-foreground">Nominal Transfer</p>
+                      <p className="text-[11px] tracking-editorial uppercase text-muted-foreground">Nominal Transfer</p>
                       <div className="flex items-center gap-2">
                         <p className="text-lg font-serif font-bold text-foreground">{formatRupiah(order.total_idr)}</p>
                         <button onClick={() => copy(String(order.total_idr))} className="text-muted-foreground hover:text-foreground"><Copy size={14} /></button>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">Harga {formatRupiah(order.base_price_idr)} + kode unik <span className="text-accent font-medium">{order.unique_code}</span></p>
+                      <p className="text-[12px] text-muted-foreground">Harga {formatRupiah(order.base_price_idr)} + kode unik <span className="text-accent font-medium">{order.unique_code}</span></p>
                     </div>
                   </div>
 
                   {order.status === "awaiting_verification" && (
                     <div className="mt-4 border border-blue-500/30 bg-blue-500/10 rounded p-3 flex items-center gap-2 text-sm text-foreground">
-                      <Clock size={16} className="text-blue-600" /> Menunggu verifikasi staff.
+                      <Clock size={16} className="text-blue-500" /> Menunggu verifikasi staff.
                     </div>
                   )}
                   {order.status === "paid" && (
                     <div className="mt-4 border border-emerald-500/30 bg-emerald-500/10 rounded p-3 flex items-center gap-2 text-sm text-foreground">
-                      <CheckCircle2 size={16} className="text-emerald-600" /> Pembayaran terverifikasi.
+                      <CheckCircle2 size={16} className="text-emerald-500" /> Pembayaran terverifikasi.
                     </div>
                   )}
                   {order.status === "rejected" && (
                     <div className="mt-4 border border-red-500/30 bg-red-500/10 rounded p-3 text-sm">
-                      <div className="flex items-center gap-2 text-red-600 font-medium"><AlertCircle size={16} /> Bukti ditolak</div>
+                      <div className="flex items-center gap-2 text-red-500 font-medium"><AlertCircle size={16} /> Bukti ditolak</div>
                       <p className="text-muted-foreground mt-1">{order.rejection_reason || "Silakan kirim ulang bukti yang benar."}</p>
                     </div>
                   )}

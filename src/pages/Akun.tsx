@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
 import { api, type Session } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -99,24 +101,25 @@ const Akun = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-2xl">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6"
+            className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6"
           >
             <ArrowLeft size={13} /> Dashboard
           </Link>
 
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-8">Pengaturan Akun</h1>
+          <PageHeader kicker="Akun" title="Pengaturan Akun" />
 
           {/* Banner verifikasi email */}
           {user && user.email_verified === false && (
             <div className="border border-amber-500/40 bg-amber-500/10 rounded-lg p-5 mb-8">
               <div className="flex items-start gap-3">
-                <MailWarning className="text-amber-600 shrink-0 mt-0.5" size={20} />
+                <MailWarning className="text-amber-500 shrink-0 mt-0.5" size={20} />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Email belum terverifikasi</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -138,14 +141,14 @@ const Akun = () => {
           )}
           {user && user.email_verified === true && (
             <div className="border border-emerald-500/30 bg-emerald-500/10 rounded-lg p-4 mb-8 flex items-center gap-3">
-              <ShieldCheck className="text-emerald-600 shrink-0" size={18} />
+              <ShieldCheck className="text-emerald-500 shrink-0" size={18} />
               <p className="text-sm text-foreground">Email kamu sudah terverifikasi.</p>
             </div>
           )}
 
           {/* Avatar */}
-          <section className="border border-border rounded-lg p-6 mb-6">
-            <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">Foto Profil</p>
+          <section className="glass-panel rounded-2xl p-6 mb-6 shadow-lg">
+            <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">Foto Profil</p>
             <div className="flex items-center gap-5">
               <div className="relative">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-muted flex items-center justify-center text-2xl font-serif text-muted-foreground">
@@ -185,8 +188,8 @@ const Akun = () => {
           </section>
 
           {/* Profil */}
-          <section className="border border-border rounded-lg p-6 mb-6">
-            <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">Informasi Profil</p>
+          <section className="glass-panel rounded-2xl p-6 mb-6 shadow-lg">
+            <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">Informasi Profil</p>
             <form onSubmit={saveProfile} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -202,7 +205,7 @@ const Akun = () => {
                   required
                 />
               </div>
-              <Button type="submit" disabled={savingProfile} className="gap-2">
+              <Button type="submit" disabled={savingProfile} variant="gradient" className="rounded-full gap-2">
                 {savingProfile && <Loader2 size={15} className="animate-spin" />}
                 {savingProfile ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
@@ -210,8 +213,8 @@ const Akun = () => {
           </section>
 
           {/* Ubah kata sandi */}
-          <section className="border border-border rounded-lg p-6">
-            <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">Ubah Kata Sandi</p>
+          <section className="glass-panel rounded-2xl p-6 shadow-lg">
+            <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">Ubah Kata Sandi</p>
             <form onSubmit={changePassword} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="current_password">Kata Sandi Saat Ini</Label>
@@ -244,7 +247,7 @@ const Akun = () => {
                   required
                 />
               </div>
-              <Button type="submit" disabled={changingPassword} className="gap-2">
+              <Button type="submit" disabled={changingPassword} variant="gradient" className="rounded-full gap-2">
                 {changingPassword && <Loader2 size={15} className="animate-spin" />}
                 {changingPassword ? "Menyimpan..." : "Ubah Kata Sandi"}
               </Button>

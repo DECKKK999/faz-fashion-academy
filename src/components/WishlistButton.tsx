@@ -42,7 +42,7 @@ const WishlistButton = ({ product_type, product_id, className, size = 16, varian
         disabled={busy}
         aria-pressed={active}
         aria-label={active ? "Hapus dari wishlist" : "Tambah ke wishlist"}
-        className={`inline-flex items-center justify-center gap-2 text-[11px] tracking-editorial uppercase border transition-colors disabled:opacity-60 ${
+        className={`inline-flex items-center justify-center gap-2 text-[12px] tracking-editorial uppercase border transition-colors disabled:opacity-60 ${
           active ? "border-foreground/40 text-foreground" : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
         } ${className ?? ""}`}
       >

@@ -5,6 +5,8 @@ import { api, type Course } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
 import { PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
+import Kicker from "@/components/landing/Kicker";
+import Reveal from "@/components/landing/Reveal";
 
 const PromoSection = () => {
   const [promoCourses, setPromoCourses] = useState<Course[]>([]);
@@ -19,28 +21,32 @@ const PromoSection = () => {
   if (promoCourses.length === 0) return null;
 
   return (
-    <section className="py-32 px-6 md:px-16 bg-[hsl(220_80%_96%)]">
+    <section className="py-32 px-6 md:px-16 bg-olive/[0.06]">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-4">
-          <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal">
-            Promo Saat Ini
-          </h2>
+          <div>
+            <Kicker index="01" tone="olive" className="mb-3">Terbatas</Kicker>
+            <h2 className="text-3xl md:text-5xl font-light text-foreground tracking-normal">
+              Promo Saat Ini
+            </h2>
+          </div>
         </div>
 
-        <div className="border-t border-[hsl(220_80%_85%)] pt-3 mb-10">
+        <div className="border-t border-olive/25 pt-3 mb-10">
           <span className="text-[12px] tracking-wide-editorial uppercase text-muted-foreground">
             {promoCourses.length} Promo Aktif
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {promoCourses.map((course) => (
-            <div
+          {promoCourses.map((course, idx) => (
+            <Reveal
               key={course.id}
-              className="group bg-[hsl(220_80%_55%)] rounded-lg overflow-hidden border border-[hsl(220_80%_40%)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              delayMs={idx * 80}
+              className="group bg-olive rounded-lg overflow-hidden border border-olive-light/40 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <Link to="/promo/fashion-design" className="relative overflow-hidden block">
-                <span className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-white text-[hsl(220_80%_55%)] text-xs px-3 py-1 rounded-full font-medium">
+                <span className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-white text-olive text-xs px-3 py-1 rounded-full font-medium">
                   <BadgePercent size={12} /> Promo
                 </span>
                 <img
@@ -84,16 +90,16 @@ const PromoSection = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     {course.price_idr > 0 && (
-                      <p className="text-[11px] text-white/60 line-through leading-none">{formatRupiah(course.price_idr)}</p>
+                      <p className="text-[12px] text-white/60 line-through leading-none">{formatRupiah(course.price_idr)}</p>
                     )}
                     <p className="font-semibold text-white">{formatRupiah(PROMO_PRICE_IDR)}</p>
                   </div>
-                  <Button size="sm" className="bg-white text-[hsl(220_80%_55%)] hover:bg-white/90" asChild>
+                  <Button size="sm" className="bg-white text-olive hover:bg-white/90" asChild>
                     <Link to="/promo/fashion-design">Lihat</Link>
                   </Button>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

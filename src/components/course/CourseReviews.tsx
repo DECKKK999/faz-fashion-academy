@@ -192,7 +192,7 @@ const CourseReviews = ({ courseId, canReview }: Props) => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-foreground">{r.reviewer?.full_name ?? "Pengguna"}</p>
-                    <p className="text-[11px] text-muted-foreground">{formatDate(r.created_at)}</p>
+                    <p className="text-[12px] text-muted-foreground">{formatDate(r.created_at)}</p>
                   </div>
                   <div className="mt-1 mb-2">
                     <StarRatingInput value={r.rating} readOnly size={14} />

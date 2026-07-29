@@ -19,6 +19,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, formatCount, formatDuration } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/Navbar";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import Kicker from "@/components/landing/Kicker";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
@@ -26,9 +28,6 @@ import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
 import lennyAvatar from "@/assets/lenny-avatar.jpg";
 
 const PROMO_QUOTA = 100;
-
-const pink = "hsl(330 81% 55%)";
-const blue = "hsl(220 80% 55%)";
 
 // Ubah link YouTube (youtu.be / watch?v= / sudah-embed) jadi URL embed yang bisa dipakai di iframe.
 const toYoutubeEmbedUrl = (url: string): string | null => {
@@ -77,10 +76,10 @@ const faqs = [
 
 const MinimalFooter = () => (
   <footer className="py-8 px-6 text-center border-t border-border">
-    <p className="text-[11px] tracking-editorial uppercase text-muted-foreground">
+    <p className="text-[12px] tracking-editorial uppercase text-muted-foreground">
       © 2026 FAZ Academy · Pembayaran aman & terverifikasi manual oleh tim kami
     </p>
-    <Link to="/tentang" className="text-[11px] text-muted-foreground underline mt-1 inline-block">
+    <Link to="/tentang" className="text-[12px] text-muted-foreground underline mt-1 inline-block">
       Tentang FAZ Academy
     </Link>
   </footer>
@@ -97,8 +96,8 @@ const ReviewsMarquee = ({ reviews }: { reviews: Review[] }) => {
         {items.map((r, i) => (
           <div key={`${r.id}-${i}`} className="shrink-0 w-60 bg-card border border-border rounded-xl px-4 py-3">
             <StarRatingInput value={r.rating} readOnly size={11} className="mb-1.5" />
-            <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">"{r.body}"</p>
-            <p className="text-[10px] font-medium text-foreground mt-1.5">{r.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
+            <p className="text-[12px] text-muted-foreground leading-snug line-clamp-2">"{r.body}"</p>
+            <p className="text-[11px] font-medium text-foreground mt-1.5">{r.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
           </div>
         ))}
       </div>
@@ -180,7 +179,8 @@ const PromoFashionDesign = () => {
   const alreadyHasCourse = state.enrolled || (state.order && state.order.status === "paid");
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 relative">
+      <GrainOverlay />
       <SeoHead
         title={`Promo ${PROMO_QUOTA} Siswa Pertama — ${course.title}`}
         description={`Khusus ${PROMO_QUOTA} siswa pertama: ${course.title} cuma ${formatRupiah(PROMO_PRICE)} (harga normal ${formatRupiah(normalPrice)}).`}
@@ -189,15 +189,14 @@ const PromoFashionDesign = () => {
       <Navbar />
 
       {/* Urgency bar — mt-14 buat kasih ruang navbar yang fixed (tinggi 56px) */}
-      <div
-        className="mt-14 sticky top-14 z-40 text-center text-[11px] md:text-xs font-medium tracking-wide py-2 px-4 text-white"
-        style={{ background: `linear-gradient(90deg, ${pink}, ${blue})` }}
-      >
+      <div className="mt-14 sticky top-14 z-40 text-center text-[12px] md:text-xs font-medium tracking-wide py-2 px-4 text-white bg-gradient-to-r from-primary to-olive">
         🔥 PROMO PELUNCURAN — Khusus {PROMO_QUOTA} Siswa Pertama · Sisa {spotsLeft} Slot
       </div>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-pink-50 via-white to-blue-50">
+      <section className="relative overflow-hidden bg-background">
+        <div className="absolute -top-40 -right-24 w-[480px] h-[480px] rounded-full blur-[120px] opacity-25 pointer-events-none bg-primary" />
+        <div className="absolute -bottom-40 -left-24 w-[420px] h-[420px] rounded-full blur-[120px] opacity-20 pointer-events-none bg-olive" />
         <div className="absolute top-10 right-10 grid grid-cols-6 gap-2 opacity-30 pointer-events-none">
           {Array.from({ length: 24 }).map((_, i) => (
             <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary/40" />
@@ -220,14 +219,14 @@ const PromoFashionDesign = () => {
           <div className="order-2 lg:order-2 flex flex-col lg:h-full">
             {/* Instruktur — mobile: urutan ke-4 (terakhir) · desktop: ngisi ruang kosong antara ulasan & harga */}
             {course.instructor_name && (
-              <div className="flex items-start gap-4 bg-card/60 border border-border rounded-2xl px-5 py-4 mb-6 order-4 lg:order-none">
+              <div className="flex items-start gap-4 glass-panel rounded-2xl px-5 py-4 mb-6 order-4 lg:order-none">
                 <img
                   src={lennyAvatar}
                   alt={course.instructor_name}
                   className="w-12 h-12 rounded-full object-cover border border-border shrink-0"
                 />
                 <div>
-                  <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-0.5">Instruktur</p>
+                  <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-0.5">Instruktur</p>
                   <p className="font-serif text-base font-semibold text-foreground">{course.instructor_name}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Desainer mode dan National Chair IFC yang dikenal lewat karya-karyanya yang berani, ceria, kontemporer, dan kaya sentuhan budaya Indonesia.
@@ -244,7 +243,7 @@ const PromoFashionDesign = () => {
               {/* Harga coret + badge hemat */}
               <div className="flex items-center gap-4 mb-2">
                 <span className="text-sm text-muted-foreground line-through">{formatRupiah(normalPrice)}</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ background: pink }}>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
                   HEMAT {discountPct}%
                 </span>
               </div>
@@ -255,14 +254,14 @@ const PromoFashionDesign = () => {
 
               {/* Spots progress */}
               <div className="max-w-sm mb-6">
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground mb-1.5">
                   <span>{spotsTaken} siswa sudah bergabung</span>
                   <span>{spotsLeft} slot tersisa</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+                    className="h-full rounded-full transition-all bg-gradient-to-r from-primary to-olive"
+                    style={{ width: `${progressPct}%` }}
                   />
                 </div>
               </div>
@@ -270,19 +269,19 @@ const PromoFashionDesign = () => {
               {/* Tombol klaim */}
               {alreadyHasCourse ? (
                 <div className="flex flex-col items-start gap-3">
-                  <div className="flex items-center gap-2 text-emerald-600 text-sm">
+                  <div className="flex items-center gap-2 text-emerald-500 text-sm">
                     <BadgeCheck size={18} /> Kamu sudah memiliki kelas ini
                   </div>
-                  <Button asChild size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
+                  <Button asChild variant="gradient" size="lg" className="rounded-full px-10 text-xs tracking-[0.2em] uppercase">
                     <a href={`/belajar/${course.slug}`}>Lanjut Belajar</a>
                   </Button>
                 </div>
               ) : (
                 <Button
                   onClick={handleClaim}
+                  variant="gradient"
                   size="lg"
                   className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
-                  style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
                 >
                   Klaim Promo Sekarang
                 </Button>
@@ -316,21 +315,23 @@ const PromoFashionDesign = () => {
 
       {/* Apa yang Kamu Dapatkan — pakai stat card yang sama dengan hero, supaya info gak dobel dengan desain beda */}
       <section className="max-w-5xl mx-auto px-6 md:px-12 py-16">
-        <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
+        <Kicker className="justify-center mb-3">Yang Kamu Dapatkan</Kicker>
+        <h2 className="text-center font-serif text-3xl md:text-4xl font-semibold text-foreground mb-10">
           Apa yang Kamu Dapatkan
         </h2>
-        <div className="bg-card border border-border rounded-2xl px-5 py-6 shadow-sm max-w-3xl mx-auto">
+        <div className="glass-panel rounded-2xl px-5 py-6 shadow-lg max-w-3xl mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
             {heroStats.map(({ icon: Icon, value, label }, i) => (
               <div key={value} className={`text-center px-2 ${i > 0 ? "sm:border-l sm:border-border" : ""}`}>
                 <div
-                  className="w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2"
-                  style={{ background: i % 2 === 0 ? `linear-gradient(135deg, ${pink}, ${blue})` : `linear-gradient(135deg, ${blue}, ${pink})` }}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-2 bg-gradient-to-br ${
+                    i % 2 === 0 ? "from-primary to-olive" : "from-olive to-primary"
+                  }`}
                 >
                   <Icon size={18} className="text-white" />
                 </div>
-                <p className="text-xs font-bold uppercase tracking-wide" style={{ color: i % 2 === 0 ? pink : blue }}>{value}</p>
-                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{label}</p>
+                <p className={`text-xs font-bold uppercase tracking-wide ${i % 2 === 0 ? "text-primary" : "text-olive"}`}>{value}</p>
+                <p className="text-[12px] text-muted-foreground leading-snug mt-0.5">{label}</p>
               </div>
             ))}
           </div>
@@ -338,7 +339,7 @@ const PromoFashionDesign = () => {
 
         {/* Contoh Sertifikat — preview watermark saja, tidak bisa diunduh */}
         <div className="max-w-3xl mx-auto mt-8 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">Contoh Sertifikat</p>
+          <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">Contoh Sertifikat</p>
           <img
             src={sertifikatContoh}
             alt="Contoh sertifikat kelulusan FAZ Academy (sampel, bukan sertifikat resmi)"
@@ -349,9 +350,9 @@ const PromoFashionDesign = () => {
 
       {/* Tentang kelas — background selang-seling sama kayak Hero */}
       {course.description && (
-        <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50">
+        <section className="bg-secondary">
           <div className="max-w-3xl mx-auto px-6 md:px-12 py-16">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-4 text-center">Tentang Kelas</h2>
+            <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground mb-4 text-center">Tentang Kelas</h2>
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-sm md:text-base">
               {course.description}
             </p>
@@ -362,7 +363,7 @@ const PromoFashionDesign = () => {
       {/* Cuplikan Kelas — teaser video intro, section sendiri di bawah Tentang Kelas */}
       {introVideoUrl && toYoutubeEmbedUrl(introVideoUrl) && (
         <section className="max-w-3xl mx-auto px-6 md:px-12 py-16">
-          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-foreground mb-6 text-center">Cuplikan Kelas</h2>
+          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground mb-6 text-center">Cuplikan Kelas</h2>
           <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-sm bg-black">
             <iframe
               src={toYoutubeEmbedUrl(introVideoUrl) ?? undefined}
@@ -377,14 +378,14 @@ const PromoFashionDesign = () => {
 
       {/* Testimonials — background selang-seling sama kayak Hero */}
       {testimonials.length > 0 && (
-        <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50">
+        <section className="bg-secondary">
           <div className="max-w-5xl mx-auto px-6 md:px-12 py-16">
-            <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-10">
+            <h2 className="text-center font-serif text-3xl md:text-4xl font-semibold text-foreground mb-10">
               Kata Mereka yang Sudah Bergabung
             </h2>
             <div className="grid md:grid-cols-3 gap-5">
               {testimonials.map((t) => (
-                <div key={t.id} className="border border-border rounded-xl p-5 bg-card flex flex-col">
+                <div key={t.id} className="glass-panel rounded-xl p-5 flex flex-col">
                   <StarRatingInput value={t.rating} readOnly size={14} className="mb-3" />
                   <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.body}"</p>
                   <p className="text-xs font-medium text-foreground mt-4">{t.reviewer?.full_name ?? "Siswa FAZ Academy"}</p>
@@ -397,7 +398,7 @@ const PromoFashionDesign = () => {
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-6 md:px-12 py-16">
-        <h2 className="text-center font-serif text-2xl md:text-3xl font-semibold text-foreground mb-8">
+        <h2 className="text-center font-serif text-3xl md:text-4xl font-semibold text-foreground mb-8">
           Pertanyaan yang Sering Ditanyakan
         </h2>
         <div className="space-y-2">
@@ -426,28 +427,27 @@ const PromoFashionDesign = () => {
       {/* Final CTA */}
       {!alreadyHasCourse && (
         <section className="px-6 md:px-12 pb-20">
-          <div
-            className="max-w-3xl mx-auto rounded-2xl px-8 py-12 text-center text-white"
-            style={{ background: `linear-gradient(135deg, ${pink}, ${blue})` }}
-          >
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold mb-3">
-              Jangan Sampai Kehabisan Slot
-            </h2>
-            <p className="text-sm opacity-90 mb-6 max-w-md mx-auto">
-              Sisa {spotsLeft} dari {PROMO_QUOTA} slot promo peluncuran. Setelah kuota penuh, harga kembali ke {formatRupiah(normalPrice)}.
-            </p>
-            <Button
-              onClick={handleClaim}
-              size="lg"
-              variant="secondary"
-              className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold"
-            >
-              Klaim Promo {formatRupiah(PROMO_PRICE)}
-            </Button>
-            <div className="flex items-center justify-center gap-5 text-[11px] opacity-90 mt-6 flex-wrap">
-              <span className="flex items-center gap-1"><ShieldCheck size={14} /> Pembayaran Aman</span>
-              <span className="flex items-center gap-1"><CheckCircle2 size={14} /> Akses Selamanya</span>
-              <span className="flex items-center gap-1"><GraduationCap size={14} /> Sertifikat Resmi</span>
+          <div className="max-w-3xl mx-auto rounded-2xl px-8 py-12 text-center text-white bg-gradient-to-br from-primary to-olive relative overflow-hidden">
+            <div className="absolute inset-0 grain-overlay opacity-[0.08] mix-blend-overlay pointer-events-none" />
+            <div className="relative">
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold mb-3">
+                Jangan Sampai Kehabisan Slot
+              </h2>
+              <p className="text-sm opacity-90 mb-6 max-w-md mx-auto">
+                Sisa {spotsLeft} dari {PROMO_QUOTA} slot promo peluncuran. Setelah kuota penuh, harga kembali ke {formatRupiah(normalPrice)}.
+              </p>
+              <Button
+                onClick={handleClaim}
+                size="lg"
+                className="rounded-full px-10 py-6 text-sm tracking-[0.15em] uppercase font-semibold bg-white text-primary hover:bg-white/90"
+              >
+                Klaim Promo {formatRupiah(PROMO_PRICE)}
+              </Button>
+              <div className="flex items-center justify-center gap-5 text-[12px] opacity-90 mt-6 flex-wrap">
+                <span className="flex items-center gap-1"><ShieldCheck size={14} /> Pembayaran Aman</span>
+                <span className="flex items-center gap-1"><CheckCircle2 size={14} /> Akses Selamanya</span>
+                <span className="flex items-center gap-1"><GraduationCap size={14} /> Sertifikat Resmi</span>
+              </div>
             </div>
           </div>
         </section>
@@ -457,28 +457,28 @@ const PromoFashionDesign = () => {
 
       {/* Sticky CTA — tetap kelihatan pas di-scroll, di mobile & desktop. Ada sisa slot buat nambah urgensi. */}
       {!alreadyHasCourse && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border">
+        <div className="fixed bottom-0 inset-x-0 z-40 glass-panel border-t">
           <div className="max-w-7xl mx-auto px-3 md:px-12 pt-2">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
               <span>🔥 Sisa {spotsLeft} slot promo</span>
               <span>{spotsTaken}/{PROMO_QUOTA} siswa bergabung</span>
             </div>
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full"
-                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${pink}, ${blue})` }}
+                className="h-full rounded-full bg-gradient-to-r from-primary to-olive"
+                style={{ width: `${progressPct}%` }}
               />
             </div>
           </div>
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 md:justify-end md:px-12 p-3 pt-2">
             <div className="md:mr-6">
-              <p className="text-[10px] text-muted-foreground line-through leading-none">{formatRupiah(normalPrice)}</p>
+              <p className="text-[11px] text-muted-foreground line-through leading-none">{formatRupiah(normalPrice)}</p>
               <p className="text-base font-serif font-bold text-foreground leading-tight">{formatRupiah(PROMO_PRICE)}</p>
             </div>
             <Button
               onClick={handleClaim}
+              variant="gradient"
               className="flex-1 md:flex-none md:px-10 rounded-full text-xs tracking-[0.1em] uppercase font-semibold"
-              style={{ background: `linear-gradient(135deg, ${pink}, ${blue})`, color: "white" }}
             >
               Klaim Promo
             </Button>

@@ -29,7 +29,7 @@ const PromoPopup = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm p-0 overflow-hidden">
+      <DialogContent className="max-w-sm p-0 overflow-hidden rounded-2xl">
         <button type="button" onClick={goToPromo} className="block w-full">
           <img
             src={promoLennyCard}
@@ -44,7 +44,7 @@ const PromoPopup = () => {
               Kelas "Memulai Bisnis Pakaian" bersama Lenny Agustin, sekarang hanya {formatRupiah(PROMO_PRICE_IDR)}.
             </DialogDescription>
           </DialogHeader>
-          <Button variant="hero" size="lg" className="w-full" onClick={goToPromo}>
+          <Button variant="gradient" size="lg" className="w-full rounded-full" onClick={goToPromo}>
             Lihat Promonya
           </Button>
         </div>

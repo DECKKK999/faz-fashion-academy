@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Lock, RotateCcw, Lo
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
 import LessonList from "@/components/player/LessonList";
 import CourseProgressBar from "@/components/player/CourseProgressBar";
 import { api, ApiError, type PlayerCourse, type PlayerLesson, type PlayerQuizSummary, type LessonProgressResult } from "@/lib/api";
@@ -126,7 +127,8 @@ const CoursePlayer = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        <GrainOverlay />
         <Navbar />
         <div className="pt-32 text-center text-muted-foreground text-sm">Memuat...</div>
       </div>
@@ -135,7 +137,8 @@ const CoursePlayer = () => {
 
   if (notFound || !data) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        <GrainOverlay />
         <Navbar />
         <div className="pt-32 pb-32 text-center">
           <p className="text-muted-foreground mb-4">Kelas tidak ditemukan.</p>
@@ -157,26 +160,27 @@ const CoursePlayer = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex items-center justify-between mb-6">
             <Link
               to={`/kelas/${data.course.slug}`}
-              className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft size={13} /> Detail Kelas
             </Link>
             {!data.access.enrolled && data.access.can_manage && (
-              <span className="text-[10px] tracking-editorial uppercase text-accent">Mode Pengelola</span>
+              <span className="text-[11px] tracking-editorial uppercase text-accent">Mode Pengelola</span>
             )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main pane */}
             <div className="lg:col-span-2 order-1">
-              <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">
+              <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">
                 {data.course.title}
               </p>
 
@@ -187,7 +191,7 @@ const CoursePlayer = () => {
                   <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mt-6 mb-1">
                     {active.title}
                   </h1>
-                  <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-5">
+                  <p className="text-[12px] tracking-editorial uppercase text-muted-foreground mb-5">
                     {active.moduleTitle}
                   </p>
 
@@ -221,7 +225,7 @@ const CoursePlayer = () => {
                     {!active.locked && (
                       <Button
                         size="sm"
-                        variant={active.completed ? "secondary" : "default"}
+                        variant={active.completed ? "secondary" : "gradient"}
                         onClick={toggleComplete}
                         disabled={marking}
                         className="gap-2 ml-auto"
@@ -245,7 +249,7 @@ const CoursePlayer = () => {
 
             {/* Sidebar */}
             <aside className="lg:col-span-1 order-2">
-              <div className="lg:sticky lg:top-24 border border-border rounded-lg p-5 bg-card">{sidebar}</div>
+              <div className="lg:sticky lg:top-24 glass-panel rounded-2xl p-5 shadow-lg">{sidebar}</div>
             </aside>
           </div>
         </div>
@@ -268,7 +272,7 @@ const QuizCard = ({ quiz, courseSlug }: { quiz: PlayerQuizSummary; courseSlug: s
         ) : (
           <ClipboardCheck size={14} className="text-foreground" />
         )}
-        <span className="text-[10px] tracking-editorial uppercase text-muted-foreground">Final Quiz</span>
+        <span className="text-[11px] tracking-editorial uppercase text-muted-foreground">Final Quiz</span>
       </div>
       <p className="text-sm font-medium text-foreground mb-1">{quiz.title}</p>
       <p className="text-xs text-muted-foreground mb-3">

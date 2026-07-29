@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Clock, Users, Star, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
+import Reveal from "@/components/landing/Reveal";
 import { useEffect, useMemo, useState } from "react";
 import { api, type Course } from "@/lib/api";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
@@ -34,21 +37,16 @@ const Kelas = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          <div className="mb-12">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-4">
-              Courses & Programs
-            </p>
-            <h1 className="text-4xl md:text-5xl font-serif italic text-foreground mb-4">
-              Katalog Kelas
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-              Temukan kelas yang sesuai dengan minat dan level keahlianmu di dunia fashion.
-            </p>
-          </div>
+          <PageHeader
+            kicker="Courses & Programs"
+            title="Katalog Kelas"
+            subtitle="Temukan kelas yang sesuai dengan minat dan level keahlianmu di dunia fashion."
+          />
 
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
             <div className="flex gap-2 flex-wrap justify-center">
@@ -75,10 +73,11 @@ const Kelas = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map((course) => (
-              <div
+            {filtered.map((course, idx) => (
+              <Reveal
                 key={course.id}
-                className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                delayMs={(idx % 4) * 70}
+                className="group bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
               >
                 <Link to={`/kelas/${course.slug}`} className="relative overflow-hidden block">
                   <img
@@ -122,7 +121,7 @@ const Kelas = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       {isPromoCourse(course.slug) && course.price_idr > 0 && (
-                        <p className="text-[11px] text-muted-foreground line-through leading-none">{formatRupiah(course.price_idr)}</p>
+                        <p className="text-[12px] text-muted-foreground line-through leading-none">{formatRupiah(course.price_idr)}</p>
                       )}
                       <p className="font-semibold text-primary">
                         {course.price_idr ? formatRupiah(isPromoCourse(course.slug) ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
@@ -131,7 +130,7 @@ const Kelas = () => {
                     <Button size="sm" asChild><Link to={`/kelas/${course.slug}`}>Lihat</Link></Button>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
 

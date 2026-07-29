@@ -1,11 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import Kicker from "@/components/landing/Kicker";
+import Reveal from "@/components/landing/Reveal";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Tentang = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
 
       {/* Hero */}
@@ -13,10 +17,8 @@ const Tentang = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
             <div className="lg:col-span-7">
-              <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground mb-6 block">
-                Tentang Kami
-              </span>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-light text-foreground tracking-normal leading-[1.1]">
+              <Kicker className="mb-6">Tentang Kami</Kicker>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground tracking-normal leading-[1.05]">
                 Suara Lokal,
                 <br />
                 <span className="font-serif italic text-accent">Pengetahuan</span>
@@ -41,10 +43,10 @@ const Tentang = () => {
 
       {/* The Problem */}
       <section className="py-20 px-6 md:px-16">
-        <div className="container mx-auto max-w-7xl">
+        <Reveal className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-4">
-              <h2 className="text-[11px] tracking-wide-editorial uppercase text-accent mb-4">Masalah Yang Kami Lihat</h2>
+              <Kicker index="01" className="mb-4">Masalah Yang Kami Lihat</Kicker>
             </div>
             <div className="lg:col-span-8">
               <h3
@@ -79,15 +81,15 @@ const Tentang = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* The Vision */}
       <section className="py-20 px-6 md:px-16 bg-secondary">
-        <div className="container mx-auto max-w-7xl">
+        <Reveal className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-4">
-              <h2 className="text-[11px] tracking-wide-editorial uppercase text-accent mb-4">Visi Kami</h2>
+              <Kicker index="02" className="mb-4">Visi Kami</Kicker>
             </div>
             <div className="lg:col-span-8">
               <h3
@@ -118,15 +120,15 @@ const Tentang = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* What We Offer */}
       <section className="py-20 px-6 md:px-16">
-        <div className="container mx-auto max-w-7xl">
+        <Reveal className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-4">
-              <h2 className="text-[11px] tracking-wide-editorial uppercase text-accent mb-4">Yang Kami Tawarkan</h2>
+              <Kicker index="03" className="mb-4">Yang Kami Tawarkan</Kicker>
             </div>
             <div className="lg:col-span-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border/50">
@@ -148,7 +150,7 @@ const Tentang = () => {
                     key={item.title}
                     className="p-8 bg-background hover:bg-muted/50 transition-colors duration-300"
                   >
-                    <h4 className="text-[11px] font-light tracking-editorial uppercase text-foreground mb-3">
+                    <h4 className="text-[12px] font-light tracking-editorial uppercase text-foreground mb-3">
                       {item.title}
                     </h4>
                     <p
@@ -162,15 +164,15 @@ const Tentang = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Culture Block */}
       <section className="py-20 px-6 md:px-16 bg-secondary">
-        <div className="container mx-auto max-w-7xl">
+        <Reveal className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-4">
-              <h2 className="text-[11px] tracking-wide-editorial uppercase text-accent mb-4">Warisan Kita</h2>
+              <Kicker index="04" className="mb-4">Warisan Kita</Kicker>
             </div>
             <div className="lg:col-span-8">
               <h3
@@ -191,11 +193,11 @@ const Tentang = () => {
                     key={item.label}
                     className="p-6 bg-background hover:bg-muted/50 transition-colors duration-300"
                   >
-                    <h4 className="text-[11px] font-light tracking-editorial uppercase text-foreground mb-3">
+                    <h4 className="text-[12px] font-light tracking-editorial uppercase text-foreground mb-3">
                       {item.label}
                     </h4>
                     <p
-                      className="text-[11px] text-muted-foreground leading-relaxed"
+                      className="text-[12px] text-muted-foreground leading-relaxed"
                       style={{ letterSpacing: "normal", textTransform: "none" }}
                     >
                       {item.detail}
@@ -205,12 +207,13 @@ const Tentang = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* CTA */}
       <section className="py-32 px-6 md:px-16">
-        <div className="container mx-auto max-w-7xl text-center">
+        <Reveal className="container mx-auto max-w-7xl text-center">
+          <Kicker className="justify-center mb-4">Ajakan</Kicker>
           <h2
             className="text-2xl md:text-4xl font-light text-foreground tracking-normal mb-4"
           >
@@ -226,12 +229,12 @@ const Tentang = () => {
           <div className="flex items-center justify-center gap-4">
             <Link
               to="/daftar"
-              className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20 transition-colors px-6 py-3"
+              className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase bg-foreground/10 border border-foreground/30 text-foreground hover:bg-foreground/20 transition-colors px-6 py-3 rounded-full"
             >
               Mulai Sekarang <ArrowRight size={12} />
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <Footer />

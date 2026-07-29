@@ -11,8 +11,8 @@ const CourseProgressBar = ({ completed, total, pct, className }: Props) => {
   return (
     <div className={className}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] tracking-editorial uppercase text-muted-foreground">Progres</span>
-        <span className="text-[10px] tracking-editorial uppercase text-foreground">
+        <span className="text-[11px] tracking-editorial uppercase text-muted-foreground">Progres</span>
+        <span className="text-[11px] tracking-editorial uppercase text-foreground">
           {completed}/{total} · {pct}%
         </span>
       </div>

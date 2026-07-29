@@ -4,6 +4,9 @@ import { Award, Download, Copy, CheckCircle2, ShieldX, ExternalLink, GraduationC
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
+import Kicker from "@/components/landing/Kicker";
 import { Button } from "@/components/ui/button";
 import { api, ApiError, type Certificate, type OrderCourse } from "@/lib/api";
 
@@ -93,25 +96,20 @@ const Certificates = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-32">
         <div className="container mx-auto px-6 md:px-16 max-w-5xl">
-          {/* Header */}
-          <div className="mb-4">
-            <h1 className="text-3xl md:text-5xl font-light text-foreground tracking-normal">Sertifikat Saya</h1>
-            <p
-              className="text-sm text-muted-foreground mt-3 max-w-lg"
-              style={{ letterSpacing: "normal", textTransform: "none" }}
-            >
-              Bukti penyelesaian kelas yang dapat kamu unduh dan verifikasi keasliannya secara publik.
-            </p>
-          </div>
+          <PageHeader
+            kicker="Pencapaian"
+            title="Sertifikat Saya"
+            subtitle="Bukti penyelesaian kelas yang dapat kamu unduh dan verifikasi keasliannya secara publik."
+            className="mb-4"
+          />
 
           <div className="border-t border-border pt-3 mb-12">
-            <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground">
-              {certificates.length} Sertifikat Diterbitkan
-            </span>
+            <Kicker tone="olive">{certificates.length} Sertifikat Diterbitkan</Kicker>
           </div>
 
           {loading ? (
@@ -123,17 +121,17 @@ const Certificates = () => {
               {/* Eligible (completed but not yet issued) */}
               {eligible.length > 0 && (
                 <section className="mb-16">
-                  <h2 className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">
+                  <h2 className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">
                     Siap Diterbitkan
                   </h2>
                   <div className="space-y-3">
                     {eligible.map((e) => (
                       <div
                         key={e.course.id}
-                        className="flex items-center justify-between gap-4 border border-border p-5"
+                        className="flex items-center justify-between gap-4 bg-card border border-border rounded-xl p-5 hover:border-foreground/20 transition-colors"
                       >
                         <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-10 h-10 flex items-center justify-center border border-border shrink-0">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center border border-border shrink-0">
                             <GraduationCap size={18} className="text-accent" />
                           </div>
                           <div className="min-w-0">
@@ -141,7 +139,7 @@ const Certificates = () => {
                               {e.course.title}
                             </h3>
                             <p
-                              className="text-[11px] text-muted-foreground"
+                              className="text-[12px] text-muted-foreground"
                               style={{ letterSpacing: "normal", textTransform: "none" }}
                             >
                               Kelas selesai 100% ({e.completed}/{e.total} pelajaran)
@@ -152,7 +150,7 @@ const Certificates = () => {
                         <Button
                           onClick={() => handleIssue(e.course.id)}
                           disabled={issuing === e.course.id}
-                          className="rounded-none gap-2 shrink-0"
+                          className="rounded-full gap-2 shrink-0"
                         >
                           <Award size={14} />
                           {issuing === e.course.id ? "Menerbitkan..." : "Terbitkan"}
@@ -166,17 +164,17 @@ const Certificates = () => {
               {/* Materi selesai tapi Final Quiz belum lulus */}
               {quizPending.length > 0 && (
                 <section className="mb-16">
-                  <h2 className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-4">
+                  <h2 className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">
                     Menunggu Final Quiz
                   </h2>
                   <div className="space-y-3">
                     {quizPending.map((p) => (
                       <div
                         key={p.course.id}
-                        className="flex items-center justify-between gap-4 border border-border p-5"
+                        className="flex items-center justify-between gap-4 bg-card border border-border rounded-xl p-5 hover:border-foreground/20 transition-colors"
                       >
                         <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-10 h-10 flex items-center justify-center border border-border shrink-0">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center border border-border shrink-0">
                             <ClipboardCheck size={18} className="text-muted-foreground" />
                           </div>
                           <div className="min-w-0">
@@ -184,7 +182,7 @@ const Certificates = () => {
                               {p.course.title}
                             </h3>
                             <p
-                              className="text-[11px] text-muted-foreground"
+                              className="text-[12px] text-muted-foreground"
                               style={{ letterSpacing: "normal", textTransform: "none" }}
                             >
                               Materi selesai — lulus Final Quiz (nilai ≥ {p.quiz.passing_score}) untuk membuka
@@ -193,7 +191,7 @@ const Certificates = () => {
                             </p>
                           </div>
                         </div>
-                        <Button asChild variant="outline" className="rounded-none gap-2 shrink-0">
+                        <Button asChild variant="outline" className="rounded-full gap-2 shrink-0">
                           <Link to={`/belajar/${p.course.slug}/quiz`}>
                             <ClipboardCheck size={14} />
                             {p.quiz.attempts_count > 0 ? "Ulangi Kuis" : "Kerjakan Kuis"}
@@ -207,7 +205,7 @@ const Certificates = () => {
 
               {/* Issued certificates */}
               {certificates.length === 0 ? (
-                <div className="border border-border p-12 text-center">
+                <div className="bg-card border border-border rounded-2xl p-12 text-center">
                   <Award size={28} className="mx-auto text-muted-foreground mb-3" />
                   <p
                     className="text-muted-foreground mb-4 text-sm"
@@ -215,22 +213,22 @@ const Certificates = () => {
                   >
                     Kamu belum memiliki sertifikat. Selesaikan kelas untuk mendapatkannya.
                   </p>
-                  <Button asChild className="rounded-none">
+                  <Button asChild variant="gradient" className="rounded-full">
                     <Link to="/kelas">Lihat Katalog Kelas</Link>
                   </Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {certificates.map((cert) => (
-                    <div key={cert.id} className="border border-border p-6 flex flex-col">
+                    <div key={cert.id} className="bg-card border border-border rounded-2xl p-6 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                       <div className="flex items-start justify-between mb-4">
                         <Award size={22} className="text-accent" />
                         {cert.revoked ? (
-                          <span className="flex items-center gap-1 text-[10px] tracking-editorial uppercase text-red-600">
+                          <span className="flex items-center gap-1 text-[11px] tracking-editorial uppercase text-red-500">
                             <ShieldX size={12} /> Dicabut
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[10px] tracking-editorial uppercase text-emerald-600">
+                          <span className="flex items-center gap-1 text-[11px] tracking-editorial uppercase text-emerald-500">
                             <CheckCircle2 size={12} /> Valid
                           </span>
                         )}
@@ -240,14 +238,14 @@ const Certificates = () => {
                         {cert.course_title}
                       </h3>
                       <p
-                        className="text-[11px] text-muted-foreground mb-1"
+                        className="text-[12px] text-muted-foreground mb-1"
                         style={{ letterSpacing: "normal", textTransform: "none" }}
                       >
                         a.n. {cert.recipient_name}
                       </p>
                       {cert.instructor_name && (
                         <p
-                          className="text-[11px] text-muted-foreground"
+                          className="text-[12px] text-muted-foreground"
                           style={{ letterSpacing: "normal", textTransform: "none" }}
                         >
                           Instruktur: {cert.instructor_name}
@@ -255,25 +253,25 @@ const Certificates = () => {
                       )}
                       {typeof cert.quiz_score === "number" && (
                         <p
-                          className="text-[11px] text-muted-foreground"
+                          className="text-[12px] text-muted-foreground"
                           style={{ letterSpacing: "normal", textTransform: "none" }}
                         >
                           Nilai Final Quiz: {cert.quiz_score}/100
                         </p>
                       )}
                       <p
-                        className="text-[11px] text-muted-foreground mt-3"
+                        className="text-[12px] text-muted-foreground mt-3"
                         style={{ letterSpacing: "normal", textTransform: "none" }}
                       >
                         Diterbitkan {formatDate(cert.issued_at)}
                       </p>
-                      <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mt-1">
+                      <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mt-1">
                         {cert.certificate_number}
                       </p>
 
                       {cert.revoked && cert.revoked_reason && (
                         <p
-                          className="text-[11px] text-red-600 mt-3"
+                          className="text-[12px] text-red-500 mt-3"
                           style={{ letterSpacing: "normal", textTransform: "none" }}
                         >
                           Alasan dicabut: {cert.revoked_reason}
@@ -285,7 +283,7 @@ const Certificates = () => {
                           size="sm"
                           onClick={() => handleDownload(cert)}
                           disabled={downloading === cert.id}
-                          className="rounded-none gap-2"
+                          className="rounded-full gap-2"
                         >
                           <Download size={13} />
                           {downloading === cert.id ? "Mengunduh..." : "Unduh PDF"}
@@ -294,11 +292,11 @@ const Certificates = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleCopyLink(cert)}
-                          className="rounded-none gap-2"
+                          className="rounded-full gap-2"
                         >
                           <Copy size={13} /> Salin Tautan
                         </Button>
-                        <Button size="sm" variant="ghost" asChild className="rounded-none gap-2">
+                        <Button size="sm" variant="ghost" asChild className="rounded-full gap-2">
                           <Link to={`/verifikasi/${cert.certificate_number}`}>
                             <ExternalLink size={13} /> Verifikasi
                           </Link>

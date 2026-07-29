@@ -16,7 +16,7 @@ export default {
       fontFamily: {
         serif: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
         sans: ['Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        mono: ['Space Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
         display: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
       },
       colors: {
@@ -62,9 +62,14 @@ export default {
           DEFAULT: "hsl(var(--cream))",
           dark: "hsl(var(--cream-dark))",
         },
+        olive: {
+          DEFAULT: "hsl(var(--olive))",
+          light: "hsl(var(--olive-light))",
+        },
         charcoal: {
           DEFAULT: "hsl(var(--charcoal))",
           light: "hsl(var(--charcoal-light))",
+          foreground: "hsl(var(--charcoal-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -111,6 +116,15 @@ export default {
           from: { transform: "translateX(-50%)" },
           to: { transform: "translateX(0%)" },
         },
+        "float-soft": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "pulse-dot": {
+          "0%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0.55)" },
+          "70%": { boxShadow: "0 0 0 8px hsl(var(--primary) / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -120,6 +134,8 @@ export default {
         "scale-in": "scale-in 0.4s ease-out forwards",
         "shimmer": "shimmer 3s ease-in-out infinite",
         "marquee-right": "marquee-right 28s linear infinite",
+        "float-soft": "float-soft 5s ease-in-out infinite",
+        "pulse-dot": "pulse-dot 2s infinite",
       },
     },
   },

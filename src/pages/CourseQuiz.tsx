@@ -4,6 +4,7 @@ import { ArrowLeft, Award, CheckCircle2, Loader2, Lock, RotateCcw, XCircle } fro
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { api, ApiError, type QuizState, type QuizSubmitResult } from "@/lib/api";
@@ -102,18 +103,19 @@ const CourseQuiz = () => {
   const { quiz, lessons, unlocked, best_attempt, attempts, passed } = data;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
           <Link
             to={`/belajar/${data.course.slug}`}
-            className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6"
+            className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6"
           >
             <ArrowLeft size={13} /> Kembali ke Kelas
           </Link>
 
-          <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">{data.course.title}</p>
+          <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">{data.course.title}</p>
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
             {quiz?.title ?? "Final Quiz"}
           </h1>
@@ -133,7 +135,7 @@ const CourseQuiz = () => {
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">{quiz.description}</p>
               )}
 
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] tracking-editorial uppercase text-muted-foreground border-y border-border py-3 mb-8">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[12px] tracking-editorial uppercase text-muted-foreground border-y border-border py-3 mb-8">
                 <span>{quiz.total_questions} soal</span>
                 <span>Nilai lulus ≥ {quiz.passing_score}</span>
                 <span>Percobaan tidak dibatasi</span>
@@ -177,7 +179,7 @@ const CourseQuiz = () => {
                   </p>
                   {data.access.enrolled && lessons.total > 0 && (
                     <div className="max-w-xs mx-auto mb-5">
-                      <div className="flex items-center justify-between mb-2 text-[10px] tracking-editorial uppercase">
+                      <div className="flex items-center justify-between mb-2 text-[11px] tracking-editorial uppercase">
                         <span className="text-muted-foreground">Progres materi</span>
                         <span className="text-foreground">
                           {lessons.completed}/{lessons.total}
@@ -208,7 +210,7 @@ const CourseQuiz = () => {
                           }`}
                         >
                           <div className="flex items-start gap-3 mb-4">
-                            <span className="text-[10px] tracking-editorial uppercase text-muted-foreground mt-1 shrink-0">
+                            <span className="text-[11px] tracking-editorial uppercase text-muted-foreground mt-1 shrink-0">
                               {String(i + 1).padStart(2, "0")}
                             </span>
                             <p className="font-medium text-foreground leading-relaxed flex-1">{q.prompt}</p>
@@ -279,6 +281,7 @@ const CourseQuiz = () => {
                         <Button
                           onClick={submit}
                           disabled={!allAnswered || submitting}
+                          variant="gradient"
                           size="sm"
                           className="gap-2 ml-auto"
                         >
@@ -292,7 +295,7 @@ const CourseQuiz = () => {
                   {/* Riwayat percobaan */}
                   {attempts.length > 0 && (
                     <div className="mt-10">
-                      <h2 className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-3">
+                      <h2 className="text-[12px] tracking-editorial uppercase text-muted-foreground mb-3">
                         Riwayat Percobaan
                       </h2>
                       <div className="border border-border rounded-lg divide-y divide-border">
@@ -304,7 +307,7 @@ const CourseQuiz = () => {
                                 {a.score} · {a.correct_count}/{a.total_questions}
                               </span>
                               <span
-                                className={`text-[10px] tracking-editorial uppercase ${
+                                className={`text-[11px] tracking-editorial uppercase ${
                                   a.passed ? "text-accent" : "text-muted-foreground"
                                 }`}
                               >

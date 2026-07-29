@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
 import { api, type Order } from "@/lib/api";
 import { formatRupiah, orderStatus, orderItemOf, orderItemTypeLabel } from "@/lib/format";
 
@@ -15,11 +17,12 @@ const MyOrders = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
-          <h1 className="font-serif text-3xl font-bold text-foreground mb-8">Pesanan Saya</h1>
+          <PageHeader kicker="Riwayat" title="Pesanan Saya" />
 
           {loading ? (
             <p className="text-muted-foreground text-sm">Memuat...</p>
@@ -44,7 +47,7 @@ const MyOrders = () => {
                       <p className="font-medium text-foreground truncate">{item?.title ?? "Pesanan"}</p>
                       <p className="text-xs text-muted-foreground">{orderItemTypeLabel(o.item_type)} · {formatRupiah(o.total_idr)}</p>
                     </div>
-                    <span className={`text-[10px] tracking-editorial uppercase px-3 py-1 rounded-full whitespace-nowrap ${st.className}`}>{st.label}</span>
+                    <span className={`text-[11px] tracking-editorial uppercase px-3 py-1 rounded-full whitespace-nowrap ${st.className}`}>{st.label}</span>
                     <ArrowRight size={16} className="text-muted-foreground" />
                   </Link>
                 );

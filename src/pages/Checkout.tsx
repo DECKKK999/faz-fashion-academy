@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
 import { api, type Order, type PaymentInfo } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah, orderStatus, orderItemOf, orderItemTypeLabel } from "@/lib/format";
@@ -163,17 +164,18 @@ const Checkout = () => {
   const isClosed = order.status === "expired" || order.status === "cancelled";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-3xl">
-          <Link to="/pesanan" className="inline-flex items-center gap-2 text-[11px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/pesanan" className="inline-flex items-center gap-2 text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft size={13} /> Pesanan Saya
           </Link>
 
           <div className="flex items-center justify-between mb-6">
             <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">Konfirmasi Pembayaran</h1>
-            <span className={`text-[10px] tracking-editorial uppercase px-3 py-1 rounded-full ${st.className}`}>{st.label}</span>
+            <span className={`text-[11px] tracking-editorial uppercase px-3 py-1 rounded-full ${st.className}`}>{st.label}</span>
           </div>
 
           {/* Ringkasan */}
@@ -188,7 +190,7 @@ const Checkout = () => {
           {/* Status banners */}
           {order.status === "paid" && (
             <div className="border border-emerald-500/30 bg-emerald-500/10 rounded-lg p-6 text-center mb-6">
-              <CheckCircle2 className="mx-auto text-emerald-600 mb-2" size={28} />
+              <CheckCircle2 className="mx-auto text-emerald-500 mb-2" size={28} />
               <p className="font-medium text-foreground">Pembayaran terverifikasi!</p>
               <p className="text-sm text-muted-foreground mt-1 mb-4">Kelas sudah aktif di akunmu.</p>
               <Button asChild><Link to="/dashboard">Buka Dashboard</Link></Button>
@@ -196,21 +198,21 @@ const Checkout = () => {
           )}
           {order.status === "awaiting_verification" && (
             <div className="border border-blue-500/30 bg-blue-500/10 rounded-lg p-6 text-center mb-6">
-              <Clock className="mx-auto text-blue-600 mb-2" size={28} />
+              <Clock className="mx-auto text-blue-500 mb-2" size={28} />
               <p className="font-medium text-foreground">Menunggu verifikasi staff</p>
               <p className="text-sm text-muted-foreground mt-1">Bukti transfer sudah kami terima. Verifikasi maksimal 1x24 jam kerja.</p>
             </div>
           )}
           {gatewayEnabled && order.status === "processing" && (
             <div className="border border-blue-500/30 bg-blue-500/10 rounded-lg p-6 text-center mb-6">
-              <Loader2 className="mx-auto text-blue-600 mb-2 animate-spin" size={28} />
+              <Loader2 className="mx-auto text-blue-500 mb-2 animate-spin" size={28} />
               <p className="font-medium text-foreground">Menunggu konfirmasi pembayaran</p>
               <p className="text-sm text-muted-foreground mt-1">Halaman ini akan otomatis memperbarui begitu DOKU mengonfirmasi pembayaranmu.</p>
             </div>
           )}
           {order.status === "rejected" && (
             <div className="border border-red-500/30 bg-red-500/10 rounded-lg p-5 mb-6">
-              <div className="flex items-center gap-2 text-red-600 font-medium mb-1"><AlertCircle size={18} /> Bukti ditolak</div>
+              <div className="flex items-center gap-2 text-red-500 font-medium mb-1"><AlertCircle size={18} /> Bukti ditolak</div>
               <p className="text-sm text-muted-foreground">{order.rejection_reason || "Silakan kirim ulang bukti transfer yang benar."}</p>
             </div>
           )}
@@ -226,14 +228,14 @@ const Checkout = () => {
           {/* Bayar via DOKU */}
           {!isClosed && gatewayEnabled && ["pending", "rejected", "failed"].includes(order.status) && (
             <div className="border border-border rounded-lg p-6 mb-6">
-              <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
+              <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
               <p className="text-3xl font-serif font-bold text-foreground mb-1">{formatRupiah(order.total_idr)}</p>
               {order.discount_idr > 0 && (
                 <p className="text-xs text-muted-foreground mb-4">
                   Harga {formatRupiah(order.base_price_idr)} − diskon {order.coupon_code ? `(${order.coupon_code}) ` : ""}{formatRupiah(order.discount_idr)}
                 </p>
               )}
-              <Button onClick={payWithDoku} disabled={charging} className="w-full">
+              <Button onClick={payWithDoku} disabled={charging} variant="gradient" className="w-full rounded-full">
                 {charging ? "Menyiapkan pembayaran..." : "Bayar Sekarang"}
               </Button>
             </div>
@@ -243,7 +245,7 @@ const Checkout = () => {
           {!isClosed && !gatewayEnabled && order.status !== "paid" && (
             <>
               <div className="border border-border rounded-lg p-6 mb-6">
-                <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
+                <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
                 <div className="flex items-end gap-3 mb-1">
                   <p className="text-3xl font-serif font-bold text-foreground">{formatRupiah(order.total_idr)}</p>
                   <button onClick={() => copy(String(order.total_idr))} className="mb-1.5 text-muted-foreground hover:text-foreground"><Copy size={16} /></button>
@@ -258,7 +260,7 @@ const Checkout = () => {
                 </p>
 
                 <div className="border-t border-border my-5" />
-                <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-3">Rekening Tujuan</p>
+                <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-3">Rekening Tujuan</p>
                 <div className="space-y-3">
                   {info?.bank_accounts.map((b) => (
                     <div key={b.bank} className="flex items-center justify-between border border-border/60 rounded p-3">
@@ -301,7 +303,7 @@ const Checkout = () => {
                     <Label>Tanggal Transfer</Label>
                     <Input type="date" value={transferDate} onChange={(e) => setTransferDate(e.target.value)} />
                   </div>
-                  <Button type="submit" className="w-full gap-2" disabled={submitting}>
+                  <Button type="submit" variant="gradient" className="w-full rounded-full gap-2" disabled={submitting}>
                     <Upload size={16} /> {submitting ? "Mengirim..." : "Saya Sudah Transfer"}
                   </Button>
                 </form>
@@ -312,7 +314,7 @@ const Checkout = () => {
           {/* Bukti yang sudah dikirim */}
           {(order.status === "awaiting_verification" || order.status === "paid") && order.proof_url && (
             <div className="border border-border rounded-lg p-5 mt-6">
-              <p className="text-[10px] tracking-editorial uppercase text-muted-foreground mb-3">Bukti Terkirim</p>
+              <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-3">Bukti Terkirim</p>
               <div className="text-xs text-muted-foreground mb-3">
                 <p>Pengirim: {order.payer_name} ({order.payer_bank})</p>
                 {order.transfer_date && <p>Tanggal: {order.transfer_date}</p>}
@@ -324,7 +326,7 @@ const Checkout = () => {
           )}
 
           {(order.status === "pending" || order.status === "awaiting_verification") && (
-            <button onClick={cancelOrder} className="mt-6 text-xs text-muted-foreground hover:text-red-600 transition-colors">
+            <button onClick={cancelOrder} className="mt-6 text-xs text-muted-foreground hover:text-red-500 transition-colors">
               Batalkan pesanan
             </button>
           )}

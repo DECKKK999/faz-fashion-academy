@@ -2,40 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @layer base {
+  /*
+   * "Atelier Noir" — dark couture-editorial theme for the whole customer-facing
+   * app. Warm near-black canvas instead of pure black, brightened pink/blue
+   * brand hues so they still pop on dark, dark (not white) foreground on
+   * saturated buttons for contrast. Same brand hue family as before (330
+   * pink / 220 blue) — just re-tuned for a dark base instead of a swap to an
+   * unrelated palette.
+   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 15%;
+    --background: 20 18% 7%;
+    --foreground: 40 30% 94%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 15%;
+    --card: 20 16% 10%;
+    --card-foreground: 40 30% 94%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 15%;
+    --popover: 20 16% 9%;
+    --popover-foreground: 40 30% 94%;
 
-    --primary: 330 81% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 330 85% 62%;
+    --primary-foreground: 20 25% 10%;
 
-    --secondary: 220 60% 97%;
-    --secondary-foreground: 222 47% 15%;
+    --secondary: 20 14% 13%;
+    --secondary-foreground: 40 30% 94%;
 
-    --muted: 220 30% 96%;
-    --muted-foreground: 222 20% 45%;
+    --muted: 20 12% 15%;
+    --muted-foreground: 30 12% 65%;
 
-    --accent: 330 81% 55%;
-    --accent-foreground: 0 0% 100%;
+    /* Kept in sync with --primary on purpose (both are "the pink") — many
+       pages (Checkout, Dashboard, CoursePlayer, Cart…) key off --accent
+       directly rather than --primary. */
+    --accent: 330 85% 62%;
+    --accent-foreground: 20 25% 10%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 58%;
     --destructive-foreground: 0 0% 100%;
 
+    --border: 30 12% 20%;
+    --input: 30 12% 20%;
+    --ring: 330 85% 62%;
+
+    --radius: 0.85rem;
+
+    --gold: 330 85% 65%;
+    --gold-light: 320 88% 76%;
+    --gold-dark: 340 78% 52%;
+    --olive: 220 85% 64%;
+    --olive-light: 220 82% 76%;
+    --cream: 20 14% 13%;
+    --cream-dark: 20 12% 17%;
+
+    /* Deeper-than-background near-black, for spotlight/vignette bands that
+       need to read as a shade darker than the base canvas (hero backdrops,
+       CTA banners) — depth variation instead of one flat dark everywhere. */
+    --charcoal: 20 22% 4%;
+    --charcoal-light: 20 16% 9%;
+    --charcoal-foreground: 40 30% 94%;
+
+    --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    --font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+    --sidebar-background: 20 16% 10%;
+    --sidebar-foreground: 40 30% 94%;
+    --sidebar-primary: 330 85% 62%;
+    --sidebar-primary-foreground: 20 25% 10%;
+    --sidebar-accent: 20 14% 13%;
+    --sidebar-accent-foreground: 40 30% 94%;
+    --sidebar-border: 30 12% 20%;
+    --sidebar-ring: 330 85% 62%;
+  }
+
+  /*
+   * Admin panel opt-out: staff tooling stays on the original light theme
+   * (dense data tables/forms, lower priority for the visual redesign).
+   * Exact snapshot of the pre-redesign :root values — see AdminLayout.tsx,
+   * which applies this class to its single root wrapper so every /admin/*
+   * page renders unaffected by the theme above.
+   */
+  .admin-scope {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 15%;
+    --primary: 330 81% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 60% 97%;
+    --secondary-foreground: 222 47% 15%;
+    --muted: 220 30% 96%;
+    --muted-foreground: 222 20% 45%;
+    --accent: 330 81% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
     --border: 220 20% 90%;
     --input: 220 20% 90%;
     --ring: 330 81% 55%;
-
     --radius: 0.5rem;
-
     --gold: 330 81% 55%;
     --gold-light: 320 85% 70%;
     --gold-dark: 340 75% 45%;
@@ -43,11 +112,9 @@
     --olive-light: 220 75% 70%;
     --cream: 220 60% 97%;
     --cream-dark: 220 30% 90%;
-
-    --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-
+    --charcoal: 20 15% 9%;
+    --charcoal-light: 20 12% 16%;
+    --charcoal-foreground: 40 30% 94%;
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 15%;
     --sidebar-primary: 330 81% 55%;
@@ -55,6 +122,67 @@
     --sidebar-accent: 220 60% 97%;
     --sidebar-accent-foreground: 222 47% 15%;
     --sidebar-border: 220 20% 90%;
+    --sidebar-ring: 330 81% 55%;
+  }
+
+  /*
+   * Light counterpart of "Atelier Noir" — same shape language (0.85rem
+   * radius, same brand hue family) as the dark theme above, just on a warm
+   * paper canvas instead of charcoal. Toggled via .theme-light on <html> by
+   * ThemeContext — deliberately NOT the same values as .admin-scope, which
+   * is a frozen snapshot of the pre-redesign site (0.5rem radius) reserved
+   * for the Admin panel only.
+   */
+  .theme-light {
+    --background: 32 30% 97%;
+    --foreground: 20 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 25% 12%;
+
+    --primary: 330 81% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 22% 93%;
+    --secondary-foreground: 20 25% 12%;
+
+    --muted: 30 18% 92%;
+    --muted-foreground: 20 12% 42%;
+
+    --accent: 330 81% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 74% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 15% 87%;
+    --input: 20 15% 87%;
+    --ring: 330 81% 55%;
+
+    --radius: 0.85rem;
+
+    --gold: 330 81% 55%;
+    --gold-light: 320 85% 68%;
+    --gold-dark: 340 75% 45%;
+    --olive: 220 80% 55%;
+    --olive-light: 220 75% 68%;
+    --cream: 30 22% 93%;
+    --cream-dark: 30 18% 88%;
+
+    --charcoal: 20 20% 10%;
+    --charcoal-light: 20 16% 16%;
+    --charcoal-foreground: 40 30% 94%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 20 25% 12%;
+    --sidebar-primary: 330 81% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 22% 93%;
+    --sidebar-accent-foreground: 20 25% 12%;
+    --sidebar-border: 20 15% 87%;
     --sidebar-ring: 330 81% 55%;
   }
 }
@@ -103,6 +231,11 @@
   .tracking-wide-editorial {
     letter-spacing: 0.35em;
   }
+  .font-mono-editorial {
+    font-family: var(--font-mono);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
 }
 
 @layer components {
@@ -117,5 +250,36 @@
   }
   .hero-overlay {
     background: linear-gradient(180deg, hsl(var(--background) / 0.3) 0%, hsl(var(--background) / 0.6) 50%, hsl(var(--background) / 0.85) 100%);
+  }
+
+  /* Editorial system additions (landing/about pages only — see Reveal, Kicker,
+     GrainOverlay in src/components/landing/). Additive utilities, nothing here
+     overrides existing shadcn tokens used by the logged-in app. */
+  .grain-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* The FAZ wordmark PNG is dark ink glyphs on a transparent background —
+     invisible on the dark theme's charcoal canvas without inverting, but
+     inverting on the light theme would do the opposite (wash it out). */
+  .wordmark-adaptive {
+    filter: invert(1);
+  }
+  .theme-light .wordmark-adaptive {
+    filter: invert(0);
+  }
+  .glass-panel {
+    background: hsl(var(--background) / 0.65);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.6);
+  }
+  .reveal-base {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1);
+  }
+  .reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

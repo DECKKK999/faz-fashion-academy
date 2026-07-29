@@ -1,4 +1,6 @@
 import { BookOpen, Video, Award, Calendar, ShoppingBag, Users } from "lucide-react";
+import Kicker from "@/components/landing/Kicker";
+import Reveal from "@/components/landing/Reveal";
 
 const features = [
   { icon: Video, title: "Kelas Video HD", description: "Materi berkualitas tinggi dengan video HD dari praktisi industri." },
@@ -15,7 +17,8 @@ const FeaturesSection = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           <div className="lg:col-span-4 lg:sticky lg:top-24">
-            <h2 className="text-2xl md:text-4xl font-light text-foreground tracking-normal mb-4 leading-tight">
+            <Kicker index="03" className="mb-4">Platform</Kicker>
+            <h2 className="text-3xl md:text-5xl font-light text-foreground tracking-normal mb-4 leading-tight">
               Semua yang kamu butuhkan
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
@@ -24,23 +27,27 @@ const FeaturesSection = () => {
           </div>
 
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-px bg-border/50 overflow-hidden">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="p-8 bg-background hover:bg-muted/50 transition-colors duration-300 group"
-              >
-                <feature.icon
-                  size={22}
-                  className="text-accent mb-5 group-hover:text-foreground transition-colors"
-                  strokeWidth={1}
-                />
-                <h3 className="text-[11px] font-light tracking-editorial uppercase text-foreground mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
-                  {feature.description}
-                </p>
-              </div>
+            {features.map((feature, idx) => (
+              <Reveal key={feature.title} delayMs={idx * 60} className="h-full">
+                <div className="p-8 bg-background hover:bg-muted/50 transition-colors duration-300 group h-full">
+                  <div className="flex items-center justify-between mb-5">
+                    <feature.icon
+                      size={22}
+                      className="text-accent group-hover:text-foreground transition-colors"
+                      strokeWidth={1}
+                    />
+                    <span className="font-mono-editorial text-[11px] text-muted-foreground/60">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <h3 className="text-[12px] font-light tracking-editorial uppercase text-foreground mb-3">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed" style={{ letterSpacing: 'normal', textTransform: 'none' }}>
+                    {feature.description}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>

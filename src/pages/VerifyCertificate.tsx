@@ -3,6 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import { ShieldCheck, ShieldX, ShieldAlert, Award, Clock, Download } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GrainOverlay from "@/components/landing/GrainOverlay";
+import PageHeader from "@/components/PageHeader";
+import Kicker from "@/components/landing/Kicker";
 import { Button } from "@/components/ui/button";
 import { api, ApiError } from "@/lib/api";
 
@@ -23,7 +26,7 @@ const formatDate = (iso: string) =>
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 py-3 border-b border-border last:border-0">
-    <span className="text-[10px] tracking-editorial uppercase text-muted-foreground w-40 shrink-0">{label}</span>
+    <span className="text-[11px] tracking-editorial uppercase text-muted-foreground w-40 shrink-0">{label}</span>
     <span className="text-sm text-foreground" style={{ letterSpacing: "normal", textTransform: "none" }}>
       {value}
     </span>
@@ -83,35 +86,27 @@ const VerifyCertificate = () => {
 
   const banner = {
     loading: { icon: Award, color: "text-muted-foreground", border: "border-border", title: "Memverifikasi...", sub: "Memeriksa keaslian sertifikat." },
-    valid: { icon: ShieldCheck, color: "text-emerald-600", border: "border-emerald-600/40", title: "Sertifikat Sah", sub: "Sertifikat ini diterbitkan dan terverifikasi oleh FAZ Academy." },
-    revoked: { icon: ShieldAlert, color: "text-amber-600", border: "border-amber-600/40", title: "Sertifikat Dicabut", sub: "Sertifikat ini pernah diterbitkan namun telah dicabut dan tidak lagi berlaku." },
-    not_issued: { icon: Clock, color: "text-amber-600", border: "border-amber-600/40", title: "Sertifikat Belum Diterbitkan", sub: "Nomor ini terdaftar di sistem kami, tapi belum diberikan ke peserta manapun." },
-    invalid: { icon: ShieldX, color: "text-red-600", border: "border-red-600/40", title: "Sertifikat Tidak Ditemukan", sub: "Nomor sertifikat tidak terdaftar di sistem kami." },
+    valid: { icon: ShieldCheck, color: "text-emerald-500", border: "border-emerald-500/40", title: "Sertifikat Sah", sub: "Sertifikat ini diterbitkan dan terverifikasi oleh FAZ Academy." },
+    revoked: { icon: ShieldAlert, color: "text-amber-500", border: "border-amber-500/40", title: "Sertifikat Dicabut", sub: "Sertifikat ini pernah diterbitkan namun telah dicabut dan tidak lagi berlaku." },
+    not_issued: { icon: Clock, color: "text-amber-500", border: "border-amber-500/40", title: "Sertifikat Belum Diterbitkan", sub: "Nomor ini terdaftar di sistem kami, tapi belum diberikan ke peserta manapun." },
+    invalid: { icon: ShieldX, color: "text-red-500", border: "border-red-500/40", title: "Sertifikat Tidak Ditemukan", sub: "Nomor sertifikat tidak terdaftar di sistem kami." },
   }[status];
 
   const Icon = banner.icon;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <GrainOverlay />
       <Navbar />
       <div className="pt-24 pb-32">
         <div className="container mx-auto px-6 md:px-16 max-w-2xl">
-          <div className="mb-4">
-            <p className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground mb-2">
-              Verifikasi Sertifikat
-            </p>
-            <h1 className="text-3xl md:text-4xl font-light text-foreground tracking-normal">
-              Keaslian Sertifikat
-            </h1>
-          </div>
+          <PageHeader kicker="Verifikasi Sertifikat" title="Keaslian Sertifikat" className="mb-4" />
 
           <div className="border-t border-border pt-3 mb-10">
-            <span className="text-[10px] tracking-wide-editorial uppercase text-muted-foreground">
-              No. {certificateNumber}
-            </span>
+            <Kicker tone="olive">No. {certificateNumber}</Kicker>
           </div>
 
-          <div className={`border ${banner.border} p-8 mb-8`}>
+          <div className={`glass-panel rounded-2xl shadow-lg border ${banner.border} p-8 mb-8`}>
             <div className="flex items-start gap-4">
               <Icon size={32} className={`${banner.color} shrink-0`} />
               <div>
@@ -127,7 +122,7 @@ const VerifyCertificate = () => {
           </div>
 
           {result && (status === "valid" || status === "revoked") && (
-            <div className="border border-border p-8">
+            <div className="glass-panel rounded-2xl shadow-lg p-8">
               <Row label="Penerima" value={result.recipient_name!} />
               <Row label="Kelas" value={result.course_title!} />
               {result.instructor_name && <Row label="Instruktur" value={result.instructor_name} />}
@@ -141,12 +136,12 @@ const VerifyCertificate = () => {
 
           <div className="mt-10 flex flex-wrap gap-3">
             {status === "valid" && (
-              <Button onClick={handleDownload} disabled={downloading} className="rounded-none gap-2">
+              <Button onClick={handleDownload} disabled={downloading} variant="gradient" className="rounded-full gap-2">
                 <Download size={14} />
                 {downloading ? "Mengunduh..." : "Unduh Sertifikat"}
               </Button>
             )}
-            <Button asChild variant="outline" className="rounded-none">
+            <Button asChild variant="outline" className="rounded-full">
               <Link to="/">Kembali ke Beranda</Link>
             </Button>
           </div>
