@@ -35,7 +35,7 @@ const VerifikasiSertifikat = () => {
           <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-8 mt-8 flex flex-col gap-4 shadow-lg">
             <label
               htmlFor="cert-code"
-              className="font-mono-editorial text-[12px] tracking-[0.15em] uppercase text-muted-foreground"
+              className="font-mono-editorial text-[15px] tracking-[0.15em] uppercase text-muted-foreground"
             >
               Nomor Sertifikat
             </label>

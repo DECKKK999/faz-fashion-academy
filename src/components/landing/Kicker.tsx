@@ -17,7 +17,7 @@ interface KickerProps {
 const Kicker = ({ index, children, className, tone = "pink" }: KickerProps) => (
   <p
     className={cn(
-      "font-mono-editorial font-bold text-[13px] tracking-[0.12em] uppercase flex items-center gap-2",
+      "font-mono-editorial font-bold text-[16px] tracking-[0.12em] uppercase flex items-center gap-2",
       tone === "pink" ? "text-primary" : "text-olive",
       className,
     )}

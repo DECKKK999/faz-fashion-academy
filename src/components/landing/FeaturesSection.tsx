@@ -36,7 +36,7 @@ const FeaturesSection = () => {
                       className="text-accent group-hover:text-foreground transition-colors"
                       strokeWidth={1}
                     />
-                    <span className="font-mono-editorial text-[11px] text-muted-foreground/60">
+                    <span className="font-mono-editorial text-[14px] text-muted-foreground/60">
                       {String(idx + 1).padStart(2, "0")}
                     </span>
                   </div>

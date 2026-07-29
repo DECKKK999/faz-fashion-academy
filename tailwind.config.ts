@@ -14,10 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
+        serif: ['Josefin Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
         mono: ['Space Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-        display: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
+        display: ['Josefin Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

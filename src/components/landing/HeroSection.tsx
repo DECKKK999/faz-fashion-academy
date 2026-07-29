@@ -48,7 +48,7 @@ const HeroSection = () => {
           {/* Eyebrow */}
           <div className="mb-6 inline-flex items-center gap-2 glass-panel rounded-full px-4 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-dot" />
-            <span className="font-mono-editorial text-[11px] tracking-[0.1em] uppercase text-foreground/70">
+            <span className="font-mono-editorial text-[14px] tracking-[0.1em] uppercase text-foreground/70">
               Pendaftaran batch baru dibuka
             </span>
           </div>
@@ -63,7 +63,7 @@ const HeroSection = () => {
           />
 
           {/* Tagline pills */}
-          <div className="mt-5 flex items-center gap-1.5 flex-wrap font-mono-editorial text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-foreground/70 max-w-[244px] md:max-w-[340px] lg:max-w-[389px]">
+          <div className="mt-5 flex items-center gap-1.5 flex-wrap font-mono-editorial text-[12px] md:text-[13px] tracking-[0.2em] uppercase text-foreground/70 max-w-[244px] md:max-w-[340px] lg:max-w-[389px]">
             <span className="h-px w-3 bg-olive" />
             <span>Fashion</span>
             <Sparkles className="w-2 h-2 text-primary" />
@@ -76,13 +76,14 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h2 className="mt-16 text-5xl md:text-6xl lg:text-7xl leading-[1.03] tracking-tight text-foreground">
-            <span>Where </span>
-            <span className="text-primary italic">Passion</span>
-            <Sparkles className="inline-block w-6 h-6 ml-2 align-middle text-primary" />
-            <br />
-            <span>Becomes </span>
-            <span className="text-olive italic">Purpose.</span>
+          <h2 className="mt-16 text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.03] tracking-tight text-foreground">
+            <span className="block whitespace-nowrap">
+              Where <span className="text-primary italic">Passion</span>
+              <Sparkles className="inline-block w-6 h-6 ml-2 align-middle text-primary" />
+            </span>
+            <span className="block whitespace-nowrap">
+              Becomes <span className="text-olive italic">Purpose.</span>
+            </span>
           </h2>
 
           {/* Description */}
@@ -143,14 +144,14 @@ const HeroSection = () => {
 
           {/* Floating credibility chips */}
           <div className="hidden sm:flex glass-panel absolute top-[6%] -left-2 md:-left-6 rounded-2xl px-4 py-3 flex-col gap-0.5 shadow-lg animate-float-soft">
-            <span className="font-mono-editorial text-[10px] uppercase tracking-wide text-muted-foreground">Sertifikat</span>
+            <span className="font-mono-editorial text-[13px] uppercase tracking-wide text-muted-foreground">Sertifikat</span>
             <span className="font-serif text-sm text-foreground">Resmi &amp; Terverifikasi</span>
           </div>
           <div
             className="hidden sm:flex glass-panel absolute bottom-[10%] -right-2 md:-right-4 rounded-2xl px-4 py-3 flex-col gap-0.5 shadow-lg animate-float-soft"
             style={{ animationDelay: "1.6s" }}
           >
-            <span className="font-mono-editorial text-[10px] uppercase tracking-wide text-muted-foreground">Kurikulum</span>
+            <span className="font-mono-editorial text-[13px] uppercase tracking-wide text-muted-foreground">Kurikulum</span>
             <span className="font-serif text-sm text-foreground">Terstruktur Bab demi Bab</span>
           </div>
         </div>
@@ -160,7 +161,7 @@ const HeroSection = () => {
       <div className="relative border-t border-border/60 py-4 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div className="flex gap-10 w-max animate-marquee-right">
           {[...topics, ...topics].map((topic, i) => (
-            <span key={i} className="font-mono-editorial text-[12px] uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap">
+            <span key={i} className="font-mono-editorial text-[15px] uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap">
               {topic}
             </span>
           ))}
