@@ -10,13 +10,16 @@ import StarRatingInput from "@/components/course/StarRatingInput";
  * one). Hides itself if there's nothing to show yet, same guard pattern as
  * PromoSection/StatsStrip.
  *
- * Manually paced (touch swipe / trackpad / arrow buttons) rather than an
- * auto-scrolling marquee — the constant motion of the old version made it
- * hard to actually read a card before it moved on.
+ * Manually paced (touch swipe / trackpad / mouse-drag / arrow buttons)
+ * rather than an auto-scrolling marquee — the constant motion of the old
+ * version made it hard to actually read a card before it moved on. Touch
+ * and trackpad get native scrolling for free; mouse users need an explicit
+ * drag handler below since browsers reserve click-drag for text selection.
  */
 const ReviewsCarousel = () => {
   const [reviews, setReviews] = useState<Review[] | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ startX: number; startScroll: number; dragging: boolean } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -48,6 +51,33 @@ const ReviewsCarousel = () => {
     el.scrollBy({ left: direction * step, behavior: "smooth" });
   };
 
+  // Touch and trackpad scroll the container natively — only mouse needs an
+  // explicit drag handler, since browsers treat mouse click-drag as text
+  // selection by default rather than a scroll gesture.
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    dragRef.current = { startX: e.clientX, startScroll: el.scrollLeft, dragging: true };
+    el.setPointerCapture(e.pointerId);
+    el.style.cursor = "grabbing";
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    const el = scrollerRef.current;
+    if (!drag?.dragging || !el) return;
+    el.scrollLeft = drag.startScroll - (e.clientX - drag.startX);
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragRef.current) dragRef.current.dragging = false;
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.style.cursor = "";
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+  };
+
   if (!reviews || reviews.length === 0) return null;
 
   return (
@@ -75,7 +105,11 @@ const ReviewsCarousel = () => {
       </div>
       <div
         ref={scrollerRef}
-        className="flex gap-5 overflow-x-auto snap-x snap-proximity scroll-smooth px-6 md:px-16 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        className="flex gap-5 overflow-x-auto snap-x snap-proximity scroll-smooth select-none cursor-grab px-6 md:px-16 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {reviews.map((r) => (
           <div
