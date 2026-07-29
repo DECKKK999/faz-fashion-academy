@@ -126,8 +126,8 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Right image */}
-        <div className="relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        {/* Right image — hidden on mobile, shown from sm breakpoint up */}
+        <div className="hidden sm:block relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="absolute top-[8%] right-0 w-[80%] aspect-square rounded-full blur-3xl opacity-60 pointer-events-none bg-[radial-gradient(circle,hsl(var(--olive)/0.15),hsl(var(--primary)/0.12),transparent_72%)]" />
           {/* Cropped frame: the source PNG (hero-character.png) is left untouched; this wrapper
               scales/offsets it so only the figure (not the large transparent margin) is shown. */}
