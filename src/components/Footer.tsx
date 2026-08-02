@@ -5,7 +5,9 @@ const footerLinks = [
   { label: "Kelas", href: "/kelas" },
   { label: "Tentang", href: "/tentang" },
   { label: "Verifikasi Sertifikat", href: "/verifikasi" },
-  { label: "Privasi", href: "/" },
+  { label: "Kontak", href: "/kontak" },
+  { label: "Kebijakan Pengembalian", href: "/kebijakan-pengembalian" },
+  { label: "Privasi", href: "/kebijakan-privasi" },
 ];
 
 const Footer = () => {

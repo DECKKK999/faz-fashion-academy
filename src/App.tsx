@@ -33,6 +33,9 @@ import Certificates from "./pages/Certificates.tsx";
 import VerifyCertificate from "./pages/VerifyCertificate.tsx";
 import VerifikasiSertifikat from "./pages/VerifikasiSertifikat.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import RefundPolicy from "./pages/RefundPolicy.tsx";
+import Contact from "./pages/Contact.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminOverview from "./pages/admin/AdminOverview.tsx";
@@ -79,6 +82,9 @@ const App = () => (
                 <Route path="/verifikasi-email" element={<VerifikasiEmail />} />
                 <Route path="/verifikasi" element={<VerifikasiSertifikat />} />
                 <Route path="/verifikasi/:certificateNumber" element={<VerifyCertificate />} />
+                <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
+                <Route path="/kebijakan-pengembalian" element={<RefundPolicy />} />
+                <Route path="/kontak" element={<Contact />} />
 
                 {/* Terproteksi (login) */}
                 <Route path="/beli/:courseId" element={<ProtectedRoute><StartCheckout /></ProtectedRoute>} />
