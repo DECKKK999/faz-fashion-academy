@@ -2,10 +2,11 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireAdmin } from "../auth.js";
-import { generateCertificatePdf } from "../lib/certificate-pdf.js";
+import { generateCertificatePdf, generateCertificatePdfBuffer } from "../lib/certificate-pdf.js";
 import { claimCertificateCode } from "../lib/certificate-code-pool.js";
 import { pushPendingCertificateCodesToSheet } from "../lib/certificate-sheet-sync.js";
 import { quizGate } from "./quiz.js";
+import { sendMailSafe, templates } from "../mailer/index.js";
 
 export const certificatesRouter = Router();
 export const adminCertificatesRouter = Router();
@@ -197,6 +198,31 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
   // Push balik ke Google Sheets (best-effort — gagal di sini nggak boleh
   // menggagalkan penerbitan sertifikat; job berkala akan retry).
   pushPendingCertificateCodesToSheet().catch((e) => console.error("[certificates] push ke sheet gagal:", e));
+
+  // Kirim sertifikat via email (best-effort, sama seperti push ke sheet di atas —
+  // gagal generate PDF/kirim email tidak boleh menggagalkan penerbitan sertifikat).
+  generateCertificatePdfBuffer({
+    certificate_number: certificate.certificate_number,
+    recipient_name: certificate.recipient_name,
+    course_title: certificate.course_title,
+    instructor_name: certificate.instructor_name,
+    quiz_score: certificate.quiz_score,
+    issued_at: certificate.issued_at,
+    revoked: certificate.revoked,
+  })
+    .then((pdfBuffer) => {
+      sendMailSafe({
+        to: req.user!.email,
+        user_id: userId,
+        ...templates.certificateIssued({
+          name,
+          courseTitle: certificate.course_title,
+          certificateNumber: certificate.certificate_number,
+        }),
+        attachments: [{ filename: `sertifikat-${certificate.certificate_number}.pdf`, content: pdfBuffer }],
+      });
+    })
+    .catch((e) => console.error("[certificates] gagal membuat PDF untuk email:", e));
 
   res.status(201).json(certificate);
 });

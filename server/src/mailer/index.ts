@@ -14,6 +14,7 @@ export type SendMailInput = {
   template: string;
   user_id?: string | null;
   order_id?: string | null;
+  attachments?: { filename: string; content: Buffer }[];
 };
 
 let cachedTransport: any = null;
@@ -45,14 +46,24 @@ export async function sendMail(input: SendMailInput): Promise<{ ok: boolean; log
   try {
     if (transport === "smtp") {
       const t = await getSmtpTransport();
-      await t.sendMail({ from: env.MAIL_FROM, to: input.to, subject: input.subject, text: input.text, html: input.html });
+      await t.sendMail({
+        from: env.MAIL_FROM,
+        to: input.to,
+        subject: input.subject,
+        text: input.text,
+        html: input.html,
+        attachments: input.attachments,
+      });
     } else {
       // dev transport: tulis ke maildir + console
       const stamp = new Date().toISOString().replace(/[:.]/g, "-");
       const file = path.join(MAILDIR, `${stamp}-${input.template}.txt`);
+      const attachmentsNote = input.attachments?.length
+        ? `\nAttachments: ${input.attachments.map((a) => a.filename).join(", ")}\n`
+        : "";
       writeFileSync(
         file,
-        `To: ${input.to}\nFrom: ${env.MAIL_FROM}\nSubject: ${input.subject}\nTemplate: ${input.template}\n\n${input.text}\n`
+        `To: ${input.to}\nFrom: ${env.MAIL_FROM}\nSubject: ${input.subject}\nTemplate: ${input.template}\n${attachmentsNote}\n${input.text}\n`
       );
       console.log(`[mailer:dev] -> ${input.to} | ${input.subject} | tersimpan di ${file}`);
     }
@@ -116,6 +127,15 @@ export const templates = {
     subject: `Pembayaran ditolak — ${opts.itemTitle}`,
     text: `Halo ${opts.name},\n\nMohon maaf, bukti pembayaran untuk "${opts.itemTitle}" ditolak.\nAlasan: ${opts.reason}\n\nKirim ulang bukti di: ${env.APP_BASE_URL}/checkout/${opts.orderId}`,
     html: wrap("Pembayaran Ditolak", `<p>Halo ${opts.name},</p><p>Mohon maaf, bukti pembayaran untuk <b>${opts.itemTitle}</b> ditolak.</p><p>Alasan: ${opts.reason}</p><p><a href="${env.APP_BASE_URL}/checkout/${opts.orderId}">Kirim Ulang Bukti</a></p>`),
+  }),
+  certificateIssued: (opts: { name: string; courseTitle: string; certificateNumber: string }) => ({
+    template: "certificate_issued",
+    subject: `Sertifikat kelulusan — ${opts.courseTitle}`,
+    text: `Halo ${opts.name},\n\nSelamat! Kamu telah menyelesaikan kelas "${opts.courseTitle}" dan lulus Final Quiz. Sertifikat kelulusanmu (nomor ${opts.certificateNumber}) terlampir di email ini.\n\nKamu juga bisa mengunduhnya kapan saja di ${env.APP_BASE_URL}/sertifikat`,
+    html: wrap(
+      "Selamat! 🎓",
+      `<p>Halo ${opts.name},</p><p>Kamu telah menyelesaikan kelas <b>${opts.courseTitle}</b> dan lulus Final Quiz. Sertifikat kelulusanmu (nomor <b>${opts.certificateNumber}</b>) terlampir di email ini.</p><p>Kamu juga bisa mengunduhnya kapan saja di <a href="${env.APP_BASE_URL}/sertifikat">halaman Sertifikat</a>.</p>`
+    ),
   }),
   passwordReset: (opts: { name: string; link: string }) => ({
     template: "password_reset",

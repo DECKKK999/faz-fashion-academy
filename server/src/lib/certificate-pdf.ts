@@ -55,11 +55,11 @@ function formatIssuedDateLabel(d: Date): string {
  * sistem, lihat certificate-template.pdf) — hanya tiga field yang diganti:
  * nama penerima, nomor sertifikat, dan tanggal terbit. Elemen lain (pita,
  * lencana, tanda tangan, tag) dipakai persis seperti di file aslinya.
+ *
+ * Returns the finished PDF as a Buffer — used both to stream a download
+ * response and to attach the certificate directly to the issuance email.
  */
-export async function generateCertificatePdf(
-  data: CertificatePdfData,
-  stream: NodeJS.WritableStream,
-): Promise<void> {
+export async function generateCertificatePdfBuffer(data: CertificatePdfData): Promise<Buffer> {
   const templateBytes = readFileSync(TEMPLATE_PATH);
   const pdfDoc = await PDFDocument.load(templateBytes);
   pdfDoc.registerFontkit(fontkit);
@@ -116,5 +116,14 @@ export async function generateCertificatePdf(
   }
 
   const pdfBytes = await pdfDoc.save();
-  stream.end(Buffer.from(pdfBytes));
+  return Buffer.from(pdfBytes);
+}
+
+/** Thin wrapper around {@link generateCertificatePdfBuffer} for streaming a download response. */
+export async function generateCertificatePdf(
+  data: CertificatePdfData,
+  stream: NodeJS.WritableStream,
+): Promise<void> {
+  const buffer = await generateCertificatePdfBuffer(data);
+  stream.end(buffer);
 }
