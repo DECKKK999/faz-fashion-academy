@@ -8,18 +8,35 @@ type Props = {
   onSelect: (lesson: PlayerLesson) => void;
 };
 
-const LessonList = ({ modules, activeLessonId, onSelect }: Props) => {
-  // Modul "Pendahuluan" ditampilkan sebagai "Introduction" tanpa nomor —
-  // penomoran "Modul N" dimulai dari bab pertama sesudahnya (Modul 1 = Bab 1, dst),
-  // bukan dari index array (yang akan membuat Bab 1 jadi "Modul 2").
-  let chapterNumber = 0;
+// Judul lesson mengikuti format "Bab X.Y – <Nama Modul> (<Judul Video>)" —
+// sidebar hanya menampilkan judul video (isi kurung), nama modul dipakai untuk header grup.
+const moduleNameFromLessonTitle = (title: string): string | null => {
+  const match = title.match(/^Bab\s+\d+\.\d+\s*[–-]\s*(.+?)\s*\(/i);
+  return match ? match[1].trim() : null;
+};
 
+const lessonDisplayTitle = (title: string, isIntro: boolean): string => {
+  if (isIntro) {
+    const match = title.match(/^Introduction\s*[-–]\s*(.+)$/i);
+    return match ? match[1].trim() : title;
+  }
+  // Judul video bisa memuat tanda kurung sendiri (mis. "... (BEP)"), jadi ambil
+  // dari kurung buka pertama sampai kurung tutup terakhir, bukan pasangan kurung terluar via regex.
+  const start = title.indexOf("(");
+  const end = title.lastIndexOf(")");
+  if (start !== -1 && end !== -1 && end > start) {
+    return title.slice(start + 1, end).trim();
+  }
+  return title;
+};
+
+const LessonList = ({ modules, activeLessonId, onSelect }: Props) => {
   return (
     <div className="space-y-6">
       {modules.map((mod) => {
         const isIntro = mod.title.trim().toLowerCase() === "pendahuluan";
-        if (!isIntro) chapterNumber += 1;
-        const label = isIntro ? "Introduction" : `Modul ${chapterNumber} · ${mod.title}`;
+        const moduleName = !isIntro && mod.lessons.length > 0 ? moduleNameFromLessonTitle(mod.lessons[0].title) : null;
+        const label = isIntro ? "Introduction" : moduleName ? `${mod.title} - ${moduleName}` : mod.title;
         return (
         <div key={mod.id}>
           <p className="text-[11px] tracking-editorial uppercase text-muted-foreground px-3 mb-2">
@@ -52,7 +69,7 @@ const LessonList = ({ modules, activeLessonId, onSelect }: Props) => {
                       )}
                     </span>
                     <span className="flex-1 min-w-0">
-                      <span className="block text-sm leading-snug truncate">{lesson.title}</span>
+                      <span className="block text-sm leading-snug truncate">{lessonDisplayTitle(lesson.title, isIntro)}</span>
                       <span className="flex items-center gap-2 mt-0.5">
                         {lesson.duration_minutes ? (
                           <span className="text-[11px] text-muted-foreground">{formatDuration(lesson.duration_minutes)}</span>
