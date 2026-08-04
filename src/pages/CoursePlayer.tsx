@@ -32,6 +32,23 @@ function youtubeId(url: string): string | null {
 
 type FlatLesson = PlayerLesson & { moduleTitle: string };
 
+// Judul lesson berformat "Bab X.Y – <Nama Modul> (<Judul Video>)" (atau "Introduction - <Judul Video>"
+// untuk lesson pengantar) — heading dipecah jadi baris "Bab X.Y - Nama Modul" dan subheading judul videonya.
+function splitLessonHeading(title: string): { header: string; subheader: string | null } {
+  const parenStart = title.indexOf("(");
+  const parenEnd = title.lastIndexOf(")");
+  if (parenStart !== -1 && parenEnd > parenStart) {
+    const header = title.slice(0, parenStart).trim().replace(/\s*[–-]\s*/, " - ");
+    const subheader = title.slice(parenStart + 1, parenEnd).trim();
+    return { header, subheader };
+  }
+  const introMatch = title.match(/^Introduction\s*[-–]\s*(.+)$/i);
+  if (introMatch) {
+    return { header: "Introduction", subheader: introMatch[1].trim() };
+  }
+  return { header: title, subheader: null };
+}
+
 const CoursePlayer = () => {
   const { slug } = useParams<{ slug: string }>();
   const [data, setData] = useState<PlayerCourse | null>(null);
@@ -188,9 +205,21 @@ const CoursePlayer = () => {
                 <>
                   <LessonContent lesson={active} courseSlug={data.course.slug} />
 
-                  <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mt-6 mb-1">
-                    {active.title}
-                  </h1>
+                  {(() => {
+                    const { header, subheader } = splitLessonHeading(active.title);
+                    return (
+                      <>
+                        <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mt-6 mb-1">
+                          {header}
+                        </h1>
+                        {subheader && (
+                          <p className="font-serif text-lg md:text-xl font-medium text-foreground/80 mb-1">
+                            {subheader}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                   <p className="text-[12px] tracking-editorial uppercase text-muted-foreground mb-5">
                     {active.moduleTitle}
                   </p>
