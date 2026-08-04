@@ -208,21 +208,18 @@ const CoursePlayer = () => {
                   {(() => {
                     const { header, subheader } = splitLessonHeading(active.title);
                     return (
-                      <>
-                        <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mt-6 mb-1">
-                          {subheader ?? header}
-                        </h1>
+                      <div className="mt-6 mb-5">
                         {subheader && (
                           <p className="font-sans text-lg md:text-xl font-semibold text-foreground mb-1">
                             {header}
                           </p>
                         )}
-                      </>
+                        <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">
+                          {subheader ?? header}
+                        </h1>
+                      </div>
                     );
                   })()}
-                  <p className="text-[12px] tracking-editorial uppercase text-muted-foreground mb-5">
-                    {active.moduleTitle}
-                  </p>
 
                   {!active.locked && active.content && (
                     <div className="prose prose-sm max-w-none mb-8">
