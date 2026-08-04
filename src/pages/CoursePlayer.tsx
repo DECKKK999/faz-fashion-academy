@@ -210,11 +210,11 @@ const CoursePlayer = () => {
                     return (
                       <>
                         <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground mt-6 mb-1">
-                          {header}
+                          {subheader ?? header}
                         </h1>
                         {subheader && (
-                          <p className="font-serif text-lg md:text-xl font-medium text-foreground/80 mb-1">
-                            {subheader}
+                          <p className="font-sans text-lg md:text-xl font-semibold text-foreground mb-1">
+                            {header}
                           </p>
                         )}
                       </>
