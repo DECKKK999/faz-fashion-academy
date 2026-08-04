@@ -9,12 +9,21 @@ type Props = {
 };
 
 const LessonList = ({ modules, activeLessonId, onSelect }: Props) => {
+  // Modul "Pendahuluan" ditampilkan sebagai "Introduction" tanpa nomor —
+  // penomoran "Modul N" dimulai dari bab pertama sesudahnya (Modul 1 = Bab 1, dst),
+  // bukan dari index array (yang akan membuat Bab 1 jadi "Modul 2").
+  let chapterNumber = 0;
+
   return (
     <div className="space-y-6">
-      {modules.map((mod, mi) => (
+      {modules.map((mod) => {
+        const isIntro = mod.title.trim().toLowerCase() === "pendahuluan";
+        if (!isIntro) chapterNumber += 1;
+        const label = isIntro ? "Introduction" : `Modul ${chapterNumber} · ${mod.title}`;
+        return (
         <div key={mod.id}>
           <p className="text-[11px] tracking-editorial uppercase text-muted-foreground px-3 mb-2">
-            Modul {mi + 1} · {mod.title}
+            {label}
           </p>
           <ul className="space-y-0.5">
             {mod.lessons.map((lesson) => {
@@ -59,7 +68,8 @@ const LessonList = ({ modules, activeLessonId, onSelect }: Props) => {
             })}
           </ul>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
