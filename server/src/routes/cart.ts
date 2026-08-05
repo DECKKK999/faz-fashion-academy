@@ -211,6 +211,8 @@ cartRouter.post("/merge", requireAuth, async (req, res) => {
 
 // POST /api/cart/checkout — buat satu Order per item dalam SATU transaksi berbagi order_group_id
 cartRouter.post("/checkout", requireAuth, async (req, res) => {
+  const parsed = z.object({ coupon_code: z.string().trim().optional() }).safeParse(req.body ?? {});
+  const requestedCoupon = parsed.success ? parsed.data.coupon_code : undefined;
   const userId = req.user!.id;
   const email = req.user!.email;
   const cart = await ensureCart(userId);
@@ -301,17 +303,20 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
     for (const it of payItems) {
       const base_price_idr = it.price_idr;
 
-      // Kelas promo peluncuran: kupon ter-apply otomatis juga di jalur keranjang,
-      // sama seperti checkout langsung — bukan cuma andalan frontend kirim coupon_code.
+      // Kode dari input pembeli diutamakan; kelas promo peluncuran tetap ter-apply
+      // otomatis kalau tidak ada kode lain — sama seperti checkout langsung.
       let discount_idr = 0;
       let coupon_id: string | null = null;
       let coupon_code: string | null = null;
-      if (it.product_type === "course" && it.slug === PROMO_COURSE_SLUG) {
-        const ev = await evaluateCoupon({ code: PROMO_COUPON_CODE, course_id: it.product_id, base_price_idr });
-        if (ev.valid && ev.coupon) {
-          discount_idr = ev.discount_idr;
-          coupon_id = ev.coupon.id;
-          coupon_code = ev.coupon.code;
+      if (it.product_type === "course") {
+        const effectiveCode = requestedCoupon || (it.slug === PROMO_COURSE_SLUG ? PROMO_COUPON_CODE : undefined);
+        if (effectiveCode) {
+          const ev = await evaluateCoupon({ code: effectiveCode, course_id: it.product_id, base_price_idr });
+          if (ev.valid && ev.coupon) {
+            discount_idr = ev.discount_idr;
+            coupon_id = ev.coupon.id;
+            coupon_code = ev.coupon.code;
+          }
         }
       }
 

@@ -16,13 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { api, type Course, type PurchaseState, type CourseReviewsResponse, type Review, type PlayerCourse } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { formatRupiah, formatCount, formatDuration } from "@/lib/format";
 import SeoHead from "@/components/SeoHead";
 import Navbar from "@/components/Navbar";
 import GrainOverlay from "@/components/landing/GrainOverlay";
 import Kicker from "@/components/landing/Kicker";
 import StarRatingInput from "@/components/course/StarRatingInput";
-import { PROMO_COURSE_SLUG as SLUG, PROMO_COUPON_CODE as COUPON_CODE, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
+import { PROMO_COURSE_SLUG as SLUG, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
 import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
 import lennyAvatar from "@/assets/lenny-avatar.jpg";
@@ -108,6 +109,7 @@ const ReviewsMarquee = ({ reviews }: { reviews: Review[] }) => {
 const PromoFashionDesign = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { add: addToCart } = useCart();
   const [course, setCourse] = useState<Course | null>(null);
   const [state, setState] = useState<PurchaseState>({ enrolled: false, order: null });
   const [aggregate, setAggregate] = useState<CourseReviewsResponse["aggregate"] | null>(null);
@@ -157,14 +159,18 @@ const PromoFashionDesign = () => {
   const spotsLeft = Math.max(0, PROMO_QUOTA - spotsTaken);
   const progressPct = Math.min(100, (spotsTaken / PROMO_QUOTA) * 100);
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
     if (!course) return;
-    const target = `/beli/${course.id}?coupon=${COUPON_CODE}`;
     if (!user) {
-      navigate(`/masuk?redirect=${encodeURIComponent(target)}`);
+      navigate(`/masuk?redirect=${encodeURIComponent("/promo/fashion-design")}`);
       return;
     }
-    navigate(target);
+    try {
+      await addToCart("course", course.id);
+      navigate("/keranjang");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menambah ke keranjang");
+    }
   };
 
   if (loading || !course) {

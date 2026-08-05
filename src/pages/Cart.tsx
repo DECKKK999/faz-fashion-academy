@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, ShoppingBag, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingBag, AlertTriangle, Plus, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GrainOverlay from "@/components/landing/GrainOverlay";
@@ -9,6 +11,7 @@ import PageHeader from "@/components/PageHeader";
 import SeoHead from "@/components/SeoHead";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
 import { formatRupiah } from "@/lib/format";
 import { toast } from "sonner";
 import type { ProductType } from "@/lib/api";
@@ -22,12 +25,20 @@ function detailPath(product_type: ProductType, slug?: string) {
   return `/event/${slug}`;
 }
 
+// Halaman ini berperan ganda: lihat/ubah isi keranjang DAN jadi langkah checkout
+// terakhir (cek pesanan, kode kupon, bayar) — baik untuk satu kelas maupun banyak.
 const Cart = () => {
   const { items, total_idr, loading, remove, checkout } = useCart();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const [couponCode, setCouponCode] = useState("");
+  const [gatewayEnabled, setGatewayEnabled] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.get<{ enabled: boolean }>("/payment-gateway/status").then((gw) => setGatewayEnabled(gw.enabled)).catch(() => {});
+  }, []);
 
   const handleRemove = async (id: string) => {
     setRemoving(id);
@@ -40,6 +51,8 @@ const Cart = () => {
     }
   };
 
+  const needsPhoneGate = !profile?.phone;
+
   const handleCheckout = async () => {
     if (!user) {
       navigate(`/masuk?redirect=${encodeURIComponent("/keranjang")}`);
@@ -48,14 +61,22 @@ const Cart = () => {
     if (items.length === 0) return;
     setCheckingOut(true);
     try {
-      const group = await checkout();
+      const group = await checkout(couponCode.trim() || undefined);
       if (!group.order_group_id || group.orders.length === 0) {
         // Semua item gratis / langsung diberikan.
         toast.success("Akses berhasil diberikan!");
         navigate("/dashboard");
         return;
       }
-      navigate(`/checkout-group/${group.order_group_id}`);
+      try {
+        const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/group/${group.order_group_id}/charge`);
+        window.location.href = charge.redirect_url;
+      } catch (e) {
+        // Order sudah dibuat tapi charge gagal — jangan biarkan pembeli terjebak,
+        // arahkan ke halaman status supaya bisa coba lagi dari sana.
+        toast.error(e instanceof Error ? e.message : "Gagal membuat pembayaran");
+        navigate(`/checkout-group/${group.order_group_id}`);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal memproses checkout");
     } finally {
@@ -68,7 +89,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background relative">
       <GrainOverlay />
-      <SeoHead title="Keranjang" description="Keranjang belanja FAZ Academy." />
+      <SeoHead title="Checkout" description="Checkout FAZ Academy." />
       <Navbar />
       <div className="pt-24 pb-24">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -76,10 +97,10 @@ const Cart = () => {
             <ArrowLeft size={13} /> Lanjut Belanja
           </Link>
 
-          <PageHeader kicker="Belanja" title="Keranjang" />
+          <PageHeader kicker="Belanja" title="Checkout" />
 
           {loading ? (
-            <p className="text-muted-foreground text-sm">Memuat keranjang...</p>
+            <p className="text-muted-foreground text-sm">Memuat...</p>
           ) : items.length === 0 ? (
             <div className="border border-border rounded-lg p-12 text-center">
               <ShoppingBag className="mx-auto text-muted-foreground mb-3" size={32} />
@@ -119,9 +140,13 @@ const Cart = () => {
                     </div>
                   );
                 })}
+
+                <Button asChild variant="outline" className="w-full gap-2 rounded-full">
+                  <Link to="/kelas"><Plus size={15} /> Tambah Kelas Lain</Link>
+                </Button>
               </div>
 
-              {/* Ringkasan */}
+              {/* Ringkasan + checkout */}
               <div className="lg:col-span-1">
                 <div className="glass-panel rounded-2xl p-6 sticky top-24 shadow-lg">
                   <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">Ringkasan</p>
@@ -130,18 +155,45 @@ const Cart = () => {
                     <span className="text-foreground">{formatRupiah(total_idr)}</span>
                   </div>
                   <div className="border-t border-border my-4" />
+
+                  <div className="space-y-2 mb-4">
+                    <Label htmlFor="coupon" className="text-xs">Kode Kupon (opsional)</Label>
+                    <Input
+                      id="coupon"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="Masukkan kode"
+                      className="uppercase"
+                    />
+                  </div>
+
                   <div className="flex justify-between items-end mb-1">
                     <span className="text-sm text-muted-foreground">Subtotal</span>
                     <span className="text-xl font-serif font-bold text-foreground">{formatRupiah(total_idr)}</span>
                   </div>
+                  <p className="text-[11px] text-muted-foreground mb-4">Diskon kupon (jika berlaku) dihitung saat checkout.</p>
                   {hasStale && (
                     <p className="text-[12px] text-amber-500 mb-3 flex items-center gap-1">
                       <AlertTriangle size={12} /> Beberapa harga telah berubah.
                     </p>
                   )}
-                  <Button variant="gradient" className="w-full rounded-full" onClick={handleCheckout} disabled={checkingOut || items.length === 0}>
-                    {checkingOut ? "Memproses..." : "Checkout"}
-                  </Button>
+
+                  {user && needsPhoneGate ? (
+                    <Button asChild variant="gradient" className="w-full rounded-full gap-2">
+                      <Link to={`/akun?redirect=${encodeURIComponent("/keranjang")}`}><Phone size={15} /> Tambahkan Nomor HP</Link>
+                    </Button>
+                  ) : user && !gatewayEnabled ? (
+                    <div className="text-center">
+                      <p className="text-xs text-amber-500 mb-2 flex items-center justify-center gap-1">
+                        <AlertTriangle size={12} /> Pembayaran sedang tidak tersedia
+                      </p>
+                      <Button variant="gradient" className="w-full rounded-full" disabled>Checkout</Button>
+                    </div>
+                  ) : (
+                    <Button variant="gradient" className="w-full rounded-full" onClick={handleCheckout} disabled={checkingOut || items.length === 0}>
+                      {checkingOut ? "Memproses..." : "Checkout"}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

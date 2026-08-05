@@ -16,7 +16,7 @@ type CartContextType = {
   add: (product_type: ProductType, product_id: string) => Promise<void>;
   remove: (id: string) => Promise<void>;
   clear: () => Promise<void>;
-  checkout: () => Promise<OrderGroup>;
+  checkout: (couponCode?: string) => Promise<OrderGroup>;
   refresh: () => Promise<void>;
 };
 
@@ -186,8 +186,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
-  const checkout = useCallback(async () => {
-    const group = await api.post<OrderGroup>("/cart/checkout");
+  const checkout = useCallback(async (couponCode?: string) => {
+    const group = await api.post<OrderGroup>("/cart/checkout", couponCode ? { coupon_code: couponCode } : undefined);
     // Server mengosongkan keranjang; segarkan tampilan lokal.
     setItems([]);
     return group;

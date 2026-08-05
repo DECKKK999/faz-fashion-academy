@@ -7,10 +7,12 @@ import Footer from "@/components/Footer";
 import GrainOverlay from "@/components/landing/GrainOverlay";
 import { api, type Course, type PurchaseState } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { formatRupiah, formatDuration, formatCount } from "@/lib/format";
-import { PROMO_COUPON_CODE, PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
+import { PROMO_PRICE_IDR, isPromoCourse } from "@/lib/promo";
 import CourseReviews from "@/components/course/CourseReviews";
 import WishlistButton from "@/components/WishlistButton";
+import AddToCartButton from "@/components/AddToCartButton";
 import SeoHead from "@/components/SeoHead";
 import { toast } from "sonner";
 
@@ -18,6 +20,7 @@ const CourseDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { add: addToCart } = useCart();
   const [course, setCourse] = useState<Course | null>(null);
   const [state, setState] = useState<PurchaseState>({ enrolled: false, order: null });
   const [loading, setLoading] = useState(true);
@@ -43,14 +46,31 @@ const CourseDetail = () => {
 
   const onPromo = isPromoCourse(course?.slug);
 
-  const handleBuy = () => {
+  // Kelas gratis langsung didaftarkan (tanpa lewat checkout); kelas berbayar
+  // ditambahkan ke keranjang lalu diarahkan ke halaman checkout untuk dicek &
+  // dibayar — satu jalur yang sama dipakai baik beli satu maupun banyak kelas.
+  const handleBuy = async () => {
     if (!course) return;
-    const target = onPromo ? `/beli/${course.id}?coupon=${PROMO_COUPON_CODE}` : `/beli/${course.id}`;
     if (!user) {
-      navigate(`/masuk?redirect=${encodeURIComponent(target)}`);
+      navigate(`/masuk?redirect=${encodeURIComponent(`/kelas/${course.slug}`)}`);
       return;
     }
-    navigate(target);
+    if (course.price_idr <= 0) {
+      try {
+        await api.post("/orders", { course_id: course.id });
+        toast.success("Kelas gratis berhasil diambil!");
+        navigate("/dashboard");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Gagal memproses pesanan");
+      }
+      return;
+    }
+    try {
+      await addToCart("course", course.id);
+      navigate("/keranjang");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menambah ke keranjang");
+    }
   };
 
   if (loading) {
@@ -139,6 +159,11 @@ const CourseDetail = () => {
         {onPromo ? "Harga khusus 100 siswa pertama. " : ""}Akses selamanya setelah pembayaran terverifikasi.
       </p>
       {renderCta()}
+      {!state.enrolled && course.price_idr > 0 && (
+        <div className="mt-3">
+          <AddToCartButton product_type="course" product_id={course.id} className="w-full rounded-full" />
+        </div>
+      )}
       <div className="mt-3">
         <WishlistButton product_type="course" product_id={course.id} variant="full" className="w-full px-4 py-2" />
       </div>
