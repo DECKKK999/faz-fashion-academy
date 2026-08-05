@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, ShoppingBag, AlertTriangle, Plus, Phone } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingBag, AlertTriangle, Plus, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { formatRupiah } from "@/lib/format";
 import { toast } from "sonner";
-import type { ProductType } from "@/lib/api";
+import type { ProductType, CouponValidation } from "@/lib/api";
 
 const typeLabel: Record<ProductType, string> = { course: "Kelas", ebook: "E-Book", event: "Event" };
 
@@ -32,6 +32,10 @@ const Cart = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  // null = belum dicek/berubah sejak dicek terakhir; angka = total diskon yang berhasil diverifikasi.
+  const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
   const [gatewayEnabled, setGatewayEnabled] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -52,6 +56,52 @@ const Cart = () => {
   };
 
   const needsPhoneGate = !profile?.phone;
+
+  const onCouponInputChange = (value: string) => {
+    setCouponCode(value);
+    // Kode berubah — hasil verifikasi sebelumnya sudah tidak relevan.
+    setCouponDiscount(null);
+    setCouponError(null);
+  };
+
+  // Cek kode kupon terhadap tiap item kelas di keranjang (kupon bisa spesifik
+  // per kelas atau global), lalu jumlahkan diskon dari item yang cocok — sama
+  // seperti cara backend menerapkannya saat checkout sungguhan.
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim();
+    if (!code) return;
+    if (!user) {
+      navigate(`/masuk?redirect=${encodeURIComponent("/keranjang")}`);
+      return;
+    }
+    setApplyingCoupon(true);
+    setCouponError(null);
+    try {
+      const courseItems = items.filter((i) => i.product_type === "course");
+      if (courseItems.length === 0) {
+        setCouponDiscount(0);
+        setCouponError("Kupon hanya berlaku untuk kelas");
+        return;
+      }
+      const results = await Promise.all(
+        courseItems.map((i) =>
+          api.post<CouponValidation>("/coupons/validate", { code, course_id: i.product_id }).catch(
+            (): CouponValidation => ({ valid: false, code, discount_idr: 0, base_price_idr: i.price_idr, total_preview_idr: i.price_idr, reason: "Gagal memeriksa kupon" })
+          )
+        )
+      );
+      const totalDiscount = results.reduce((s, r) => s + (r.valid ? r.discount_idr : 0), 0);
+      if (totalDiscount > 0) {
+        setCouponDiscount(totalDiscount);
+        toast.success("Kupon berhasil diterapkan");
+      } else {
+        setCouponDiscount(0);
+        setCouponError(results.find((r) => !r.valid)?.reason || "Kode kupon tidak valid");
+      }
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   const handleCheckout = async () => {
     if (!user) {
@@ -158,20 +208,56 @@ const Cart = () => {
 
                   <div className="space-y-2 mb-4">
                     <Label htmlFor="coupon" className="text-xs">Kode Kupon (opsional)</Label>
-                    <Input
-                      id="coupon"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      placeholder="Masukkan kode"
-                      className="uppercase"
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="coupon"
+                        value={couponCode}
+                        onChange={(e) => onCouponInputChange(e.target.value)}
+                        placeholder="Masukkan kode"
+                        className="uppercase"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon || !couponCode.trim()}
+                      >
+                        {applyingCoupon ? <Loader2 size={15} className="animate-spin" /> : "Terapkan"}
+                      </Button>
+                    </div>
+                    {couponDiscount != null && couponDiscount > 0 && (
+                      <p className="text-[12px] text-emerald-600 flex items-center gap-1">
+                        <CheckCircle2 size={13} /> Kupon diterapkan — hemat {formatRupiah(couponDiscount)}
+                      </p>
+                    )}
+                    {couponError && (
+                      <p className="text-[12px] text-red-500 flex items-center gap-1">
+                        <XCircle size={13} /> {couponError}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex justify-between items-end mb-1">
-                    <span className="text-sm text-muted-foreground">Subtotal</span>
-                    <span className="text-xl font-serif font-bold text-foreground">{formatRupiah(total_idr)}</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground mb-4">Diskon kupon (jika berlaku) dihitung saat checkout.</p>
+                  {couponDiscount != null && couponDiscount > 0 ? (
+                    <>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="text-foreground">{formatRupiah(total_idr)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Diskon kupon</span>
+                        <span className="text-emerald-600">−{formatRupiah(couponDiscount)}</span>
+                      </div>
+                      <div className="flex justify-between items-end mb-4">
+                        <span className="text-sm text-muted-foreground">Total</span>
+                        <span className="text-xl font-serif font-bold text-foreground">{formatRupiah(Math.max(0, total_idr - couponDiscount))}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-end mb-4">
+                      <span className="text-sm text-muted-foreground">Subtotal</span>
+                      <span className="text-xl font-serif font-bold text-foreground">{formatRupiah(total_idr)}</span>
+                    </div>
+                  )}
                   {hasStale && (
                     <p className="text-[12px] text-amber-500 mb-3 flex items-center gap-1">
                       <AlertTriangle size={12} /> Beberapa harga telah berubah.
