@@ -57,7 +57,7 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[14px] uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
               >
                 {link.label}
               </Link>
@@ -72,15 +72,15 @@ const Navbar = () => {
             <CartButton />
             {user ? (
               <>
-                <Button size="sm" variant="outline" className="h-8 rounded-full text-[13px] tracking-editorial uppercase px-5" asChild>
+                <Button size="sm" variant="outline" className="h-8 rounded-full text-[13px] uppercase px-5" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
-                <Link to="/akun" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/akun" className="text-[14px] uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
                   Akun
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                  className="text-[14px] uppercase font-light text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
                 >
                   <LogOut size={13} />
                   Keluar
@@ -88,10 +88,10 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/masuk" className="text-[14px] tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/masuk" className="text-[14px] uppercase font-light text-muted-foreground hover:text-foreground transition-colors">
                   Masuk
                 </Link>
-                <Button size="sm" variant="gradient" className="h-8 rounded-full text-[13px] tracking-editorial uppercase px-5" asChild>
+                <Button size="sm" variant="gradient" className="h-8 rounded-full text-[13px] uppercase px-5" asChild>
                   <Link to="/daftar">Daftar</Link>
                 </Button>
               </>
@@ -109,7 +109,7 @@ const Navbar = () => {
               </SheetTrigger>
             <SheetContent side="right" className="w-[280px] bg-background border-border">
               <SheetHeader>
-                <SheetTitle className="text-xs tracking-wide-editorial uppercase font-light text-foreground text-left">
+                <SheetTitle className="text-xs uppercase font-light text-foreground text-left">
                   FAZ Academy
                 </SheetTitle>
               </SheetHeader>
@@ -118,28 +118,28 @@ const Navbar = () => {
                   <Link
                     key={link.href}
                     to={link.href}
-                    className="text-sm tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm uppercase font-light text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {link.label}
                   </Link>
                 ))}
-                <Link to="/keranjang" className="text-sm tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Keranjang</Link>
-                <Link to="/wishlist" className="text-sm tracking-editorial uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Wishlist</Link>
+                <Link to="/keranjang" className="text-sm uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Keranjang</Link>
+                <Link to="/wishlist" className="text-sm uppercase font-light text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Wishlist</Link>
                 <div className="border-t border-border/50 pt-6 flex flex-col gap-3">
                   {user ? (
                     <>
-                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
+                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] uppercase">
                         <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
                       </Button>
-                      <Button variant="outline" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
+                      <Button variant="outline" size="sm" asChild className="w-full rounded-full text-[12px] uppercase">
                         <Link to="/akun" onClick={() => setIsOpen(false)}>Akun</Link>
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleSignOut}
-                        className="w-full rounded-full text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground flex items-center gap-2"
+                        className="w-full rounded-full text-[12px] uppercase text-muted-foreground hover:text-foreground flex items-center gap-2"
                       >
                         <LogOut size={14} />
                         Keluar
@@ -147,10 +147,10 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <Button variant="ghost" size="sm" asChild className="w-full text-[12px] tracking-editorial uppercase rounded-full">
+                      <Button variant="ghost" size="sm" asChild className="w-full text-[12px] uppercase rounded-full">
                         <Link to="/masuk" onClick={() => setIsOpen(false)}>Masuk</Link>
                       </Button>
-                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] tracking-editorial uppercase">
+                      <Button variant="gradient" size="sm" asChild className="w-full rounded-full text-[12px] uppercase">
                         <Link to="/daftar" onClick={() => setIsOpen(false)}>Daftar</Link>
                       </Button>
                     </>

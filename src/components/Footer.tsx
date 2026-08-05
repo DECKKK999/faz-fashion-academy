@@ -26,14 +26,14 @@ const Footer = () => {
               <Link
                 key={item.label}
                 to={item.href}
-                className="text-[12px] tracking-editorial uppercase text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[12px] uppercase text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
         </div>
-        <p className="pt-8 text-center md:text-left text-[11px] tracking-wide-editorial uppercase text-muted-foreground">
+        <p className="pt-8 text-center md:text-left text-[11px] uppercase text-muted-foreground">
           © 2026 FAZ Academy. Hak Cipta Dilindungi.
         </p>
       </div>
