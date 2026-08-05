@@ -134,7 +134,6 @@ const Cart = () => {
                     <span className="text-sm text-muted-foreground">Subtotal</span>
                     <span className="text-xl font-serif font-bold text-foreground">{formatRupiah(total_idr)}</span>
                   </div>
-                  <p className="text-[12px] text-muted-foreground mb-5">Kode unik per pesanan ditambahkan saat checkout.</p>
                   {hasStale && (
                     <p className="text-[12px] text-amber-500 mb-3 flex items-center gap-1">
                       <AlertTriangle size={12} /> Beberapa harga telah berubah.

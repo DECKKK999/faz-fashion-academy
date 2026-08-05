@@ -27,9 +27,7 @@ const RefundPolicy = () => {
               <p className={prose} style={proseStyle}>
                 Semua produk FAZ Academy adalah produk digital, sehingga tidak ada proses pengiriman fisik maupun
                 biaya ongkos kirim. Akses ke produk (kelas online, e-book, atau tiket event) diberikan secara
-                otomatis dan instan begitu pembayaran terverifikasi — untuk transfer bank manual, biasanya dalam
-                hitungan menit hingga beberapa jam setelah staf memverifikasi bukti transfer; untuk pembayaran via
-                payment gateway, akses diberikan otomatis begitu pembayaran dikonfirmasi oleh sistem.
+                otomatis dan instan begitu pembayaran dikonfirmasi oleh sistem payment gateway kami.
               </p>
             </div>
 

@@ -111,7 +111,6 @@ const AdminOrders = () => {
                 </div>
                 <div className="col-span-3">
                   <p className="text-foreground">{formatRupiah(o.total_idr)}</p>
-                  <p className="text-[11px] text-muted-foreground">kode {o.unique_code}</p>
                 </div>
                 <div className="col-span-3">
                   <span className={`text-[10px] tracking-editorial uppercase px-2 py-0.5 rounded-full ${st.className}`}>{st.label}</span>
@@ -138,7 +137,7 @@ const AdminOrders = () => {
 
             <div className="space-y-1.5 text-sm mb-4">
               <div className="flex justify-between"><span className="text-muted-foreground">Total</span><span className="font-medium">{formatRupiah(selected.total_idr)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Harga + kode unik</span><span>{formatRupiah(selected.base_price_idr)} + {selected.unique_code}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Harga Dasar</span><span>{formatRupiah(selected.base_price_idr)}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Pengirim</span><span>{selected.payer_name || "—"} ({selected.payer_bank || "—"})</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Tgl transfer</span><span>{selected.transfer_date || "—"}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Status</span><span>{orderStatus(selected.status).label}</span></div>

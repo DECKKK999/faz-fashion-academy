@@ -110,11 +110,11 @@ export const templates = {
     text: `Halo ${name},\n\nAkun kamu berhasil dibuat. Selamat belajar di FAZ Academy!\n\n${env.APP_BASE_URL}/kelas`,
     html: wrap("Selamat datang di FAZ Academy 👋", `<p>Halo ${name},</p><p>Akun kamu berhasil dibuat. Mulai jelajahi kelas kami.</p><p><a href="${env.APP_BASE_URL}/kelas">Lihat Katalog Kelas</a></p>`),
   }),
-  orderCreated: (opts: { name: string; itemTitle: string; totalIdr: number; uniqueCode: number; orderId: string }) => ({
+  orderCreated: (opts: { name: string; itemTitle: string; totalIdr: number; orderId: string }) => ({
     template: "order_created",
-    subject: `Instruksi pembayaran — ${opts.itemTitle}`,
-    text: `Halo ${opts.name},\n\nPesanan untuk "${opts.itemTitle}" sudah dibuat.\nTotal transfer: Rp ${opts.totalIdr.toLocaleString("id-ID")} (kode unik ${opts.uniqueCode} — transfer tepat sampai 3 digit terakhir).\n\nLanjutkan & unggah bukti di: ${env.APP_BASE_URL}/checkout/${opts.orderId}`,
-    html: wrap("Selesaikan Pembayaran", `<p>Halo ${opts.name},</p><p>Pesanan untuk <b>${opts.itemTitle}</b> sudah dibuat.</p><p>Total transfer: <b>Rp ${opts.totalIdr.toLocaleString("id-ID")}</b><br/><small>Kode unik ${opts.uniqueCode} — transfer tepat sampai 3 digit terakhir.</small></p><p><a href="${env.APP_BASE_URL}/checkout/${opts.orderId}">Lanjutkan & Unggah Bukti</a></p>`),
+    subject: `Selesaikan pembayaran — ${opts.itemTitle}`,
+    text: `Halo ${opts.name},\n\nPesanan untuk "${opts.itemTitle}" sudah dibuat.\nTotal: Rp ${opts.totalIdr.toLocaleString("id-ID")}.\n\nSelesaikan pembayaran di: ${env.APP_BASE_URL}/checkout/${opts.orderId}`,
+    html: wrap("Selesaikan Pembayaran", `<p>Halo ${opts.name},</p><p>Pesanan untuk <b>${opts.itemTitle}</b> sudah dibuat.</p><p>Total: <b>Rp ${opts.totalIdr.toLocaleString("id-ID")}</b></p><p><a href="${env.APP_BASE_URL}/checkout/${opts.orderId}">Selesaikan Pembayaran</a></p>`),
   }),
   paymentVerified: (opts: { name: string; itemTitle: string }) => ({
     template: "payment_verified",
@@ -125,8 +125,8 @@ export const templates = {
   paymentRejected: (opts: { name: string; itemTitle: string; reason: string; orderId: string }) => ({
     template: "payment_rejected",
     subject: `Pembayaran ditolak — ${opts.itemTitle}`,
-    text: `Halo ${opts.name},\n\nMohon maaf, bukti pembayaran untuk "${opts.itemTitle}" ditolak.\nAlasan: ${opts.reason}\n\nKirim ulang bukti di: ${env.APP_BASE_URL}/checkout/${opts.orderId}`,
-    html: wrap("Pembayaran Ditolak", `<p>Halo ${opts.name},</p><p>Mohon maaf, bukti pembayaran untuk <b>${opts.itemTitle}</b> ditolak.</p><p>Alasan: ${opts.reason}</p><p><a href="${env.APP_BASE_URL}/checkout/${opts.orderId}">Kirim Ulang Bukti</a></p>`),
+    text: `Halo ${opts.name},\n\nMohon maaf, pembayaran untuk "${opts.itemTitle}" ditolak.\nAlasan: ${opts.reason}\n\nCoba lagi di: ${env.APP_BASE_URL}/checkout/${opts.orderId}`,
+    html: wrap("Pembayaran Ditolak", `<p>Halo ${opts.name},</p><p>Mohon maaf, pembayaran untuk <b>${opts.itemTitle}</b> ditolak.</p><p>Alasan: ${opts.reason}</p><p><a href="${env.APP_BASE_URL}/checkout/${opts.orderId}">Coba Lagi</a></p>`),
   }),
   certificateIssued: (opts: { name: string; courseTitle: string; certificateNumber: string }) => ({
     template: "certificate_issued",

@@ -81,7 +81,8 @@ const AdminSettings = () => {
         <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Admin</p>
         <h1 className="text-3xl">Pengaturan Pembayaran</h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Kelola rekening tujuan transfer. Rekening yang <span className="text-foreground">aktif</span> akan ditampilkan di halaman checkout pembeli.
+          Transfer manual sudah tidak dipakai lagi di alur pembelian &mdash; semua pembayaran lewat gateway (lihat Payment Gateway).
+          Daftar rekening di bawah tidak lagi ditampilkan ke pembeli, disimpan hanya untuk catatan.
         </p>
       </div>
 
@@ -96,7 +97,7 @@ const AdminSettings = () => {
         <p className="text-muted-foreground text-sm">Loading...</p>
       ) : accounts.length === 0 ? (
         <div className="border border-border/50 p-12 text-center">
-          <p className="text-muted-foreground mb-4">Belum ada rekening. Tambahkan minimal satu agar pembeli bisa transfer.</p>
+          <p className="text-muted-foreground mb-4">Belum ada rekening tersimpan.</p>
           <Button onClick={addAccount} className="rounded-none">Tambah Rekening</Button>
         </div>
       ) : (

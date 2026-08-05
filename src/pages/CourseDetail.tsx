@@ -145,7 +145,7 @@ const CourseDetail = () => {
       <ul className="mt-6 space-y-2 text-xs text-muted-foreground">
         <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Akses materi penuh</li>
         <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Sertifikat penyelesaian</li>
-        <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Pembayaran transfer bank</li>
+        <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Pembayaran online otomatis</li>
       </ul>
     </>
   );

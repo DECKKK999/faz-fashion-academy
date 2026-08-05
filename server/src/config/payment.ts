@@ -15,16 +15,5 @@ export const DEFAULT_BANK_ACCOUNTS = [
   },
 ];
 
-export const PAYMENT_INSTRUCTIONS = [
-  "Transfer TEPAT sampai 3 digit terakhir (kode unik) agar pembayaran mudah dicocokkan.",
-  "Lakukan transfer ke salah satu rekening di atas sebelum batas waktu.",
-  "Setelah transfer, unggah bukti transfer dan isi data pengirim.",
-  "Pembayaran akan diverifikasi staff dalam 1x24 jam pada hari kerja.",
-];
-
 // Batas waktu pembayaran sejak order dibuat.
 export const ORDER_EXPIRY_HOURS = 24;
-
-// Rentang kode unik (3 digit) yang ditambahkan ke nominal.
-export const UNIQUE_CODE_MIN = 100;
-export const UNIQUE_CODE_MAX = 999;

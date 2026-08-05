@@ -315,7 +315,7 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
         }
       }
 
-      const { unique_code, total_idr } = computeOrderTotal(base_price_idr, discount_idr);
+      const { total_idr } = computeOrderTotal(base_price_idr, discount_idr);
       const order = await tx.order.create({
         data: {
           user_id: userId,
@@ -324,7 +324,6 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
           ebook_id: it.product_type === "ebook" ? it.product_id : null,
           event_id: it.product_type === "event" ? it.product_id : null,
           base_price_idr,
-          unique_code,
           discount_idr,
           coupon_id,
           coupon_code,
@@ -367,7 +366,7 @@ cartRouter.post("/checkout", requireAuth, async (req, res) => {
       to: email,
       user_id: userId,
       order_id: created[0].id,
-      ...templates.orderCreated({ name, itemTitle, totalIdr: total_idr, uniqueCode: created[0].unique_code, orderId: created[0].id }),
+      ...templates.orderCreated({ name, itemTitle, totalIdr: total_idr, orderId: created[0].id }),
     });
   }
 

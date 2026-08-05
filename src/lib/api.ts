@@ -174,7 +174,6 @@ export type Order = {
   ebook_id: string | null;
   event_id: string | null;
   base_price_idr: number;
-  unique_code: number;
   discount_idr: number;
   total_idr: number;
   status: OrderStatus;
@@ -198,11 +197,6 @@ export type Order = {
   ebook?: OrderEbook | null;
   event?: OrderEvent | null;
   user?: { id: string; email: string; profile: { full_name: string | null } | null };
-};
-
-export type PaymentInfo = {
-  bank_accounts: { bank: string; account_number: string; account_name: string }[];
-  instructions: string[];
 };
 
 export type Enrollment = {

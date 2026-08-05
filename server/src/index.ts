@@ -15,7 +15,6 @@ import { usersRouter } from "./routes/users.js";
 import { statsRouter } from "./routes/stats.js";
 import { ordersRouter, adminOrdersRouter } from "./routes/orders.js";
 import { enrollmentsRouter } from "./routes/enrollments.js";
-import { paymentRouter } from "./routes/payment.js";
 import { bankAccountsRouter } from "./routes/bankAccounts.js";
 import { playerRouter } from "./routes/player.js";
 import { certificatesRouter, adminCertificatesRouter } from "./routes/certificates.js";
@@ -74,7 +73,6 @@ app.use("/api/certificates", certificatesRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/payment-gateway", gatewayRouter);
 app.use("/api/enrollments", enrollmentsRouter);
-app.use("/api/payment-info", paymentRouter);
 // admin
 app.use("/api/admin/orders", adminOrdersRouter);
 app.use("/api/admin/bank-accounts", bankAccountsRouter);

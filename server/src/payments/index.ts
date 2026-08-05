@@ -1,17 +1,15 @@
-// Payment-gateway SCAFFOLD (Midtrans / Xendit) sebagai alternatif transfer manual.
+// Payment gateway — Mayar (dan DOKU) adalah implementasi nyata; Midtrans/Xendit
+// di bawah cuma SCAFFOLD kalau suatu saat dibutuhkan, belum dipakai produksi.
 //
-// Modul ini SENGAJA dibuat sebagai kerangka (scaffold) tanpa SDK eksternal apa pun.
-// Implementasi nyata (memanggil API Midtrans/Xendit, verifikasi signature, dst.)
-// harus dilengkapi sebelum dipakai di produksi.
-//
-// Diaktifkan lewat env PAYMENT_GATEWAY ("midtrans" | "xendit"). Bila kosong,
-// getGateway() mengembalikan null dan aplikasi tetap memakai transfer manual.
+// Transfer manual sudah tidak ada lagi — pembelian WAJIB lewat gateway. Bila
+// getGateway() mengembalikan null (belum dikonfigurasi), checkout ditolak
+// dengan pesan "pembayaran belum tersedia", bukan jatuh ke instruksi transfer.
 
 import type { Request } from "express";
 import type { Order } from "@prisma/client";
 import { dokuConfigured, mayarConfigured } from "../env.js";
 import { createDokuPayment, verifyDokuWebhook } from "./doku.js";
-import { createMayarPayment, verifyMayarWebhook } from "./mayar.js";
+import { createMayarPayment, createMayarGroupPayment, verifyMayarWebhook } from "./mayar.js";
 
 export type GatewayName = "midtrans" | "xendit" | "doku" | "mayar";
 
@@ -45,6 +43,9 @@ export interface PaymentGateway {
   readonly name: GatewayName;
   /** Membuat charge/invoice di gateway untuk sebuah order. */
   createCharge(order: Order, customer?: ChargeCustomer): Promise<ChargeResult>;
+  /** Membuat SATU charge/invoice gabungan untuk beberapa order (checkout keranjang).
+   * Opsional — gateway yang belum mendukung invoice multi-item boleh tidak mengimplementasikan ini. */
+  createGroupCharge?(orders: Order[], customer?: ChargeCustomer): Promise<ChargeResult>;
   /** Memverifikasi & mem-parse payload webhook menjadi hasil ternormalisasi. */
   verifyWebhook(req: Request): Promise<WebhookResult>;
 }
@@ -146,6 +147,12 @@ class MayarGateway implements PaymentGateway {
     if (!mayarConfigured) notConfigured(this.name);
     if (!customer?.phone) throw new Error("Nomor HP diperlukan untuk pembayaran via Mayar");
     return createMayarPayment(order, { name: customer.name, email: customer.email, phone: customer.phone });
+  }
+
+  async createGroupCharge(orders: Order[], customer?: ChargeCustomer): Promise<ChargeResult> {
+    if (!mayarConfigured) notConfigured(this.name);
+    if (!customer?.phone) throw new Error("Nomor HP diperlukan untuk pembayaran via Mayar");
+    return createMayarGroupPayment(orders, { name: customer.name, email: customer.email, phone: customer.phone });
   }
 
   async verifyWebhook(req: Request): Promise<WebhookResult> {

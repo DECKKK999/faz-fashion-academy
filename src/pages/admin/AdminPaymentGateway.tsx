@@ -62,8 +62,8 @@ const AdminPaymentGateway = () => {
         <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Admin</p>
         <h1 className="text-3xl">Payment Gateway</h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Status integrasi gateway pembayaran (DOKU, Mayar, atau Midtrans / Xendit sebagai scaffold) sebagai pengganti transfer manual.
-          Konfigurasi dikelola lewat environment variable di server &mdash; panel ini hanya untuk melihat status.
+          Status integrasi gateway pembayaran (DOKU, Mayar, atau Midtrans / Xendit sebagai scaffold). Transfer manual sudah tidak dipakai lagi
+          &mdash; pembelian mengandalkan gateway ini sepenuhnya. Konfigurasi dikelola lewat environment variable di server &mdash; panel ini hanya untuk melihat status.
         </p>
       </div>
 
@@ -77,8 +77,8 @@ const AdminPaymentGateway = () => {
             <div className="border border-border/50 bg-foreground/5 p-5 mb-6 flex items-start gap-3">
               <AlertTriangle size={16} className="text-muted-foreground mt-0.5 shrink-0" />
               <div className="text-sm text-muted-foreground">
-                Gateway pembayaran <span className="text-foreground">belum diaktifkan</span>. Sistem saat ini hanya
-                menerima transfer manual. Isi <code className="text-foreground">DOKU_CLIENT_ID</code> &amp;{" "}
+                Gateway pembayaran <span className="text-foreground">belum diaktifkan</span> — pembelian tidak dapat
+                diproses sampai salah satu gateway berikut dikonfigurasi. Isi <code className="text-foreground">DOKU_CLIENT_ID</code> &amp;{" "}
                 <code className="text-foreground">DOKU_SECRET_KEY</code> untuk mengaktifkan DOKU, isi{" "}
                 <code className="text-foreground">MAYAR_API_KEY</code> &amp;{" "}
                 <code className="text-foreground">MAYAR_WEBHOOK_TOKEN</code> untuk mengaktifkan Mayar, atau setel env{" "}

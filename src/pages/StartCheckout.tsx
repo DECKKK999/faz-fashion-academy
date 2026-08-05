@@ -45,7 +45,7 @@ const StartCheckout = () => {
               return;
             }
           } catch {
-            // Gateway gagal — lanjut ke transfer manual di bawah.
+            // Gagal cek status gateway — lempar ke halaman checkout, biar ditangani di sana.
           }
           navigate(`/checkout/${res.order.id}`, { replace: true });
           return;

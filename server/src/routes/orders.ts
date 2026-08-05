@@ -3,7 +3,6 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { requireAuth, requireAdmin } from "../auth.js";
-import { uploadProof } from "../upload.js";
 import { ORDER_EXPIRY_HOURS } from "../config/payment.js";
 import { computeOrderTotal } from "../lib/order-total.js";
 import { evaluateCoupon } from "../lib/coupon.js";
@@ -100,7 +99,7 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
   }
 
   const base_price_idr = course.price_idr;
-  const { unique_code, total_idr } = computeOrderTotal(base_price_idr, discount_idr);
+  const { total_idr } = computeOrderTotal(base_price_idr, discount_idr);
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -109,7 +108,6 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
         item_type: "course",
         course_id,
         base_price_idr,
-        unique_code,
         discount_idr,
         total_idr,
         coupon_id,
@@ -132,7 +130,7 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
     to: req.user!.email,
     user_id: userId,
     order_id: order.id,
-    ...templates.orderCreated({ name, itemTitle: course.title, totalIdr: order.total_idr, uniqueCode: order.unique_code, orderId: order.id }),
+    ...templates.orderCreated({ name, itemTitle: course.title, totalIdr: order.total_idr, orderId: order.id }),
   });
 
   return res.status(201).json({ order });
@@ -162,14 +160,13 @@ ordersRouter.post("/ebook", requireAuth, async (req, res) => {
   });
   if (existing) return res.status(200).json({ order: existing, resumed: true });
 
-  const { unique_code, total_idr } = computeOrderTotal(ebook.price_idr, 0);
+  const { total_idr } = computeOrderTotal(ebook.price_idr, 0);
   const order = await prisma.order.create({
     data: {
       user_id: userId,
       item_type: "ebook",
       ebook_id,
       base_price_idr: ebook.price_idr,
-      unique_code,
       total_idr,
       expires_at: EXPIRY(),
     },
@@ -177,7 +174,7 @@ ordersRouter.post("/ebook", requireAuth, async (req, res) => {
   });
 
   const name = await displayName(userId, req.user!.email);
-  sendMailSafe({ to: req.user!.email, user_id: userId, order_id: order.id, ...templates.orderCreated({ name, itemTitle: ebook.title, totalIdr: order.total_idr, uniqueCode: order.unique_code, orderId: order.id }) });
+  sendMailSafe({ to: req.user!.email, user_id: userId, order_id: order.id, ...templates.orderCreated({ name, itemTitle: ebook.title, totalIdr: order.total_idr, orderId: order.id }) });
   return res.status(201).json({ order });
 });
 
@@ -210,14 +207,13 @@ ordersRouter.post("/event", requireAuth, async (req, res) => {
   });
   if (existing) return res.status(200).json({ order: existing, resumed: true });
 
-  const { unique_code, total_idr } = computeOrderTotal(event.price_idr, 0);
+  const { total_idr } = computeOrderTotal(event.price_idr, 0);
   const order = await prisma.order.create({
     data: {
       user_id: userId,
       item_type: "event",
       event_id,
       base_price_idr: event.price_idr,
-      unique_code,
       total_idr,
       expires_at: EXPIRY(),
     },
@@ -225,7 +221,7 @@ ordersRouter.post("/event", requireAuth, async (req, res) => {
   });
 
   const name = await displayName(userId, req.user!.email);
-  sendMailSafe({ to: req.user!.email, user_id: userId, order_id: order.id, ...templates.orderCreated({ name, itemTitle: event.title, totalIdr: order.total_idr, uniqueCode: order.unique_code, orderId: order.id }) });
+  sendMailSafe({ to: req.user!.email, user_id: userId, order_id: order.id, ...templates.orderCreated({ name, itemTitle: event.title, totalIdr: order.total_idr, orderId: order.id }) });
   return res.status(201).json({ order });
 });
 
@@ -259,37 +255,6 @@ ordersRouter.get("/:id", requireAuth, async (req, res) => {
   res.json(order);
 });
 
-ordersRouter.post("/:id/proof", requireAuth, uploadProof.single("proof"), async (req, res) => {
-  const order = await prisma.order.findUnique({ where: { id: req.params.id } });
-  if (!order || order.user_id !== req.user!.id) return res.status(404).json({ error: "Order tidak ditemukan" });
-  if (!["pending", "rejected"].includes(order.status)) return res.status(400).json({ error: "Order tidak dapat diperbarui pada status ini" });
-  if (order.status === "pending" && order.expires_at < new Date()) return res.status(400).json({ error: "Batas waktu pembayaran sudah lewat" });
-  if (!req.file) return res.status(400).json({ error: "Bukti transfer wajib diunggah" });
-
-  const schema = z.object({
-    payer_name: z.string().trim().min(1, "Nama pengirim wajib diisi"),
-    payer_bank: z.string().trim().min(1, "Bank pengirim wajib diisi"),
-    transfer_date: z.string().trim().optional(),
-  });
-  const parsed = schema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0]?.message });
-
-  const updated = await prisma.order.update({
-    where: { id: order.id },
-    data: {
-      proof_url: `/api/uploads/${req.file.filename}`,
-      payer_name: parsed.data.payer_name,
-      payer_bank: parsed.data.payer_bank,
-      transfer_date: parsed.data.transfer_date ?? null,
-      submitted_at: new Date(),
-      status: "awaiting_verification",
-      rejection_reason: null,
-    },
-    include: orderInclude,
-  });
-  res.json(updated);
-});
-
 ordersRouter.post("/:id/cancel", requireAuth, async (req, res) => {
   const order = await prisma.order.findUnique({ where: { id: req.params.id } });
   if (!order || order.user_id !== req.user!.id) return res.status(404).json({ error: "Order tidak ditemukan" });
@@ -317,7 +282,7 @@ adminOrdersRouter.post("/:id/approve", ...requireAdmin, async (req, res) => {
     return res.status(400).json({ error: "Order tidak dapat diverifikasi pada status ini" });
 
   await prisma.$transaction(async (tx) => {
-    await tx.order.update({
+    const updated = await tx.order.update({
       where: { id: order.id },
       data: { status: "paid", verified_by: req.user!.id, verified_at: new Date(), rejection_reason: null },
     });

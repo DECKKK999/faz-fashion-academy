@@ -66,7 +66,7 @@ const faqs = [
   },
   {
     q: "Bagaimana cara pembayarannya?",
-    a: "Pembayaran dilakukan via transfer bank. Setelah bukti transfer diunggah, tim kami memverifikasi dan kamu langsung mendapat akses ke kelas.",
+    a: "Pembayaran dilakukan online lewat gateway pembayaran kami. Begitu pembayaran terkonfirmasi, akses ke kelas langsung aktif secara otomatis.",
   },
   {
     q: "Kenapa harganya bisa lebih murah dari harga normal?",
