@@ -25,7 +25,7 @@ const Footer = () => {
               Rumah bagi desainer, akademisi, dan praktisi fashion Indonesia untuk berbagi ilmu dan warisan budaya.
             </p>
           </div>
-          <nav className="flex flex-wrap gap-x-8 gap-y-3 content-start">
+          <nav className="grid grid-cols-2 grid-rows-3 grid-flow-col gap-x-8 gap-y-3 content-start justify-start">
             {footerLinks.map((item) => (
               <Link
                 key={item.label}
