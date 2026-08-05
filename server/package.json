@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "seed:quiz": "tsx prisma/seed-quiz.ts",
-    "create-admin": "tsx prisma/create-admin.ts"
+    "create-admin": "tsx prisma/create-admin.ts",
+    "mayar:smoke-test": "tsx scripts/mayar-smoke-test.ts"
   },
   "dependencies": {
     "@googleapis/sheets": "^13.0.2",

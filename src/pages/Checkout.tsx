@@ -20,9 +20,11 @@ const Checkout = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [info, setInfo] = useState<PaymentInfo | null>(null);
   const [gatewayEnabled, setGatewayEnabled] = useState(false);
+  const [gatewayName, setGatewayName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [charging, setCharging] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const [file, setFile] = useState<File | null>(null);
   const [payerName, setPayerName] = useState("");
@@ -35,12 +37,13 @@ const Checkout = () => {
     Promise.all([
       api.get<Order>(`/orders/${orderId}`),
       api.get<PaymentInfo>("/payment-info"),
-      api.get<{ enabled: boolean }>("/payment-gateway/status").catch(() => ({ enabled: false })),
+      api.get<{ enabled: boolean; gateway: string | null }>("/payment-gateway/status").catch(() => ({ enabled: false, gateway: null })),
     ])
       .then(([o, i, gw]) => {
         setOrder(o);
         setInfo(i);
         setGatewayEnabled(gw.enabled);
+        setGatewayName(gw.gateway);
         setPayerName((prev) => prev || o.payer_name || profile?.full_name || "");
         setPayerBank((prev) => prev || o.payer_bank || "");
         // InitiateCheckout hanya saat order masih berjalan, bukan saat revisit order yang sudah dibayar/ditutup.
@@ -82,11 +85,16 @@ const Checkout = () => {
     return () => clearInterval(interval);
   }, [orderId, gatewayEnabled, order?.status]);
 
-  const payWithDoku = async () => {
+  const needsPhone = gatewayName === "mayar";
+
+  const payWithGateway = async () => {
     if (!order) return;
+    if (needsPhone && !phone.trim()) return toast.error("Isi nomor HP dulu");
     setCharging(true);
     try {
-      const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${order.id}/charge`);
+      const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${order.id}/charge`, {
+        ...(needsPhone ? { phone: phone.trim() } : {}),
+      });
       window.location.href = charge.redirect_url;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal membuat pembayaran");
@@ -207,7 +215,7 @@ const Checkout = () => {
             <div className="border border-blue-500/30 bg-blue-500/10 rounded-lg p-6 text-center mb-6">
               <Loader2 className="mx-auto text-blue-500 mb-2 animate-spin" size={28} />
               <p className="font-medium text-foreground">Menunggu konfirmasi pembayaran</p>
-              <p className="text-sm text-muted-foreground mt-1">Halaman ini akan otomatis memperbarui begitu DOKU mengonfirmasi pembayaranmu.</p>
+              <p className="text-sm text-muted-foreground mt-1">Halaman ini akan otomatis memperbarui begitu pembayaranmu terkonfirmasi.</p>
             </div>
           )}
           {order.status === "rejected" && (
@@ -235,7 +243,20 @@ const Checkout = () => {
                   Harga {formatRupiah(order.base_price_idr)} − diskon {order.coupon_code ? `(${order.coupon_code}) ` : ""}{formatRupiah(order.discount_idr)}
                 </p>
               )}
-              <Button onClick={payWithDoku} disabled={charging} variant="gradient" className="w-full rounded-full">
+              {needsPhone && (
+                <div className="space-y-2 mb-4">
+                  <Label>Nomor HP</Label>
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="08xxxxxxxxxx"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+              <Button onClick={payWithGateway} disabled={charging} variant="gradient" className="w-full rounded-full">
                 {charging ? "Menyiapkan pembayaran..." : "Bayar Sekarang"}
               </Button>
             </div>

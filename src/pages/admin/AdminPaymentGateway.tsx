@@ -62,7 +62,7 @@ const AdminPaymentGateway = () => {
         <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2">Admin</p>
         <h1 className="text-3xl">Payment Gateway</h1>
         <p className="text-muted-foreground text-sm mt-2">
-          Status integrasi gateway pembayaran (DOKU, atau Midtrans / Xendit sebagai scaffold) sebagai pengganti transfer manual.
+          Status integrasi gateway pembayaran (DOKU, Mayar, atau Midtrans / Xendit sebagai scaffold) sebagai pengganti transfer manual.
           Konfigurasi dikelola lewat environment variable di server &mdash; panel ini hanya untuk melihat status.
         </p>
       </div>
@@ -79,7 +79,9 @@ const AdminPaymentGateway = () => {
               <div className="text-sm text-muted-foreground">
                 Gateway pembayaran <span className="text-foreground">belum diaktifkan</span>. Sistem saat ini hanya
                 menerima transfer manual. Isi <code className="text-foreground">DOKU_CLIENT_ID</code> &amp;{" "}
-                <code className="text-foreground">DOKU_SECRET_KEY</code> untuk mengaktifkan DOKU, atau setel env{" "}
+                <code className="text-foreground">DOKU_SECRET_KEY</code> untuk mengaktifkan DOKU, isi{" "}
+                <code className="text-foreground">MAYAR_API_KEY</code> &amp;{" "}
+                <code className="text-foreground">MAYAR_WEBHOOK_TOKEN</code> untuk mengaktifkan Mayar, atau setel env{" "}
                 <code className="text-foreground">PAYMENT_GATEWAY</code> ke <code className="text-foreground">midtrans</code>{" "}
                 atau <code className="text-foreground">xendit</code> (scaffold, belum diimplementasi).
               </div>
@@ -125,7 +127,9 @@ const AdminPaymentGateway = () => {
             Daftarkan URL webhook di atas pada dashboard provider agar status pembayaran otomatis tersinkron.
             {config.gateway === "doku"
               ? " Webhook DOKU sudah diverifikasi lewat signature (raw body), bukan lagi scaffold."
-              : " Catatan: implementasi webhook Midtrans/Xendit di atas masih scaffold (membaca JSON body); produksi sebaiknya beralih ke raw body untuk verifikasi signature."}
+              : config.gateway === "mayar"
+                ? " Mayar tidak menandatangani body webhook — token rahasia sudah disisipkan di URL di atas (query param ?token=...). Salin URL persis seperti itu ke dashboard Mayar (Integration → Webhook)."
+                : " Catatan: implementasi webhook Midtrans/Xendit di atas masih scaffold (membaca JSON body); produksi sebaiknya beralih ke raw body untuk verifikasi signature."}
           </p>
         </>
       )}

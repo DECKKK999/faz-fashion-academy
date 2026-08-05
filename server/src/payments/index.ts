@@ -9,10 +9,11 @@
 
 import type { Request } from "express";
 import type { Order } from "@prisma/client";
-import { dokuConfigured } from "../env.js";
+import { dokuConfigured, mayarConfigured } from "../env.js";
 import { createDokuPayment, verifyDokuWebhook } from "./doku.js";
+import { createMayarPayment, verifyMayarWebhook } from "./mayar.js";
 
-export type GatewayName = "midtrans" | "xendit" | "doku";
+export type GatewayName = "midtrans" | "xendit" | "doku" | "mayar";
 
 /** Status yang dinormalisasi dari callback/webhook gateway. */
 export type GatewayChargeStatus = "paid" | "pending" | "failed";
@@ -36,6 +37,8 @@ export interface WebhookResult {
 export interface ChargeCustomer {
   name: string;
   email: string;
+  /** Wajib untuk Mayar (nomor HP pembeli); gateway lain mengabaikannya. */
+  phone?: string;
 }
 
 export interface PaymentGateway {
@@ -130,10 +133,32 @@ class DokuGateway implements PaymentGateway {
   }
 }
 
-/** Nama gateway aktif — DOKU menang otomatis begitu kredensialnya terisi,
- * apa pun nilai PAYMENT_GATEWAY (tidak perlu set PAYMENT_GATEWAY=doku juga). */
+// ===================== Mayar (implementasi nyata) =====================
+//
+// Kunci dibaca dari env.ts: MAYAR_API_KEY, MAYAR_WEBHOOK_TOKEN, MAYAR_MODE.
+// Lihat ./mayar.ts untuk detail request invoice/create dan verifikasi webhook
+// lewat token di query string (Mayar tidak menandatangani body).
+
+class MayarGateway implements PaymentGateway {
+  readonly name = "mayar" as const;
+
+  async createCharge(order: Order, customer?: ChargeCustomer): Promise<ChargeResult> {
+    if (!mayarConfigured) notConfigured(this.name);
+    if (!customer?.phone) throw new Error("Nomor HP diperlukan untuk pembayaran via Mayar");
+    return createMayarPayment(order, { name: customer.name, email: customer.email, phone: customer.phone });
+  }
+
+  async verifyWebhook(req: Request): Promise<WebhookResult> {
+    if (!mayarConfigured) notConfigured(this.name);
+    return verifyMayarWebhook(req);
+  }
+}
+
+/** Nama gateway aktif — DOKU lalu Mayar menang otomatis begitu kredensialnya
+ * terisi, apa pun nilai PAYMENT_GATEWAY (tidak perlu diset kalau salah satunya aktif). */
 export function activeGatewayName(): GatewayName | null {
   if (dokuConfigured) return "doku";
+  if (mayarConfigured) return "mayar";
   const name = (process.env.PAYMENT_GATEWAY ?? "").trim().toLowerCase();
   if (name === "midtrans" || name === "xendit") return name;
   return null;
@@ -142,6 +167,7 @@ export function activeGatewayName(): GatewayName | null {
 /** Apakah server key / secret key untuk gateway aktif sudah diisi. */
 export function hasServerKey(name: GatewayName): boolean {
   if (name === "doku") return dokuConfigured;
+  if (name === "mayar") return !!(process.env.MAYAR_API_KEY ?? "");
   if (name === "midtrans") return !!(process.env.MIDTRANS_SERVER_KEY ?? "");
   if (name === "xendit") return !!(process.env.XENDIT_SECRET_KEY ?? "");
   return false;
@@ -151,6 +177,7 @@ export function hasServerKey(name: GatewayName): boolean {
 export function hasWebhookSecret(name: GatewayName): boolean {
   // DOKU pakai Secret Key yang sama untuk menandatangani request & memverifikasi webhook.
   if (name === "doku") return dokuConfigured;
+  if (name === "mayar") return !!(process.env.MAYAR_WEBHOOK_TOKEN ?? "");
   if (name === "midtrans") return !!(process.env.MIDTRANS_WEBHOOK_SECRET ?? "");
   if (name === "xendit") return !!(process.env.XENDIT_WEBHOOK_TOKEN ?? "");
   return false;
@@ -163,6 +190,7 @@ export function hasWebhookSecret(name: GatewayName): boolean {
 export function getGateway(): PaymentGateway | null {
   const name = activeGatewayName();
   if (name === "doku") return new DokuGateway();
+  if (name === "mayar") return new MayarGateway();
   if (name === "midtrans") return new MidtransGateway();
   if (name === "xendit") return new XenditGateway();
   return null;

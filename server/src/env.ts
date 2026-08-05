@@ -38,6 +38,14 @@ export const env = {
   DOKU_SECRET_KEY: process.env.DOKU_SECRET_KEY ?? "",
   DOKU_MODE: (process.env.DOKU_MODE ?? "sandbox") as "sandbox" | "production",
 
+  // ===== Mayar (opsional; kosong = manual transfer saja) =====
+  // MAYAR_WEBHOOK_TOKEN: secret yang ditaruh sebagai query param saat daftar
+  // webhook di dashboard Mayar (mis. .../webhook?token=xxx) — Mayar tidak
+  // menandatangani body seperti DOKU, jadi token di URL inilah yang diverifikasi.
+  MAYAR_API_KEY: process.env.MAYAR_API_KEY ?? "",
+  MAYAR_WEBHOOK_TOKEN: process.env.MAYAR_WEBHOOK_TOKEN ?? "",
+  MAYAR_MODE: (process.env.MAYAR_MODE ?? "sandbox") as "sandbox" | "production",
+
   // ===== Google Sheets sync untuk certificate_codes (opsional) =====
   // GOOGLE_SERVICE_ACCOUNT_JSON: isi mentah file JSON service account (bukan path).
   GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "",
@@ -49,3 +57,6 @@ export const smtpConfigured = !!(env.SMTP_HOST && env.SMTP_USER);
 export const googleSheetsConfigured = !!(env.GOOGLE_SERVICE_ACCOUNT_JSON && env.CERTIFICATE_SHEET_ID);
 export const dokuConfigured = !!(env.DOKU_CLIENT_ID && env.DOKU_SECRET_KEY);
 export const DOKU_BASE_URL = env.DOKU_MODE === "production" ? "https://api.doku.com" : "https://api-sandbox.doku.com";
+
+export const mayarConfigured = !!(env.MAYAR_API_KEY && env.MAYAR_WEBHOOK_TOKEN);
+export const MAYAR_BASE_URL = env.MAYAR_MODE === "production" ? "https://api.mayar.id/hl/v1" : "https://api.mayar.club/hl/v1";

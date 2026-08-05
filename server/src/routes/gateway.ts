@@ -54,10 +54,13 @@ const adminOrderInclude = {
 
 // GET /api/payment-gateway/status
 gatewayRouter.get("/status", (_req, res) => {
-  res.json({ enabled: !!getGateway() });
+  const gateway = getGateway();
+  res.json({ enabled: !!gateway, gateway: gateway?.name ?? null });
 });
 
 // ============ BUYER: buat charge di gateway ============
+
+const chargeBodySchema = z.object({ phone: z.string().trim().min(1).optional() });
 
 // POST /api/payment-gateway/orders/:id/charge
 gatewayRouter.post("/orders/:id/charge", requireAuth, async (req, res) => {
@@ -65,6 +68,9 @@ gatewayRouter.post("/orders/:id/charge", requireAuth, async (req, res) => {
   if (!gateway) {
     return res.status(503).json({ error: "Pembayaran via gateway belum diaktifkan. Gunakan transfer manual." });
   }
+
+  const parsed = chargeBodySchema.safeParse(req.body ?? {});
+  if (!parsed.success) return res.status(400).json({ error: "Data tidak valid" });
 
   const order = await prisma.order.findUnique({ where: { id: req.params.id } });
   if (!order || order.user_id !== req.user!.id) return res.status(404).json({ error: "Order tidak ditemukan" });
@@ -81,7 +87,7 @@ gatewayRouter.post("/orders/:id/charge", requireAuth, async (req, res) => {
 
   let charge;
   try {
-    charge = await gateway.createCharge(order, { name, email: req.user!.email });
+    charge = await gateway.createCharge(order, { name, email: req.user!.email, phone: parsed.data.phone });
   } catch (e: any) {
     return res.status(503).json({ error: e?.message || "Gateway pembayaran tidak tersedia" });
   }
@@ -145,7 +151,7 @@ gatewayRouter.post("/webhook", async (req, res) => {
 
   // status === "paid" → set lunas + buat entitlement (mirror approve), idempotent.
   await prisma.$transaction(async (tx) => {
-    await tx.order.update({
+    const updated = await tx.order.update({
       where: { id: order.id },
       data: {
         status: "paid",
@@ -214,12 +220,18 @@ export type PaymentGatewayConfig = {
 // GET /api/admin/payment-gateway/config
 adminGatewayRouter.get("/config", ...requireAdmin, async (_req, res) => {
   const name = activeGatewayName();
+  let webhookUrl = `${env.APP_BASE_URL.replace(/\/$/, "")}/api/payment-gateway/webhook`;
+  // Mayar tidak menandatangani body webhook — token rahasia ditaruh di query
+  // string URL yang didaftarkan di dashboard Mayar, itulah yang diverifikasi.
+  if (name === "mayar" && env.MAYAR_WEBHOOK_TOKEN) {
+    webhookUrl += `?token=${env.MAYAR_WEBHOOK_TOKEN}`;
+  }
   const config: PaymentGatewayConfig = {
     enabled: !!name,
     gateway: name,
     has_server_key: name ? hasServerKey(name) : false,
     has_webhook_secret: name ? hasWebhookSecret(name) : false,
-    webhook_url: `${env.APP_BASE_URL.replace(/\/$/, "")}/api/payment-gateway/webhook`,
+    webhook_url: webhookUrl,
   };
   res.json(config);
 });
