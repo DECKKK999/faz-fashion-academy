@@ -97,7 +97,6 @@ const CourseDetail = () => {
     );
   }
 
-  const order = state.order;
   // Nomor HP wajib sebelum bisa bayar (dulu cuma dibutuhkan Mayar, sekarang jadi
   // syarat umum) — akun lama yang dibuat sebelum field ini ada belum tentu punya.
   const needsPhoneToPay = !!user && !profile?.phone;
@@ -121,22 +120,9 @@ const CourseDetail = () => {
         </Button>
       );
     }
-    if (order && (order.status === "pending" || order.status === "awaiting_verification")) {
-      return (
-        <Button asChild variant="gradient" className="w-full rounded-full" size="lg">
-          <Link to={`/checkout/${order.id}`}>
-            {order.status === "pending" ? "Lanjutkan Pembayaran" : "Lihat Status Pembayaran"}
-          </Link>
-        </Button>
-      );
-    }
-    if (order && order.status === "rejected") {
-      return (
-        <Button asChild variant="gradient" className="w-full rounded-full" size="lg">
-          <Link to={`/checkout/${order.id}`}>Kirim Ulang Bukti</Link>
-        </Button>
-      );
-    }
+    // Order lama yang belum lunas (pending/gagal/ditolak) bukan alasan untuk
+    // membuka halaman order lama itu — arahkan ke jalur beli standar (keranjang
+    // → checkout) supaya semua pembayaran, baru maupun ulang, lewat satu pintu.
     return (
       <Button onClick={handleBuy} variant="gradient" className="w-full rounded-full" size="lg">
         {course.price_idr > 0 ? "Beli Kelas" : "Ambil Kelas (Gratis)"}
