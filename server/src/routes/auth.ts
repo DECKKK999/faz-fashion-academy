@@ -45,7 +45,7 @@ async function buildSession(userId: string) {
       id: true,
       email: true,
       email_verified: true,
-      profile: { select: { id: true, user_id: true, full_name: true, avatar_url: true } },
+      profile: { select: { id: true, user_id: true, full_name: true, avatar_url: true, phone: true } },
       roles: { select: { role: true } },
     },
   });
