@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2, ShoppingBag, AlertTriangle, Plus, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 import { formatRupiah } from "@/lib/format";
 import { toast } from "sonner";
 import type { ProductType, CouponValidation } from "@/lib/api";
+import { PROMO_COURSE_SLUG, PROMO_COUPON_CODE } from "@/lib/promo";
 
 const typeLabel: Record<ProductType, string> = { course: "Kelas", ebook: "E-Book", event: "Event" };
 
@@ -39,6 +40,7 @@ const Cart = () => {
   const [gatewayEnabled, setGatewayEnabled] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const autoAppliedRef = useRef(false);
 
   useEffect(() => {
     api.get<{ enabled: boolean }>("/payment-gateway/status").then((gw) => setGatewayEnabled(gw.enabled)).catch(() => {});
@@ -67,20 +69,16 @@ const Cart = () => {
   // Cek kode kupon terhadap tiap item kelas di keranjang (kupon bisa spesifik
   // per kelas atau global), lalu jumlahkan diskon dari item yang cocok — sama
   // seperti cara backend menerapkannya saat checkout sungguhan.
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim();
-    if (!code) return;
-    if (!user) {
-      navigate(`/masuk?redirect=${encodeURIComponent("/keranjang")}`);
-      return;
-    }
+  const applyCoupon = async (code: string, opts?: { silent?: boolean }) => {
     setApplyingCoupon(true);
-    setCouponError(null);
+    if (!opts?.silent) setCouponError(null);
     try {
       const courseItems = items.filter((i) => i.product_type === "course");
       if (courseItems.length === 0) {
-        setCouponDiscount(0);
-        setCouponError("Kupon hanya berlaku untuk kelas");
+        if (!opts?.silent) {
+          setCouponDiscount(0);
+          setCouponError("Kupon hanya berlaku untuk kelas");
+        }
         return;
       }
       const results = await Promise.all(
@@ -93,7 +91,11 @@ const Cart = () => {
       const totalDiscount = results.reduce((s, r) => s + (r.valid ? r.discount_idr : 0), 0);
       if (totalDiscount > 0) {
         setCouponDiscount(totalDiscount);
-        toast.success("Kupon berhasil diterapkan");
+        if (!opts?.silent) toast.success("Kupon berhasil diterapkan");
+      } else if (opts?.silent) {
+        // Promo otomatis gagal (mis. kuota habis) — jangan tampilkan kode/error,
+        // biar pembeli tidak bingung dengan kupon yang kelihatan setengah ter-apply.
+        setCouponCode("");
       } else {
         setCouponDiscount(0);
         setCouponError(results.find((r) => !r.valid)?.reason || "Kode kupon tidak valid");
@@ -102,6 +104,30 @@ const Cart = () => {
       setApplyingCoupon(false);
     }
   };
+
+  const handleApplyCoupon = () => {
+    const code = couponCode.trim();
+    if (!code) return;
+    if (!user) {
+      navigate(`/masuk?redirect=${encodeURIComponent("/keranjang")}`);
+      return;
+    }
+    applyCoupon(code);
+  };
+
+  // Promo peluncuran kelas fashion design berlaku otomatis, sama seperti saat
+  // checkout langsung — jangan sampai pembeli lupa mengetik kode kupon-nya
+  // sendiri dan mengira harga masih penuh.
+  useEffect(() => {
+    if (autoAppliedRef.current) return;
+    if (!user || loading || items.length === 0) return;
+    const eligible = items.some((i) => i.product_type === "course" && i.slug === PROMO_COURSE_SLUG);
+    if (!eligible) return;
+    autoAppliedRef.current = true;
+    setCouponCode(PROMO_COUPON_CODE);
+    applyCoupon(PROMO_COUPON_CODE, { silent: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading, items]);
 
   const handleCheckout = async () => {
     if (!user) {
