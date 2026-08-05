@@ -7,7 +7,7 @@ type AuthContextType = {
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -66,11 +66,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     applySession(s);
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phone: string) => {
     const s = await api.post<Session>("/auth/register", {
       email,
       password,
       full_name: fullName,
+      phone,
     });
     applySession(s);
   };

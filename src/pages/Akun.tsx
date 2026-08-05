@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Camera, Loader2, MailWarning, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,10 @@ import { toast } from "sonner";
 
 const Akun = () => {
   const { user, profile, refresh } = useAuth();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const rawRedirect = params.get("redirect") || "";
+  const redirect = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -44,6 +48,7 @@ const Akun = () => {
       await api.patch<Session>("/account/profile", { full_name: fullName.trim(), phone: phone.trim() || undefined });
       await refresh();
       toast.success("Profil diperbarui");
+      if (redirect && phone.trim()) navigate(redirect);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Gagal memperbarui profil");
     } finally {
@@ -116,6 +121,14 @@ const Akun = () => {
           </Link>
 
           <PageHeader kicker="Akun" title="Pengaturan Akun" />
+
+          {redirect && !profile?.phone && (
+            <div className="border border-amber-500/40 bg-amber-500/10 rounded-lg p-4 mb-8">
+              <p className="text-sm text-foreground">
+                Tambahkan nomor HP dulu untuk melanjutkan pembayaran.
+              </p>
+            </div>
+          )}
 
           {/* Banner verifikasi email */}
           {user && user.email_verified === false && (

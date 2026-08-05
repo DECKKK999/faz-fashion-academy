@@ -31,6 +31,7 @@ const registerSchema = z.object({
   email: z.string().email("Email tidak valid"),
   password: z.string().min(8, "Kata sandi minimal 8 karakter"),
   full_name: z.string().trim().min(1, "Nama wajib diisi").optional(),
+  phone: z.string().trim().min(1, "Nomor HP wajib diisi").max(20, "Nomor HP terlalu panjang"),
 });
 
 const loginSchema = z.object({
@@ -61,7 +62,7 @@ authRouter.post("/register", async (req, res) => {
   if (!parsed.success) {
     return res.status(400).json({ error: parsed.error.errors[0]?.message ?? "Data tidak valid" });
   }
-  const { email, password, full_name } = parsed.data;
+  const { email, password, full_name, phone } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (existing) return res.status(409).json({ error: "Email sudah terdaftar" });
@@ -71,7 +72,7 @@ authRouter.post("/register", async (req, res) => {
     data: {
       email: email.toLowerCase(),
       password_hash,
-      profile: { create: { full_name: full_name ?? "" } },
+      profile: { create: { full_name: full_name ?? "", phone } },
       roles: { create: { role: "student" } },
     },
   });

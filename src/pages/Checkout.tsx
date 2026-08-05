@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Copy, Upload, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Copy, Upload, Clock, CheckCircle2, AlertCircle, Loader2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,11 +20,9 @@ const Checkout = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [info, setInfo] = useState<PaymentInfo | null>(null);
   const [gatewayEnabled, setGatewayEnabled] = useState(false);
-  const [gatewayName, setGatewayName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [charging, setCharging] = useState(false);
-  const [phone, setPhone] = useState("");
 
   const [file, setFile] = useState<File | null>(null);
   const [payerName, setPayerName] = useState("");
@@ -37,13 +35,12 @@ const Checkout = () => {
     Promise.all([
       api.get<Order>(`/orders/${orderId}`),
       api.get<PaymentInfo>("/payment-info"),
-      api.get<{ enabled: boolean; gateway: string | null }>("/payment-gateway/status").catch(() => ({ enabled: false, gateway: null })),
+      api.get<{ enabled: boolean }>("/payment-gateway/status").catch(() => ({ enabled: false })),
     ])
       .then(([o, i, gw]) => {
         setOrder(o);
         setInfo(i);
         setGatewayEnabled(gw.enabled);
-        setGatewayName(gw.gateway);
         setPayerName((prev) => prev || o.payer_name || profile?.full_name || "");
         setPayerBank((prev) => prev || o.payer_bank || "");
         // InitiateCheckout hanya saat order masih berjalan, bukan saat revisit order yang sudah dibayar/ditutup.
@@ -85,17 +82,11 @@ const Checkout = () => {
     return () => clearInterval(interval);
   }, [orderId, gatewayEnabled, order?.status]);
 
-  // Mayar butuh nomor HP — kalau sudah tersimpan di profil, tidak perlu tanya lagi.
-  const needsPhone = gatewayName === "mayar" && !profile?.phone;
-
   const payWithGateway = async () => {
     if (!order) return;
-    if (needsPhone && !phone.trim()) return toast.error("Isi nomor HP dulu");
     setCharging(true);
     try {
-      const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${order.id}/charge`, {
-        ...(needsPhone ? { phone: phone.trim() } : {}),
-      });
+      const charge = await api.post<{ redirect_url: string }>(`/payment-gateway/orders/${order.id}/charge`);
       window.location.href = charge.redirect_url;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal membuat pembayaran");
@@ -171,6 +162,10 @@ const Checkout = () => {
   const st = orderStatus(order.status);
   const showForm = order.status === "pending" || order.status === "rejected";
   const isClosed = order.status === "expired" || order.status === "cancelled";
+  const canInitiatePayment = ["pending", "rejected", "failed"].includes(order.status);
+  // Nomor HP wajib sebelum bisa bayar — akun lama yang dibuat sebelum field ini
+  // ada belum tentu punya, jadi blokir aksi bayar sampai mereka menambahkannya.
+  const needsPhoneGate = !profile?.phone;
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -234,8 +229,20 @@ const Checkout = () => {
             </div>
           )}
 
+          {/* Nomor HP belum diisi — blokir aksi bayar sampai ditambahkan */}
+          {!isClosed && canInitiatePayment && needsPhoneGate && (
+            <div className="border border-amber-500/40 bg-amber-500/10 rounded-lg p-6 mb-6 text-center">
+              <Phone className="mx-auto text-amber-500 mb-2" size={24} />
+              <p className="font-medium text-foreground mb-1">Nomor HP diperlukan</p>
+              <p className="text-sm text-muted-foreground mb-4">Tambahkan nomor HP di akunmu dulu sebelum melanjutkan pembayaran.</p>
+              <Button asChild variant="gradient" className="rounded-full">
+                <Link to={`/akun?redirect=${encodeURIComponent(`/checkout/${order.id}`)}`}>Tambahkan Nomor HP</Link>
+              </Button>
+            </div>
+          )}
+
           {/* Bayar via DOKU */}
-          {!isClosed && gatewayEnabled && ["pending", "rejected", "failed"].includes(order.status) && (
+          {!isClosed && !needsPhoneGate && gatewayEnabled && ["pending", "rejected", "failed"].includes(order.status) && (
             <div className="border border-border rounded-lg p-6 mb-6">
               <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>
               <p className="text-3xl font-serif font-bold text-foreground mb-1">{formatRupiah(order.total_idr)}</p>
@@ -244,19 +251,6 @@ const Checkout = () => {
                   Harga {formatRupiah(order.base_price_idr)} − diskon {order.coupon_code ? `(${order.coupon_code}) ` : ""}{formatRupiah(order.discount_idr)}
                 </p>
               )}
-              {needsPhone && (
-                <div className="space-y-2 mb-4">
-                  <Label>Nomor HP</Label>
-                  <Input
-                    type="tel"
-                    inputMode="tel"
-                    placeholder="08xxxxxxxxxx"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                </div>
-              )}
               <Button onClick={payWithGateway} disabled={charging} variant="gradient" className="w-full rounded-full">
                 {charging ? "Menyiapkan pembayaran..." : "Bayar Sekarang"}
               </Button>
@@ -264,7 +258,7 @@ const Checkout = () => {
           )}
 
           {/* Instruksi pembayaran + total (transfer manual) */}
-          {!isClosed && !gatewayEnabled && order.status !== "paid" && (
+          {!isClosed && !needsPhoneGate && !gatewayEnabled && order.status !== "paid" && (
             <>
               <div className="border border-border rounded-lg p-6 mb-6">
                 <p className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-2">Total Pembayaran</p>

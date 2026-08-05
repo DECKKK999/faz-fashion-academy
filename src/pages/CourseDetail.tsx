@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Clock, Users, Star, ArrowLeft, CheckCircle2, BadgeCheck } from "lucide-react";
+import { Clock, Users, Star, ArrowLeft, CheckCircle2, BadgeCheck, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,7 +17,7 @@ import { toast } from "sonner";
 const CourseDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [state, setState] = useState<PurchaseState>({ enrolled: false, order: null });
   const [loading, setLoading] = useState(true);
@@ -78,6 +78,9 @@ const CourseDetail = () => {
   }
 
   const order = state.order;
+  // Nomor HP wajib sebelum bisa bayar (dulu cuma dibutuhkan Mayar, sekarang jadi
+  // syarat umum) — akun lama yang dibuat sebelum field ini ada belum tentu punya.
+  const needsPhoneToPay = !!user && !profile?.phone;
   const renderCta = () => {
     if (state.enrolled) {
       return (
@@ -87,6 +90,15 @@ const CourseDetail = () => {
           </div>
           <Button asChild variant="gradient" className="w-full rounded-full" size="lg"><Link to={`/belajar/${course.slug}`}>Mulai Belajar</Link></Button>
         </div>
+      );
+    }
+    if (needsPhoneToPay) {
+      return (
+        <Button asChild variant="gradient" className="w-full rounded-full gap-2" size="lg">
+          <Link to={`/akun?redirect=${encodeURIComponent(`/kelas/${course.slug}`)}`}>
+            <Phone size={16} /> Tambahkan Nomor HP untuk Membayar
+          </Link>
+        </Button>
       );
     }
     if (order && (order.status === "pending" || order.status === "awaiting_verification")) {
@@ -112,6 +124,32 @@ const CourseDetail = () => {
     );
   };
 
+  const purchaseCardBody = (
+    <>
+      {onPromo && course.price_idr > 0 ? (
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm text-muted-foreground line-through">{formatRupiah(course.price_idr)}</span>
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">PROMO</span>
+        </div>
+      ) : null}
+      <p className="text-3xl font-serif font-bold text-foreground mb-1">
+        {course.price_idr > 0 ? formatRupiah(onPromo ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
+      </p>
+      <p className="text-xs text-muted-foreground mb-6">
+        {onPromo ? "Harga khusus 100 siswa pertama. " : ""}Akses selamanya setelah pembayaran terverifikasi.
+      </p>
+      {renderCta()}
+      <div className="mt-3">
+        <WishlistButton product_type="course" product_id={course.id} variant="full" className="w-full px-4 py-2" />
+      </div>
+      <ul className="mt-6 space-y-2 text-xs text-muted-foreground">
+        <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Akses materi penuh</li>
+        <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Sertifikat penyelesaian</li>
+        <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Pembayaran transfer bank</li>
+      </ul>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-background relative">
       <GrainOverlay />
@@ -124,8 +162,8 @@ const CourseDetail = () => {
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main */}
-            <div className="lg:col-span-2 order-2 lg:order-none">
+            {/* Header: poster, judul, stats — selalu di atas, termasuk di mobile */}
+            <div className="lg:col-span-2">
               <div className="overflow-hidden rounded-lg bg-muted mb-6">
                 <img src={course.cover_image_url ?? ""} alt={course.title} className="w-full h-auto" />
               </div>
@@ -140,12 +178,25 @@ const CourseDetail = () => {
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">{course.title}</h1>
               {course.subtitle && <p className="text-muted-foreground mb-4">{course.subtitle}</p>}
 
-              <div className="flex items-center gap-5 text-xs text-muted-foreground mb-8">
+              <div className="flex items-center gap-5 text-xs text-muted-foreground">
                 {course.duration_minutes ? <span className="flex items-center gap-1"><Clock size={14} /> {formatDuration(course.duration_minutes)}</span> : null}
                 <span className="flex items-center gap-1"><Users size={14} /> {formatCount(course.students_count)} siswa</span>
                 {course.rating ? <span className="flex items-center gap-1"><Star size={14} className="text-gold" /> {course.rating}</span> : null}
               </div>
+            </div>
 
+            {/* Purchase card (mobile) — muncul di sini, setelah stats, hanya di layar kecil */}
+            <div className="lg:hidden">
+              <div className="glass-panel rounded-2xl p-6 shadow-lg">{purchaseCardBody}</div>
+            </div>
+
+            {/* Purchase card (desktop) — sticky sidebar kanan, tinggi mengikuti header+body */}
+            <div className="hidden lg:block lg:col-span-1 lg:row-span-2">
+              <div className="glass-panel rounded-2xl p-6 sticky top-24 shadow-lg">{purchaseCardBody}</div>
+            </div>
+
+            {/* Body: deskripsi, instruktur, ulasan */}
+            <div className="lg:col-span-2">
               {course.description && (() => {
                 const paragraphs = course.description.split(/\n\s*\n/);
                 const hasMore = paragraphs.length > 1;
@@ -182,33 +233,6 @@ const CourseDetail = () => {
 
               <div className="mt-10 border-t border-border pt-8">
                 <CourseReviews courseId={course.id} canReview={state.enrolled} />
-              </div>
-            </div>
-
-            {/* Purchase card */}
-            <div className="lg:col-span-1 order-1 lg:order-none">
-              <div className="glass-panel rounded-2xl p-6 sticky top-24 shadow-lg">
-                {onPromo && course.price_idr > 0 ? (
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm text-muted-foreground line-through">{formatRupiah(course.price_idr)}</span>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">PROMO</span>
-                  </div>
-                ) : null}
-                <p className="text-3xl font-serif font-bold text-foreground mb-1">
-                  {course.price_idr > 0 ? formatRupiah(onPromo ? PROMO_PRICE_IDR : course.price_idr) : "Gratis"}
-                </p>
-                <p className="text-xs text-muted-foreground mb-6">
-                  {onPromo ? "Harga khusus 100 siswa pertama. " : ""}Akses selamanya setelah pembayaran terverifikasi.
-                </p>
-                {renderCta()}
-                <div className="mt-3">
-                  <WishlistButton product_type="course" product_id={course.id} variant="full" className="w-full px-4 py-2" />
-                </div>
-                <ul className="mt-6 space-y-2 text-xs text-muted-foreground">
-                  <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Akses materi penuh</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Sertifikat penyelesaian</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-accent" /> Pembayaran transfer bank</li>
-                </ul>
               </div>
             </div>
           </div>

@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const Daftar = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", phone: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -26,7 +26,7 @@ const Daftar = () => {
     }
     setLoading(true);
     try {
-      await signUp(formData.email, formData.password, formData.name);
+      await signUp(formData.email, formData.password, formData.name, formData.phone);
       toast.success("Akun berhasil dibuat!");
       navigate(redirect);
     } catch (err) {
@@ -57,6 +57,18 @@ const Daftar = () => {
             placeholder="nama@email.com"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="phone">Nomor HP</Label>
+          <Input
+            id="phone"
+            type="tel"
+            inputMode="tel"
+            placeholder="08xxxxxxxxxx"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             required
           />
         </div>
