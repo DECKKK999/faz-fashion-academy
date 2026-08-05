@@ -125,7 +125,7 @@ const CourseDetail = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 order-2 lg:order-none">
               <div className="overflow-hidden rounded-lg bg-muted mb-6">
                 <img src={course.cover_image_url ?? ""} alt={course.title} className="w-full h-auto" />
               </div>
@@ -186,7 +186,7 @@ const CourseDetail = () => {
             </div>
 
             {/* Purchase card */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 order-1 lg:order-none">
               <div className="glass-panel rounded-2xl p-6 sticky top-24 shadow-lg">
                 {onPromo && course.price_idr > 0 ? (
                   <div className="flex items-center gap-2 mb-1">
