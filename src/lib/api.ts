@@ -77,6 +77,7 @@ export type Profile = {
   user_id: string;
   full_name: string | null;
   avatar_url: string | null;
+  phone: string | null;
 } | null;
 
 export type Session = {

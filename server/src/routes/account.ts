@@ -14,7 +14,7 @@ async function buildSession(userId: string) {
       id: true,
       email: true,
       email_verified: true,
-      profile: { select: { id: true, user_id: true, full_name: true, avatar_url: true } },
+      profile: { select: { id: true, user_id: true, full_name: true, avatar_url: true, phone: true } },
       roles: { select: { role: true } },
     },
   });
@@ -25,18 +25,22 @@ async function buildSession(userId: string) {
   };
 }
 
-// PATCH /api/account/profile { full_name } — perbarui nama lengkap
+// PATCH /api/account/profile { full_name, phone? } — perbarui nama lengkap / nomor HP
 accountRouter.patch("/profile", requireAuth, async (req, res) => {
   const parsed = z
-    .object({ full_name: z.string().trim().min(1, "Nama wajib diisi").max(120, "Nama terlalu panjang") })
+    .object({
+      full_name: z.string().trim().min(1, "Nama wajib diisi").max(120, "Nama terlalu panjang"),
+      phone: z.string().trim().max(20, "Nomor HP terlalu panjang").optional(),
+    })
     .safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0]?.message ?? "Data tidak valid" });
 
   const userId = req.user!.id;
+  const phone = parsed.data.phone || undefined;
   await prisma.profile.upsert({
     where: { user_id: userId },
-    create: { user_id: userId, full_name: parsed.data.full_name },
-    update: { full_name: parsed.data.full_name },
+    create: { user_id: userId, full_name: parsed.data.full_name, phone },
+    update: { full_name: parsed.data.full_name, ...(phone ? { phone } : {}) },
   });
 
   return res.json(await buildSession(userId));

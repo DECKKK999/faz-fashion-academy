@@ -85,7 +85,8 @@ const Checkout = () => {
     return () => clearInterval(interval);
   }, [orderId, gatewayEnabled, order?.status]);
 
-  const needsPhone = gatewayName === "mayar";
+  // Mayar butuh nomor HP — kalau sudah tersimpan di profil, tidak perlu tanya lagi.
+  const needsPhone = gatewayName === "mayar" && !profile?.phone;
 
   const payWithGateway = async () => {
     if (!order) return;

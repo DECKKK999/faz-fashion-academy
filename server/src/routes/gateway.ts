@@ -38,9 +38,12 @@ function itemTitle(order: { course?: { title: string } | null; ebook?: { title: 
   return order.course?.title ?? order.ebook?.title ?? order.event?.title ?? "Pesanan";
 }
 
-async function displayName(userId: string, email: string) {
-  const p = await prisma.profile.findUnique({ where: { user_id: userId }, select: { full_name: true } });
-  return p?.full_name || email.split("@")[0];
+async function loadProfile(userId: string) {
+  return prisma.profile.findUnique({ where: { user_id: userId }, select: { full_name: true, phone: true } });
+}
+
+function displayNameFrom(profile: { full_name: string | null } | null, email: string) {
+  return profile?.full_name || email.split("@")[0];
 }
 
 const adminOrderInclude = {
@@ -83,13 +86,25 @@ gatewayRouter.post("/orders/:id/charge", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "Batas waktu pembayaran sudah lewat" });
   }
 
-  const name = await displayName(order.user_id, req.user!.email);
+  const profile = await loadProfile(order.user_id);
+  const name = displayNameFrom(profile, req.user!.email);
+  const phone = parsed.data.phone || profile?.phone || undefined;
 
   let charge;
   try {
-    charge = await gateway.createCharge(order, { name, email: req.user!.email, phone: parsed.data.phone });
+    charge = await gateway.createCharge(order, { name, email: req.user!.email, phone });
   } catch (e: any) {
     return res.status(503).json({ error: e?.message || "Gateway pembayaran tidak tersedia" });
+  }
+
+  // Nomor HP baru yang diketik pembeli disimpan ke profil supaya tidak
+  // ditanya lagi di order-order berikutnya.
+  if (parsed.data.phone && parsed.data.phone !== profile?.phone) {
+    await prisma.profile.upsert({
+      where: { user_id: order.user_id },
+      create: { user_id: order.user_id, full_name: "", phone: parsed.data.phone },
+      update: { phone: parsed.data.phone },
+    });
   }
 
   const updated = await prisma.order.update({

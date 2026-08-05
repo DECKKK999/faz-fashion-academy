@@ -73,6 +73,7 @@ model Profile {
   user_id    String   @unique @db.Uuid
   full_name  String?
   avatar_url String?
+  phone      String?
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
 

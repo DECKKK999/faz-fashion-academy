@@ -16,6 +16,7 @@ const Akun = () => {
   const { user, profile, refresh } = useAuth();
 
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -30,7 +31,8 @@ const Akun = () => {
 
   useEffect(() => {
     setFullName(profile?.full_name ?? "");
-  }, [profile?.full_name]);
+    setPhone(profile?.phone ?? "");
+  }, [profile?.full_name, profile?.phone]);
 
   const initials = (profile?.full_name || user?.email || "?").trim().charAt(0).toUpperCase();
 
@@ -39,7 +41,7 @@ const Akun = () => {
     if (!fullName.trim()) return toast.error("Nama wajib diisi");
     setSavingProfile(true);
     try {
-      await api.patch<Session>("/account/profile", { full_name: fullName.trim() });
+      await api.patch<Session>("/account/profile", { full_name: fullName.trim(), phone: phone.trim() || undefined });
       await refresh();
       toast.success("Profil diperbarui");
     } catch (err) {
@@ -204,6 +206,18 @@ const Akun = () => {
                   placeholder="Nama lengkapmu"
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Nomor HP</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="08xxxxxxxxxx"
+                />
+                <p className="text-xs text-muted-foreground">Dipakai untuk pembayaran via gateway (mis. Mayar).</p>
               </div>
               <Button type="submit" disabled={savingProfile} variant="gradient" className="rounded-full gap-2">
                 {savingProfile && <Loader2 size={15} className="animate-spin" />}
