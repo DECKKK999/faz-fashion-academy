@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, BookMarked, Video, Award, Receipt, User, LogOut, ArrowRight, Download, Ticket, Calendar } from "lucide-react";
+import { BookOpen, BookMarked, Video, Award, Receipt, User, LogOut, ArrowLeft, ArrowRight, Download, Ticket, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GrainOverlay from "@/components/landing/GrainOverlay";
+import fazWordmark from "@/assets/faz-wordmark.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, type Enrollment, type Library } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
@@ -39,15 +40,20 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background relative">
       <GrainOverlay />
       <div className="glass-panel border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 flex items-center justify-between h-14">
-          <Link to="/" className="text-xs tracking-wide-editorial uppercase font-light text-foreground">FAZ Academy</Link>
-          <div className="flex items-center gap-4">
-            <Link to="/pesanan" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
-              <Receipt size={15} /> <span className="hidden sm:inline">Pesanan</span>
+        <div className="container mx-auto px-4 grid grid-cols-3 items-center h-14">
+          <Link to="/" className="justify-self-start flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft size={15} /> <span className="hidden sm:inline">Back To Home</span>
+          </Link>
+          <Link to="/" className="justify-self-center flex items-center" aria-label="FAZ Academy — Beranda">
+            <img src={fazWordmark} alt="FAZ Academy" className="h-6 w-auto wordmark-adaptive" />
+          </Link>
+          <div className="justify-self-end flex items-center gap-4">
+            <Link to="/pesanan" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+              <Receipt size={17} /> <span className="hidden sm:inline">Pesanan</span>
             </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"><User size={14} className="text-foreground" /></div>
-              <span className="text-xs text-muted-foreground hidden sm:block">{displayName}</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center"><User size={16} className="text-foreground" /></div>
+              <span className="text-sm text-muted-foreground hidden sm:block">{displayName}</span>
             </div>
             <button onClick={handleSignOut} className="text-muted-foreground hover:text-foreground transition-colors"><LogOut size={18} /></button>
           </div>
