@@ -49,6 +49,8 @@ export async function pullCertificateCodesFromSheet(): Promise<{ synced: number 
         course_title: row.courseTitle,
         instructor_name: row.instructorName,
         recipient_name: row.recipientName,
+        recipient_phone: row.recipientPhone,
+        recipient_email: row.recipientEmail,
         issued_at: parseSheetDate(row.issuedAtRaw),
         sheet_synced_at: new Date(),
       },
@@ -59,7 +61,14 @@ export async function pullCertificateCodesFromSheet(): Promise<{ synced: number 
         // null berarti "milik kita, sheet belum tahu"), biar nggak bentrok.
         course_title: row.courseTitle,
         instructor_name: row.instructorName,
-        ...(row.recipientName ? { recipient_name: row.recipientName, issued_at: parseSheetDate(row.issuedAtRaw) } : {}),
+        ...(row.recipientName
+          ? {
+              recipient_name: row.recipientName,
+              recipient_phone: row.recipientPhone,
+              recipient_email: row.recipientEmail,
+              issued_at: parseSheetDate(row.issuedAtRaw),
+            }
+          : {}),
         sheet_synced_at: new Date(),
       },
     });
@@ -92,6 +101,8 @@ export async function pushPendingCertificateCodesToSheet(): Promise<{ pushed: nu
         courseTitle: row.course_title,
         instructorName: row.instructor_name,
         issuedAtLabel: formatIssuedAtLabel(row.issued_at ?? new Date()),
+        recipientPhone: row.recipient_phone,
+        recipientEmail: row.recipient_email,
       });
       await prisma.certificateCode.update({ where: { id: row.id }, data: { sheet_synced_at: new Date() } });
       pushed++;

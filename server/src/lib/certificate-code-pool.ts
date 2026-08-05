@@ -28,7 +28,13 @@ type TxClient = Prisma.TransactionClient;
  */
 export async function claimCertificateCode(
   tx: TxClient,
-  data: { recipientName: string; courseTitle: string; instructorName: string | null },
+  data: {
+    recipientName: string;
+    courseTitle: string;
+    instructorName: string | null;
+    recipientEmail: string | null;
+    recipientPhone: string | null;
+  },
 ): Promise<{ code: string; isNewCode: boolean }> {
   const locked = await tx.$queryRaw<{ id: string; code: string }[]>`
     SELECT id, code FROM certificate_codes
@@ -42,7 +48,13 @@ export async function claimCertificateCode(
     const { id, code } = locked[0];
     await tx.certificateCode.update({
       where: { id },
-      data: { recipient_name: data.recipientName, issued_at: new Date(), sheet_synced_at: null },
+      data: {
+        recipient_name: data.recipientName,
+        recipient_email: data.recipientEmail,
+        recipient_phone: data.recipientPhone,
+        issued_at: new Date(),
+        sheet_synced_at: null,
+      },
     });
     return { code, isNewCode: false };
   }
@@ -61,6 +73,8 @@ export async function claimCertificateCode(
       course_title: data.courseTitle,
       instructor_name: data.instructorName,
       recipient_name: data.recipientName,
+      recipient_email: data.recipientEmail,
+      recipient_phone: data.recipientPhone,
       issued_at: new Date(),
       sheet_synced_at: null,
     },

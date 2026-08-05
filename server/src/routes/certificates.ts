@@ -156,6 +156,7 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
   }
 
   const name = await recipientName(userId, req.user!.email);
+  const profile = await prisma.profile.findUnique({ where: { user_id: userId }, select: { phone: true } });
 
   const certificate = await prisma.$transaction(async (tx) => {
     // Tandai enrollment selesai jika belum.
@@ -178,6 +179,8 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
       recipientName: name,
       courseTitle: course.title,
       instructorName: course.instructor_name ?? null,
+      recipientEmail: req.user!.email,
+      recipientPhone: profile?.phone ?? null,
     });
 
     return tx.certificate.create({

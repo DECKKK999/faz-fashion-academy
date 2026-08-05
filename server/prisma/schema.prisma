@@ -367,6 +367,8 @@ model CertificateCode {
   course_title    String
   instructor_name String?
   recipient_name  String?
+  recipient_email String?
+  recipient_phone String?
   issued_at       DateTime?
   revoked         Boolean   @default(false)
   revoked_at      DateTime?
