@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload, ClipboardCheck, Copy } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -380,6 +380,19 @@ const AdminCourseEdit = () => {
                         }}
                       />
                       <Label className="text-[10px] tracking-editorial uppercase text-muted-foreground">Free preview</Label>
+                      {l.is_free_preview && course && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const url = `${window.location.origin}/preview/${course.slug}/${l.id}`;
+                            navigator.clipboard.writeText(url);
+                            toast({ title: "Link halaman preview disalin", description: url });
+                          }}
+                          className="ml-auto flex items-center gap-1 text-[10px] text-primary hover:underline"
+                        >
+                          <Copy size={11} /> Salin link halaman preview
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

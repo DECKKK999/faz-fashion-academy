@@ -326,6 +326,22 @@ const QuizCard = ({ quiz, courseSlug }: { quiz: PlayerQuizSummary; courseSlug: s
 // Render area video/konten untuk lesson aktif, termasuk state terkunci.
 const LessonContent = ({ lesson, courseSlug }: { lesson: FlatLesson; courseSlug: string }) => {
   if (lesson.locked) {
+    // Lesson free preview yang terkunci berarti pengunjung belum login —
+    // arahkan ke halaman preview yang punya form daftar inline.
+    if (lesson.is_free_preview) {
+      return (
+        <div className="aspect-video w-full rounded-lg border border-border bg-muted/40 flex flex-col items-center justify-center text-center px-6">
+          <Lock className="text-muted-foreground mb-3" size={28} />
+          <p className="font-medium text-foreground mb-1">Video gratis — cukup daftar akun</p>
+          <p className="text-sm text-muted-foreground mb-5 max-w-sm">
+            Pelajaran ini bisa ditonton gratis. Buat akun FAZ Academy (gratis) untuk membukanya.
+          </p>
+          <Button asChild>
+            <Link to={`/preview/${courseSlug}/${lesson.id}`}>Tonton Gratis</Link>
+          </Button>
+        </div>
+      );
+    }
     return (
       <div className="aspect-video w-full rounded-lg border border-border bg-muted/40 flex flex-col items-center justify-center text-center px-6">
         <Lock className="text-muted-foreground mb-3" size={28} />

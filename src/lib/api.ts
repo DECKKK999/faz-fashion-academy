@@ -239,6 +239,25 @@ export type PlayerQuizSummary = {
   passed: boolean;
   best_score: number | null;
 };
+// Halaman upsell free preview (/preview/:slug/:lessonId)
+export type LessonPreview = {
+  lesson: { id: string; title: string; duration_minutes: number | null; locked: boolean; video_url: string | null; content: string | null };
+  course: {
+    id: string;
+    slug: string;
+    title: string;
+    subtitle: string | null;
+    description: string | null;
+    cover_image_url: string | null;
+    instructor_name: string | null;
+    price_idr: number;
+    duration_minutes: number | null;
+    rating: number | null;
+    students_count: number;
+  };
+  other_previews: { id: string; title: string; duration_minutes: number | null }[];
+  access: { authenticated: boolean; enrolled: boolean };
+};
 export type LessonProgressResult = { lesson_id: string; completed: boolean; completed_at: string | null; progress_pct: number; completed_count: number; total_lessons: number; course_completed: boolean };
 export type CourseProgress = { completed_count: number; total_lessons: number; progress_pct: number; completed_at: string | null };
 

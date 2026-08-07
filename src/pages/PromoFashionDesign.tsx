@@ -24,6 +24,7 @@ import GrainOverlay from "@/components/landing/GrainOverlay";
 import Kicker from "@/components/landing/Kicker";
 import StarRatingInput from "@/components/course/StarRatingInput";
 import { PROMO_COURSE_SLUG as SLUG, PROMO_PRICE_IDR as PROMO_PRICE } from "@/lib/promo";
+import { toast } from "sonner";
 import promoLennyCard from "@/assets/promo-lenny-card.jpg";
 import sertifikatContoh from "@/assets/sertifikat-contoh.jpg";
 import lennyAvatar from "@/assets/lenny-avatar.jpg";
@@ -117,7 +118,9 @@ const PromoFashionDesign = () => {
   const [marqueeReviews, setMarqueeReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null);
+  // Video hanya dikirim server untuk user login; untuk anonim kita simpan id
+  // lesson-nya supaya bisa mengarahkan ke halaman /preview (daftar dulu).
+  const [introLesson, setIntroLesson] = useState<{ id: string; video_url: string | null } | null>(null);
 
   useEffect(() => {
     api
@@ -144,8 +147,8 @@ const PromoFashionDesign = () => {
         }
         try {
           const player = await api.get<PlayerCourse>(`/player/courses/by-slug/${SLUG}`);
-          const introLesson = player.modules.flatMap((m) => m.lessons).find((l) => l.is_free_preview && l.video_url);
-          if (introLesson?.video_url) setIntroVideoUrl(introLesson.video_url);
+          const intro = player.modules.flatMap((m) => m.lessons).find((l) => l.is_free_preview);
+          if (intro) setIntroLesson({ id: intro.id, video_url: intro.video_url });
         } catch {
           /* ignore */
         }
@@ -366,19 +369,32 @@ const PromoFashionDesign = () => {
         </section>
       )}
 
-      {/* Cuplikan Kelas — teaser video intro, section sendiri di bawah Tentang Kelas */}
-      {introVideoUrl && toYoutubeEmbedUrl(introVideoUrl) && (
+      {/* Cuplikan Kelas — teaser video intro, section sendiri di bawah Tentang Kelas.
+          Video hanya terbuka untuk user login; anonim diarahkan ke halaman preview (daftar gratis). */}
+      {introLesson && (
         <section className="max-w-3xl mx-auto px-6 md:px-12 py-16">
           <h2 className="font-serif text-3xl md:text-4xl font-semibold text-foreground mb-6 text-center">Cuplikan Kelas</h2>
-          <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-sm bg-black">
-            <iframe
-              src={toYoutubeEmbedUrl(introVideoUrl) ?? undefined}
-              title="Cuplikan kelas Memulai Bisnis Pakaian"
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          {introLesson.video_url && toYoutubeEmbedUrl(introLesson.video_url) ? (
+            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-sm bg-black">
+              <iframe
+                src={toYoutubeEmbedUrl(introLesson.video_url) ?? undefined}
+                title="Cuplikan kelas Memulai Bisnis Pakaian"
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="aspect-video w-full rounded-2xl border border-border bg-muted/40 flex flex-col items-center justify-center text-center px-6">
+              <p className="font-medium text-foreground mb-1">Tonton cuplikan kelas ini gratis</p>
+              <p className="text-sm text-muted-foreground mb-5 max-w-sm">
+                Cukup buat akun FAZ Academy (gratis) untuk membuka video cuplikannya.
+              </p>
+              <Button asChild variant="gradient" className="rounded-full px-8">
+                <Link to={`/preview/${SLUG}/${introLesson.id}`}>Tonton Gratis</Link>
+              </Button>
+            </div>
+          )}
         </section>
       )}
 

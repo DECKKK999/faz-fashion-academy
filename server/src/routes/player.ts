@@ -57,7 +57,9 @@ async function buildPayload(course: NonNullable<CourseRecord>, userId: string | 
     title: m.title,
     position: m.position,
     lessons: m.lessons.map((l) => {
-      const accessible = fullAccess || l.is_free_preview;
+      // Free preview hanya untuk user yang login — pengunjung anonim diminta
+      // membuat akun dulu (mekanisme upsell lewat halaman /preview).
+      const accessible = fullAccess || (l.is_free_preview && !!userId);
       const locked = !accessible;
       return {
         id: l.id,
@@ -216,6 +218,65 @@ playerRouter.get("/courses/by-slug/:slug", optionalAuth, async (req, res) => {
   }
   const payload = await buildPayload(course, req.user?.id ?? null, canManage);
   res.json(payload);
+});
+
+// GET /api/player/preview/:lessonId — halaman upsell free preview.
+// Metadata lesson + course selalu dikirim; video/konten hanya untuk user login.
+playerRouter.get("/preview/:lessonId", optionalAuth, async (req, res) => {
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: req.params.lessonId },
+    include: { module: { include: { course: true } } },
+  });
+  const canManage = isManager(req);
+  const course = lesson?.module.course;
+  if (!lesson || !course || !lesson.is_free_preview || (!course.is_published && !canManage)) {
+    return res.status(404).json({ error: "Pelajaran preview tidak ditemukan" });
+  }
+
+  const userId = req.user?.id ?? null;
+  const unlocked = !!userId;
+
+  let enrolled = false;
+  if (userId) {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { user_id_course_id: { user_id: userId, course_id: course.id } },
+      select: { id: true },
+    });
+    enrolled = !!enrollment;
+  }
+
+  // Lesson preview lain di kelas yang sama, untuk navigasi antar-preview.
+  const otherPreviews = await prisma.lesson.findMany({
+    where: { module: { course_id: course.id }, is_free_preview: true, NOT: { id: lesson.id } },
+    orderBy: [{ position: "asc" }, { created_at: "asc" }],
+    select: { id: true, title: true, duration_minutes: true },
+  });
+
+  res.json({
+    lesson: {
+      id: lesson.id,
+      title: lesson.title,
+      duration_minutes: lesson.duration_minutes,
+      locked: !unlocked,
+      video_url: unlocked ? lesson.video_url : null,
+      content: unlocked ? lesson.content : null,
+    },
+    course: {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      subtitle: course.subtitle,
+      description: course.description,
+      cover_image_url: course.cover_image_url,
+      instructor_name: course.instructor_name,
+      price_idr: course.price_idr,
+      duration_minutes: course.duration_minutes,
+      rating: course.rating,
+      students_count: course.students_count,
+    },
+    other_previews: otherPreviews,
+    access: { authenticated: !!userId, enrolled },
+  });
 });
 
 // GET /api/player/courses/:courseId/progress
