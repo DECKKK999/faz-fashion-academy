@@ -89,7 +89,8 @@ const checkCanSubmit = wrap(async (req, res, next) => {
     where: { id: req.params.assignmentId },
     include: { course: { select: { id: true, is_published: true } } },
   });
-  if (!assignment || !assignment.is_published || !assignment.course.is_published) {
+  // Kelas draft hanya bisa dicoba pengelola (untuk menguji alur sebelum dipublikasikan).
+  if (!assignment || !assignment.is_published || (!assignment.course.is_published && !isManager(req))) {
     return res.status(404).json({ error: "Tugas tidak ditemukan" });
   }
 
