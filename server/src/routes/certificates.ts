@@ -6,6 +6,7 @@ import { generateCertificatePdf, generateCertificatePdfBuffer } from "../lib/cer
 import { claimCertificateCode } from "../lib/certificate-code-pool.js";
 import { pushPendingCertificateCodesToSheet } from "../lib/certificate-sheet-sync.js";
 import { quizGate } from "./quiz.js";
+import { assignmentGate } from "../lib/assignment.js";
 import { sendMailSafe, templates } from "../mailer/index.js";
 
 export const certificatesRouter = Router();
@@ -90,6 +91,13 @@ certificatesRouter.get("/", requireAuth, async (req, res) => {
     total: number;
     quiz: { id: string; passing_score: number; best_score: number | null; attempts_count: number };
   }[] = [];
+  // Materi sudah 100% tapi Tugas Akhir belum dikumpulkan.
+  const assignment_pending: {
+    course: EnrolledCourse;
+    completed: number;
+    total: number;
+    assignment: { id: string; title: string };
+  }[] = [];
 
   for (const e of enrollments) {
     if (issuedCourseIds.has(e.course_id)) continue;
@@ -97,6 +105,7 @@ certificatesRouter.get("/", requireAuth, async (req, res) => {
     if (!(total > 0 && completed >= total)) continue;
 
     const gate = await quizGate(req.user!.id, e.course_id);
+    const asg = await assignmentGate(req.user!.id, e.course_id);
     if (gate.required && !gate.passed) {
       quiz_pending.push({
         course: e.course,
@@ -109,12 +118,19 @@ certificatesRouter.get("/", requireAuth, async (req, res) => {
           attempts_count: gate.attempts_count,
         },
       });
+    } else if (asg.required && !asg.passed) {
+      assignment_pending.push({
+        course: e.course,
+        completed,
+        total,
+        assignment: { id: asg.assignment_id!, title: asg.title ?? "Tugas Akhir" },
+      });
     } else {
       eligible.push({ course: e.course, completed, total, quiz_score: gate.best_score });
     }
   }
 
-  res.json({ certificates, eligible, quiz_pending });
+  res.json({ certificates, eligible, quiz_pending, assignment_pending });
 });
 
 // POST /api/certificates/issue { course_id }
@@ -152,6 +168,15 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
       passing_score: gate.passing_score,
       best_score: gate.best_score,
       quiz_id: gate.quiz_id,
+    });
+  }
+
+  // Kelas dengan Tugas Akhir wajib mengumpulkannya dulu sebelum sertifikat terbit.
+  const asg = await assignmentGate(userId, course_id);
+  if (asg.required && !asg.passed) {
+    return res.status(409).json({
+      error: `Kumpulkan ${asg.title ?? "Tugas Akhir"} kelas ini terlebih dahulu`,
+      assignment_id: asg.assignment_id,
     });
   }
 

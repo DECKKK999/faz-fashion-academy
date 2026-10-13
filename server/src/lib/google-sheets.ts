@@ -96,6 +96,13 @@ export async function upsertCertificateRowInSheet(row: {
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [[row.recipientName]] },
     });
+    // Kode dari pool awal bisa dipakai kelas lain — tulis juga nama kelas & mentornya.
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: env.CERTIFICATE_SHEET_ID,
+      range: tabRange(`${COL.courseTitle}${match.rowNumber}:${COL.instructor}${match.rowNumber}`),
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [[row.courseTitle, row.instructorName ?? ""]] },
+    });
     await sheets.spreadsheets.values.update({
       spreadsheetId: env.CERTIFICATE_SHEET_ID,
       range: tabRange(`${COL.issuedAt}${match.rowNumber}:${COL.issuedAt}${match.rowNumber}`),

@@ -64,6 +64,7 @@ model User {
   cart               Cart?
   wishlist_items     Wishlist[]
   quiz_attempts      QuizAttempt[]
+  assignment_submissions AssignmentSubmission[]
 
   @@map("users")
 }
@@ -122,6 +123,7 @@ model Course {
   certificates Certificate[]
   coupons      Coupon[]
   quiz         Quiz?
+  assignment   Assignment?
 
   @@map("courses")
 }
@@ -472,6 +474,48 @@ model QuizAttemptAnswer {
 
   @@unique([attempt_id, question_id])
   @@map("quiz_attempt_answers")
+}
+
+// ---------------------------------------------------------------------------
+// Tugas Akhir — alternatif Final Quiz untuk kelas berbasis karya: peserta
+// mengunggah hasil kerjanya setelah semua pelajaran selesai, dan sertifikat
+// terbuka begitu tugas dikumpulkan. Satu tugas per kelas, satu pengumpulan per
+// peserta (kirim ulang = menimpa yang lama). File disimpan di direktori privat.
+// ---------------------------------------------------------------------------
+
+model Assignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  course_id    String   @unique @db.Uuid
+  title        String   @default("Tugas Akhir")
+  description  String? // instruksi tugas untuk peserta
+  is_published Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+
+  course      Course                 @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+
+  @@map("assignments")
+}
+
+model AssignmentSubmission {
+  id            String   @id @default(uuid()) @db.Uuid
+  assignment_id String   @db.Uuid
+  user_id       String   @db.Uuid
+  file_name     String // nama asli file, untuk ditampilkan/diunduh
+  file_path     String // nama file di direktori privat (protected/)
+  file_size     Int
+  mime_type     String
+  note          String?
+  submitted_at  DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  assignment Assignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([assignment_id, user_id])
+  @@index([assignment_id])
+  @@map("assignment_submissions")
 }
 
 model Coupon {

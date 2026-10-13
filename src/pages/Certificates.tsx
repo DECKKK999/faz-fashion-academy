@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, Download, Copy, CheckCircle2, ShieldX, ExternalLink, GraduationCap, ClipboardCheck } from "lucide-react";
+import { Award, Download, Copy, CheckCircle2, ShieldX, ExternalLink, GraduationCap, ClipboardCheck, FileUp } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,6 +17,12 @@ type QuizPendingCourse = {
   total: number;
   quiz: { id: string; passing_score: number; best_score: number | null; attempts_count: number };
 };
+type AssignmentPendingCourse = {
+  course: OrderCourse;
+  completed: number;
+  total: number;
+  assignment: { id: string; title: string };
+};
 type CertificatesResponse = {
   certificates: Certificate[];
   eligible: EligibleCourse[];
@@ -30,6 +36,7 @@ const Certificates = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [eligible, setEligible] = useState<EligibleCourse[]>([]);
   const [quizPending, setQuizPending] = useState<QuizPendingCourse[]>([]);
+  const [assignmentPending, setAssignmentPending] = useState<AssignmentPendingCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -40,6 +47,7 @@ const Certificates = () => {
       setCertificates(data.certificates);
       setEligible(data.eligible);
       setQuizPending(data.quiz_pending ?? []);
+      setAssignmentPending(data.assignment_pending ?? []);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : "Gagal memuat sertifikat");
     } finally {
@@ -195,6 +203,46 @@ const Certificates = () => {
                           <Link to={`/belajar/${p.course.slug}/quiz`}>
                             <ClipboardCheck size={14} />
                             {p.quiz.attempts_count > 0 ? "Ulangi Kuis" : "Kerjakan Kuis"}
+                          </Link>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Materi selesai tapi Tugas Akhir belum dikumpulkan */}
+              {assignmentPending.length > 0 && (
+                <section className="mb-16">
+                  <h2 className="text-[11px] tracking-editorial uppercase text-muted-foreground mb-4">
+                    Menunggu Tugas Akhir
+                  </h2>
+                  <div className="space-y-3">
+                    {assignmentPending.map((p) => (
+                      <div
+                        key={p.course.id}
+                        className="flex items-center justify-between gap-4 bg-card border border-border rounded-xl p-5 hover:border-foreground/20 transition-colors"
+                      >
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center border border-border shrink-0">
+                            <FileUp size={18} className="text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-[12px] tracking-editorial uppercase text-foreground truncate">
+                              {p.course.title}
+                            </h3>
+                            <p
+                              className="text-[12px] text-muted-foreground"
+                              style={{ letterSpacing: "normal", textTransform: "none" }}
+                            >
+                              Materi selesai — kumpulkan {p.assignment.title} untuk membuka sertifikat
+                            </p>
+                          </div>
+                        </div>
+                        <Button asChild variant="outline" className="rounded-full gap-2 shrink-0">
+                          <Link to={`/belajar/${p.course.slug}/tugas`}>
+                            <FileUp size={14} />
+                            Kumpulkan Tugas
                           </Link>
                         </Button>
                       </div>

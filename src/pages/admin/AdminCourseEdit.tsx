@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload, ClipboardCheck, Copy } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, ImageIcon, Upload, ClipboardCheck, Copy, FileUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,6 +178,11 @@ const AdminCourseEdit = () => {
           <Button asChild variant="outline" className="rounded-none gap-2">
             <Link to={`/admin/courses/${course.id}/quiz`}>
               <ClipboardCheck size={14} /> Final Quiz
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-none gap-2">
+            <Link to={`/admin/courses/${course.id}/assignment`}>
+              <FileUp size={14} /> Tugas Akhir
             </Link>
           </Button>
           <Button onClick={saveCourse} disabled={saving} className="rounded-none">

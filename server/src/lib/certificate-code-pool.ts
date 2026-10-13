@@ -49,6 +49,11 @@ export async function claimCertificateCode(
     await tx.certificateCode.update({
       where: { id },
       data: {
+        // Pool kode awal diisi dari sheet kelas pertama — selalu samakan kelas/mentornya
+        // dengan kelas yang sedang menerbitkan sertifikat, supaya kelas lain tidak
+        // tercatat dengan judul kelas pertama.
+        course_title: data.courseTitle,
+        instructor_name: data.instructorName,
         recipient_name: data.recipientName,
         recipient_email: data.recipientEmail,
         recipient_phone: data.recipientPhone,

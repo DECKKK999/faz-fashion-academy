@@ -19,6 +19,7 @@ import { bankAccountsRouter } from "./routes/bankAccounts.js";
 import { playerRouter } from "./routes/player.js";
 import { certificatesRouter, adminCertificatesRouter } from "./routes/certificates.js";
 import { quizRouter, adminQuizRouter } from "./routes/quiz.js";
+import { assignmentRouter, adminAssignmentRouter } from "./routes/assignment.js";
 import { reviewsRouter, adminReviewsRouter } from "./routes/reviews.js";
 import { couponsRouter, adminCouponsRouter } from "./routes/coupons.js";
 import { accountRouter } from "./routes/account.js";
@@ -71,6 +72,7 @@ app.use("/api/wishlist", wishlistRouter);
 app.use("/api/coupons", couponsRouter);
 app.use("/api/certificates", certificatesRouter);
 app.use("/api/quizzes", quizRouter);
+app.use("/api/assignments", assignmentRouter);
 app.use("/api/payment-gateway", gatewayRouter);
 app.use("/api/enrollments", enrollmentsRouter);
 // admin
@@ -80,6 +82,7 @@ app.use("/api/admin/reviews", adminReviewsRouter);
 app.use("/api/admin/coupons", adminCouponsRouter);
 app.use("/api/admin/certificates", adminCertificatesRouter);
 app.use("/api/admin/quizzes", adminQuizRouter);
+app.use("/api/admin/assignments", adminAssignmentRouter);
 app.use("/api/admin/email", adminEmailRouter);
 app.use("/api/admin/payment-gateway", adminGatewayRouter);
 

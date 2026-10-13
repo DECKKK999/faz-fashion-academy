@@ -67,6 +67,27 @@ if (!existsSync(PROTECTED_DIR)) {
   mkdirSync(PROTECTED_DIR, { recursive: true });
 }
 
+// Hasil Tugas Akhir peserta — juga di direktori PRIVAT (karya peserta tidak boleh
+// terbuka untuk umum). Hanya pemilik dan pengelola yang bisa mengunduh lewat
+// /api/assignments/submissions/:id/file.
+export const ASSIGNMENT_MAX_BYTES = 15 * 1024 * 1024; // 15 MB
+export const ASSIGNMENT_MIME_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
+export const uploadAssignmentFile = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, PROTECTED_DIR),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, "") || ".bin";
+      cb(null, `assignment-${req.user?.id ?? "user"}-${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: ASSIGNMENT_MAX_BYTES, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    if (ASSIGNMENT_MIME_TYPES.includes(file.mimetype)) cb(null, true);
+    else cb(new Error("Format file tidak didukung (gunakan PDF, JPG, PNG, atau WebP)"));
+  },
+});
+
 export const uploadEbookFile = multer({
   storage: multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, PROTECTED_DIR),

@@ -229,6 +229,7 @@ export type PlayerCourse = {
   progress_pct: number;
   resume_lesson_id: string | null;
   quiz: PlayerQuizSummary | null;
+  assignment: PlayerAssignmentSummary | null;
 };
 export type PlayerQuizSummary = {
   id: string;
@@ -257,6 +258,13 @@ export type LessonPreview = {
   };
   other_previews: { id: string; title: string; duration_minutes: number | null }[];
   access: { authenticated: boolean; enrolled: boolean };
+};
+export type PlayerAssignmentSummary = {
+  id: string;
+  title: string;
+  unlocked: boolean;
+  submitted: boolean;
+  submitted_at: string | null;
 };
 export type LessonProgressResult = { lesson_id: string; completed: boolean; completed_at: string | null; progress_pct: number; completed_count: number; total_lessons: number; course_completed: boolean };
 export type CourseProgress = { completed_count: number; total_lessons: number; progress_pct: number; completed_at: string | null };
@@ -316,6 +324,37 @@ export type AdminQuiz = {
 };
 export type AdminQuizAttempt = QuizAttempt & {
   user: { id: string; email: string; profile: { full_name: string | null } | null };
+};
+
+// ===== Tugas Akhir =====
+export type AssignmentSubmission = {
+  id: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  note: string | null;
+  submitted_at: string;
+  updated_at: string;
+};
+export type AssignmentState = {
+  course: { id: string; slug: string; title: string };
+  access: { enrolled: boolean; can_manage: boolean };
+  lessons: { total: number; completed: number; all_done: boolean };
+  assignment: { id: string; title: string; description: string | null } | null;
+  unlocked: boolean;
+  submission: AssignmentSubmission | null;
+  max_file_mb: number;
+};
+export type AdminAssignment = {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string | null;
+  is_published: boolean;
+  _count: { submissions: number };
+};
+export type AdminAssignmentSubmission = AssignmentSubmission & {
+  user: { id: string; email: string; profile: { full_name: string | null; phone: string | null } | null };
 };
 
 // ===== Certificates =====

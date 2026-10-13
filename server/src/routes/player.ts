@@ -122,6 +122,36 @@ async function buildPayload(course: NonNullable<CourseRecord>, userId: string | 
     };
   }
 
+  // Ringkasan Tugas Akhir kelas (kalau ada) untuk kartu di sidebar player.
+  const assignmentRecord = await prisma.assignment.findUnique({
+    where: { course_id: course.id },
+    select: { id: true, title: true, is_published: true },
+  });
+
+  let assignment: {
+    id: string;
+    title: string;
+    unlocked: boolean;
+    submitted: boolean;
+    submitted_at: Date | null;
+  } | null = null;
+
+  if (assignmentRecord && (assignmentRecord.is_published || canManage)) {
+    const submission = userId
+      ? await prisma.assignmentSubmission.findUnique({
+          where: { assignment_id_user_id: { assignment_id: assignmentRecord.id, user_id: userId } },
+          select: { submitted_at: true },
+        })
+      : null;
+    assignment = {
+      id: assignmentRecord.id,
+      title: assignmentRecord.title,
+      unlocked: canManage || (enrolled && all_lessons_done),
+      submitted: !!submission,
+      submitted_at: submission?.submitted_at ?? null,
+    };
+  }
+
   // resume_lesson_id: lesson accessible pertama yang belum selesai; fallback lesson accessible pertama
   let resume_lesson_id: string | null = null;
   for (const m of modules) {
@@ -153,6 +183,7 @@ async function buildPayload(course: NonNullable<CourseRecord>, userId: string | 
       progress_pct,
       resume_lesson_id,
       quiz,
+      assignment,
     };
   }
 }

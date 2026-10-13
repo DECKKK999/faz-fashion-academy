@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Lock, RotateCcw, Loader2, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Lock, RotateCcw, Loader2, ClipboardCheck, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GrainOverlay from "@/components/landing/GrainOverlay";
 import LessonList from "@/components/player/LessonList";
 import CourseProgressBar from "@/components/player/CourseProgressBar";
-import { api, ApiError, type PlayerCourse, type PlayerLesson, type PlayerQuizSummary, type LessonProgressResult } from "@/lib/api";
+import {
+  api,
+  ApiError,
+  type PlayerCourse,
+  type PlayerLesson,
+  type PlayerQuizSummary,
+  type PlayerAssignmentSummary,
+  type LessonProgressResult,
+} from "@/lib/api";
 import { toast } from "sonner";
 
 // Parse YouTube id dari youtu.be/ID, watch?v=ID, /embed/ID, /shorts/ID
@@ -126,15 +134,22 @@ const CoursePlayer = () => {
           r.course_completed
             ? data?.quiz
               ? "Semua pelajaran selesai — Final Quiz sudah terbuka."
-              : "Selamat! Kelas selesai."
+              : data?.assignment
+                ? `Semua pelajaran selesai — ${data.assignment.title} sudah terbuka.`
+                : "Selamat! Kelas selesai."
             : "Pelajaran ditandai selesai"
         );
         if (next && !next.locked) selectLesson(next);
       } else {
         toast.success("Tanda selesai dibatalkan");
       }
-      // Status kunci Final Quiz ikut berubah saat kelas selesai / dibatalkan.
-      if (data?.quiz && data.quiz.unlocked !== r.course_completed) await load();
+      // Status kunci Final Quiz / Tugas Akhir ikut berubah saat kelas selesai / dibatalkan.
+      if (
+        (data?.quiz && data.quiz.unlocked !== r.course_completed) ||
+        (data?.assignment && data.assignment.unlocked !== r.course_completed)
+      ) {
+        await load();
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal memperbarui progres");
     } finally {
@@ -173,6 +188,7 @@ const CoursePlayer = () => {
       <CourseProgressBar completed={data.completed_count} total={data.total_lessons} pct={data.progress_pct} />
       <LessonList modules={data.modules} activeLessonId={activeId} onSelect={selectLesson} />
       {data.quiz && <QuizCard quiz={data.quiz} courseSlug={data.course.slug} />}
+      {data.assignment && <AssignmentCard assignment={data.assignment} courseSlug={data.course.slug} />}
     </div>
   );
 
@@ -317,6 +333,40 @@ const QuizCard = ({ quiz, courseSlug }: { quiz: PlayerQuizSummary; courseSlug: s
           <Link to={`/belajar/${courseSlug}/quiz`}>
             {quiz.passed ? "Lihat Hasil" : quiz.best_score !== null ? "Ulangi Kuis" : "Kerjakan Kuis"}
           </Link>
+        )}
+      </Button>
+    </div>
+  );
+};
+
+// Kartu Tugas Akhir di sidebar: terkunci sampai semua pelajaran selesai.
+const AssignmentCard = ({ assignment, courseSlug }: { assignment: PlayerAssignmentSummary; courseSlug: string }) => {
+  const locked = !assignment.unlocked;
+  return (
+    <div className={`border rounded-lg p-4 ${assignment.submitted ? "border-accent/40 bg-accent/5" : "border-border"}`}>
+      <div className="flex items-center gap-2 mb-2">
+        {locked ? (
+          <Lock size={14} className="text-muted-foreground" />
+        ) : assignment.submitted ? (
+          <CheckCircle2 size={14} className="text-accent" />
+        ) : (
+          <FileUp size={14} className="text-foreground" />
+        )}
+        <span className="text-[11px] tracking-editorial uppercase text-muted-foreground">Tugas Akhir</span>
+      </div>
+      <p className="text-sm font-medium text-foreground mb-1">{assignment.title}</p>
+      <p className="text-xs text-muted-foreground mb-3">
+        {assignment.submitted
+          ? "Tugasmu sudah dikumpulkan. Sertifikat siap diterbitkan."
+          : locked
+            ? "Terbuka setelah semua pelajaran ditandai selesai."
+            : "Unggah hasil karyamu untuk membuka sertifikat."}
+      </p>
+      <Button asChild size="sm" variant={assignment.submitted ? "outline" : "default"} className="w-full" disabled={locked}>
+        {locked ? (
+          <span>Terkunci</span>
+        ) : (
+          <Link to={`/belajar/${courseSlug}/tugas`}>{assignment.submitted ? "Lihat / Kirim Ulang" : "Kumpulkan Tugas"}</Link>
         )}
       </Button>
     </div>
