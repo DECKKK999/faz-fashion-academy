@@ -237,6 +237,7 @@ certificatesRouter.post("/issue", requireAuth, async (req, res) => {
     quiz_score: certificate.quiz_score,
     issued_at: certificate.issued_at,
     revoked: certificate.revoked,
+    course_slug: course.slug,
   })
     .then((pdfBuffer) => {
       sendMailSafe({
@@ -284,6 +285,7 @@ certificatesRouter.get("/:id/download", requireAuth, async (req, res) => {
       quiz_score: true,
       issued_at: true,
       revoked: true,
+      course: { select: { slug: true } },
     },
   });
   if (!certificate) return res.status(404).json({ error: "Sertifikat tidak ditemukan" });
@@ -307,6 +309,7 @@ certificatesRouter.get("/:id/download", requireAuth, async (req, res) => {
         quiz_score: certificate.quiz_score,
         issued_at: certificate.issued_at,
         revoked: certificate.revoked,
+        course_slug: certificate.course?.slug,
       },
       res,
     );
@@ -331,9 +334,13 @@ async function findCertificateByNumber(certificateNumber: string) {
       issued_at: true,
       revoked: true,
       revoked_at: true,
+      course: { select: { slug: true } },
     },
   });
-  if (certificate) return { source: "auto" as const, issued: true, ...certificate };
+  if (certificate) {
+    const { course, ...rest } = certificate;
+    return { source: "auto" as const, issued: true, ...rest, course_slug: course?.slug ?? null };
+  }
 
   const code = await prisma.certificateCode.findUnique({ where: { code: certificateNumber } });
   if (!code) return null;
@@ -350,6 +357,7 @@ async function findCertificateByNumber(certificateNumber: string) {
     issued_at: code.issued_at,
     revoked: code.revoked,
     revoked_at: code.revoked_at,
+    course_slug: null as string | null,
   };
 }
 
@@ -400,6 +408,7 @@ certificatesRouter.get("/verify/:certificateNumber/download", async (req, res) =
         quiz_score: result.quiz_score,
         issued_at: result.issued_at,
         revoked: result.revoked,
+        course_slug: result.course_slug,
       },
       res,
     );

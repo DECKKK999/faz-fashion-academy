@@ -12,10 +12,22 @@ export type CertificatePdfData = {
   quiz_score?: number | null;
   issued_at: Date;
   revoked: boolean;
+  /** Slug kelas — memilih template sertifikat; kelas tanpa template khusus memakai template default. */
+  course_slug?: string | null;
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATE_PATH = join(__dirname, "../../src/assets/certificate-template.pdf");
+const ASSETS_DIR = join(__dirname, "../../src/assets");
+const DEFAULT_TEMPLATE = "certificate-template.pdf";
+// Template per kelas (slug -> file di src/assets). Semua template HARUS satu tata letak
+// (792 x 612 pt, posisi nama / nomor / tanggal sama) karena koordinat field dinamis di
+// bawah dipakai bersama. Untuk kelas baru: taruh PDF-nya di src/assets lalu daftarkan di sini.
+const COURSE_TEMPLATES: Record<string, string> = {
+  "style-look": "certificate-template-style-look.pdf",
+};
+function templatePathFor(courseSlug?: string | null): string {
+  return join(ASSETS_DIR, (courseSlug && COURSE_TEMPLATES[courseSlug]) || DEFAULT_TEMPLATE);
+}
 const FONT_REGULAR_PATH = join(__dirname, "../../src/assets/fonts/Inter-Regular.ttf");
 const FONT_BOLD_PATH = join(__dirname, "../../src/assets/fonts/Inter-Bold.ttf");
 
@@ -60,7 +72,7 @@ function formatIssuedDateLabel(d: Date): string {
  * response and to attach the certificate directly to the issuance email.
  */
 export async function generateCertificatePdfBuffer(data: CertificatePdfData): Promise<Buffer> {
-  const templateBytes = readFileSync(TEMPLATE_PATH);
+  const templateBytes = readFileSync(templatePathFor(data.course_slug));
   const pdfDoc = await PDFDocument.load(templateBytes);
   pdfDoc.registerFontkit(fontkit);
 
